@@ -10,25 +10,25 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      overflow-x: hidden;
+      font-family: Arial, sans-serif;
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background-color: #fff;
-      position: relative;
-      height: 100vh;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
 
-    /* HEADER */
+    main {
+      flex: 1;
+      position: relative;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     .header {
       position: absolute;
       top: 0;
@@ -69,21 +69,19 @@
       transform: scale(1.05);
     }
 
-    /* ÁREA PRETA COM LINHA DIAGONAL - AJUSTE RESPONSIVO */
     .black-section {
       position: absolute;
       top: 0;
       width: 100%;
-      height: 45vh; /* Reduzida para dar mais espaço ao footer */
+      height: 45vh;
       background-color: #000;
       clip-path: polygon(0 0, 100% 0, 100% 70%, 0% 85%);
       z-index: 0;
     }
 
-    /* BANNER - POSICIONAMENTO RESPONSIVO */
     .banner-container {
       position: absolute;
-      top: 35vh; /* Posicionado mais para cima */
+      top: 35vh;
       width: 100%;
       padding: 0 16px;
       z-index: 1;
@@ -95,14 +93,13 @@
       height: auto;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      max-height: 20vh; /* Reduzido para telas menores */
+      max-height: 20vh;
       object-fit: contain;
     }
 
-    /* IMAGENS - AJUSTE PARA NÃO CORTAR */
     .images-container {
       position: absolute;
-      top: 48vh; /* Posicionado mais para cima */
+      top: 48vh;
       width: 100%;
       display: flex;
       justify-content: center;
@@ -131,56 +128,49 @@
     .image-pair img {
       width: 100%;
       height: auto;
-      max-height: 25vh; /* Ajustado para telas menores */
+      max-height: 25vh;
       object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
-    /* FOOTER - ESPAÇO GARANTIDO */
     .site-footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
       background-color: #000;
       color: #fff;
-      padding: 15px 20px; /* Aumentado o padding */
+      padding: 15px 20px;
       z-index: 3;
-      min-height: 100px; /* Altura aumentada */
+      min-height: 100px;
     }
 
     .footer-content {
       display: flex;
       flex-direction: column;
-      gap: 8px; /* Aumentado o espaçamento */
+      gap: 8px;
     }
 
     .footer-line {
       display: flex;
       align-items: center;
-      gap: 10px; /* Aumentado o espaçamento */
+      gap: 10px;
     }
 
     .instagram-icon {
-      width: 20px; /* Aumentado o tamanho */
-      height: 20px; /* Aumentado o tamanho */
+      width: 20px;
+      height: 20px;
     }
 
     .footer-line a {
       color: #fff;
       text-decoration: none;
-      font-size: 16px; /* Aumentado o tamanho da fonte */
+      font-size: 16px;
     }
 
     .copyright {
-      font-size: 13px; /* Aumentado o tamanho da fonte */
-      margin-top: 6px; /* Aumentado o espaçamento */
+      font-size: 13px;
+      margin-top: 6px;
     }
 
-    /* MEDIA QUERIES PARA DIFERENTES TELAS */
     @media (min-height: 700px) {
-      /* Para telas maiores (computadores) */
       .black-section {
         height: 48vh;
       }
@@ -199,7 +189,6 @@
     }
 
     @media (max-width: 480px) and (max-height: 700px) {
-      /* Para celulares menores */
       .logo img {
         max-height: 90px;
       }
@@ -229,7 +218,6 @@
     }
 
     @media (max-width: 360px) {
-      /* Para celulares muito pequenos */
       .footer-line a {
         font-size: 13px;
       }
@@ -239,6 +227,45 @@
       .site-footer {
         min-height: 85px;
       }
+    }
+
+    /* Menu */
+    #overlayMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      color: white;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #overlayMenu.open {
+      display: flex;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    #overlayMenu nav a {
+      font-size: 24px;
+      color: white;
+      text-decoration: none;
+      margin: 10px 0;
+    }
+
+    #overlayMenu nav a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -255,35 +282,38 @@
     </nav>
   </div>
 
-  <!-- Header com menu e logo -->
-  <header class="header">
-    <div class="header-top">
-      <div class="menu-icon">&#9776;</div>
-    </div>
-    <div class="logo">
-      <img src="logo.webp" alt="Miss Fit Beachwear">
-    </div>
-  </header>
+  <!-- Conteúdo principal -->
+  <main>
+    <!-- Header com menu e logo -->
+    <header class="header">
+      <div class="header-top">
+        <div class="menu-icon">&#9776;</div>
+      </div>
+      <div class="logo">
+        <img src="logo.webp" alt="Miss Fit Beachwear">
+      </div>
+    </header>
 
-  <!-- Área preta com linha diagonal -->
-  <div class="black-section"></div>
+    <!-- Área preta com linha diagonal -->
+    <div class="black-section"></div>
 
-  <!-- Banner -->
-  <div class="banner-container">
-    <img src="banner.webp" alt="Banner">
-  </div>
-
-  <!-- Imagens emparelhadas -->
-  <div class="images-container">
-    <div class="image-pair">
-      <a href="https://divasbijouxshoes.netlify.app/" target="_blank">
-        <img src="foto1.webp" alt="Foto 1">
-      </a>
-      <a href="https://missfitbeachwear.netlify.app/" target="_blank">
-        <img src="foto2.webp" alt="Foto 2">
-      </a>
+    <!-- Banner -->
+    <div class="banner-container">
+      <img src="banner.webp" alt="Banner">
     </div>
-  </div>
+
+    <!-- Imagens emparelhadas -->
+    <div class="images-container">
+      <div class="image-pair">
+        <a href="https://divasbijouxshoes.netlify.app/" target="_blank">
+          <img src="foto1.webp" alt="Foto 1">
+        </a>
+        <a href="https://missfitbeachwear.netlify.app/" target="_blank">
+          <img src="foto2.webp" alt="Foto 2">
+        </a>
+      </div>
+    </div>
+  </main>
 
   <!-- Footer -->
   <footer class="site-footer">
@@ -304,54 +334,10 @@
     </div>
   </footer>
 
-  <!-- JavaScript com ajustes dinâmicos -->
   <script>
     const overlay = document.getElementById('overlayMenu');
     const body = document.body;
 
-    // Função para ajustar o layout dinamicamente
-    function adjustLayout() {
-      const windowHeight = window.innerHeight;
-      const windowWidth = window.innerWidth;
-      const footer = document.querySelector('.site-footer');
-      const images = document.querySelectorAll('.image-pair img');
-      
-      // Ajusta as alturas baseado na viewport
-      if (windowHeight < 600) {
-        // Para telas muito curtas (como Redmi 12)
-        document.querySelector('.black-section').style.height = '40vh';
-        document.querySelector('.banner-container').style.top = '30vh';
-        document.querySelector('.images-container').style.top = '42vh';
-        
-        images.forEach(img => {
-          img.style.maxHeight = '20vh';
-        });
-        
-        footer.style.minHeight = '85px';
-      } else {
-        // Reset para tamanhos normais
-        document.querySelector('.black-section').style.height = '';
-        document.querySelector('.banner-container').style.top = '';
-        document.querySelector('.images-container').style.top = '';
-        
-        images.forEach(img => {
-          img.style.maxHeight = '';
-        });
-        
-        footer.style.minHeight = '';
-      }
-      
-      // Garante que o footer não cubra o conteúdo
-      const contentHeight = document.querySelector('.images-container').getBoundingClientRect().bottom;
-      const footerHeight = footer.offsetHeight;
-      
-      if (contentHeight + footerHeight > windowHeight) {
-        const adjustValue = (contentHeight + footerHeight) - windowHeight;
-        document.querySelector('.images-container').style.top = `calc(48vh - ${adjustValue}px)`;
-      }
-    }
-
-    // Menu functions
     document.querySelector('.menu-icon').addEventListener('click', () => {
       overlay.classList.add('open');
       body.style.overflow = 'hidden';
@@ -382,16 +368,6 @@
         overlay.classList.remove('open');
         body.style.overflow = '';
       }
-    });
-
-    // Inicialização e listeners
-    window.addEventListener('load', () => {
-      adjustLayout();
-      setTimeout(adjustLayout, 100); // Ajuste adicional após carregamento
-    });
-    window.addEventListener('resize', adjustLayout);
-    window.addEventListener('orientationchange', () => {
-      setTimeout(adjustLayout, 300); // Ajuste após rotação
     });
   </script>
 </body>
