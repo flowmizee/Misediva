@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden; /* Evita rolagem */
+      overflow: hidden;
     }
 
     * {
@@ -21,10 +21,11 @@
 
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #000 45%, #fff 55%);
+      background-color: #fff;
+      position: relative;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
     /* HEADER */
@@ -37,7 +38,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 16px;
+      padding-top: 10px;
     }
 
     .header-top {
@@ -55,11 +56,11 @@
     }
 
     .logo {
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .logo img {
-      max-height: 150px;
+      max-height: 120px;
       width: auto;
       transition: transform 0.3s ease;
     }
@@ -68,14 +69,25 @@
       transform: scale(1.05);
     }
 
-    /* BANNER */
+    /* ÁREA PRETA COM LINHA DIAGONAL (AJUSTADA PARA FICAR MAIS PARA CIMA) */
+    .black-section {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 50vh; /* Reduzida para deixar mais área branca */
+      background-color: #000;
+      clip-path: polygon(0 0, 100% 0, 100% 65%, 0% 80%); /* Ajuste na inclinação */
+      z-index: 0;
+    }
+
+    /* BANNER (AJUSTADO PARA FICAR MAIS PARA CIMA) */
     .banner-container {
       position: absolute;
-      top: 38%;
-      left: 0;
-      right: 0;
+      top: 40vh; /* Movido para cima */
+      width: 100%;
       padding: 0 16px;
       z-index: 1;
+      transform: translateY(-50%);
     }
 
     .banner-container img {
@@ -83,17 +95,19 @@
       height: auto;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      max-height: 25vh; /* Reduzido para acomodar melhor */
+      object-fit: contain;
     }
 
-    /* IMAGENS */
+    /* IMAGENS (AJUSTADAS PARA NÃO CORTAR) */
     .images-container {
       position: absolute;
-      bottom: 50px;
+      top: 55vh; /* Posicionado mais para cima */
       width: 100%;
       display: flex;
       justify-content: center;
       padding: 0 16px;
-      background-color: #fff;
+      z-index: 2;
     }
 
     .image-pair {
@@ -117,6 +131,8 @@
     .image-pair img {
       width: 100%;
       height: auto;
+      max-height: 30vh; /* Aumentado para mostrar mais da imagem */
+      object-fit: contain; /* Alterado para 'contain' para evitar cortes */
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
@@ -174,12 +190,62 @@
     .site-footer {
       position: absolute;
       bottom: 0;
-      width: 100%;
+      left: 0;
+      right: 0;
       background-color: #000;
       color: #fff;
-      padding: 10px;
-      text-align: center;
-      font-size: 14px;
+      padding: 15px 20px;
+      z-index: 3;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .instagram-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .footer-line a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .copyright {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .logo img {
+        max-height: 100px;
+      }
+      
+      .black-section {
+        height: 45vh;
+        clip-path: polygon(0 0, 100% 0, 100% 70%, 0% 85%);
+      }
+      
+      .banner-container {
+        top: 35vh;
+      }
+      
+      .images-container {
+        top: 50vh;
+      }
+      
+      .image-pair img {
+        max-height: 25vh;
+      }
     }
   </style>
 </head>
@@ -206,6 +272,9 @@
     </div>
   </header>
 
+  <!-- Área preta com linha diagonal -->
+  <div class="black-section"></div>
+
   <!-- Banner -->
   <div class="banner-container">
     <img src="banner.webp" alt="Banner">
@@ -225,26 +294,37 @@
 
   <!-- Footer -->
   <footer class="site-footer">
-    <p>© Flowmize – 2025. Todos os direitos reservados.</p>
+    <div class="footer-content">
+      <div class="footer-line">
+        <img src="instagramicon.png" alt="Instagram" class="instagram-icon">
+        <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank">Instagram</a>
+      </div>
+      <div class="footer-line">
+        <a href="https://wa.me/5598992124926" target="_blank">5598992124926</a>
+      </div>
+      <div class="footer-line">
+        <a href="tel:5598992124926">98992124926</a>
+      </div>
+      <div class="copyright">
+        © Flowmize – 2025. Todos os direitos reservados.
+      </div>
+    </div>
   </footer>
 
   <!-- JavaScript -->
   <script>
     const overlay = document.getElementById('overlayMenu');
 
-    // Abrir menu
     document.querySelector('.menu-icon').addEventListener('click', () => {
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     });
 
-    // Fechar menu
     overlay.querySelector('.close-btn').addEventListener('click', () => {
       overlay.classList.remove('open');
       document.body.style.overflow = '';
     });
 
-    // Fechar ao clicar em link (exceto externos)
     document.querySelectorAll('#overlayMenu nav a').forEach(link => {
       if (!link.target || link.target !== '_blank') {
         link.addEventListener('click', () => {
@@ -254,20 +334,36 @@
       }
     });
 
-    // Link Home sem recarregar
     document.getElementById('homeLink').addEventListener('click', (e) => {
       e.preventDefault();
       overlay.classList.remove('open');
       document.body.style.overflow = '';
     });
 
-    // ESC fecha menu
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && overlay.classList.contains('open')) {
         overlay.classList.remove('open');
         document.body.style.overflow = '';
       }
     });
+
+    // Ajuste inicial para garantir que tudo caiba na tela
+    function adjustLayout() {
+      const availableHeight = window.innerHeight;
+      const footerHeight = document.querySelector('.site-footer').offsetHeight;
+      const headerHeight = document.querySelector('.header').offsetHeight;
+      
+      // Calcula a altura disponível para as imagens
+      const maxImageHeight = availableHeight * 0.35;
+      
+      // Ajusta as alturas dos elementos
+      document.querySelectorAll('.image-pair img').forEach(img => {
+        img.style.maxHeight = `${maxImageHeight}px`;
+      });
+    }
+
+    window.addEventListener('load', adjustLayout);
+    window.addEventListener('resize', adjustLayout);
   </script>
 </body>
 </html>
