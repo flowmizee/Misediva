@@ -12,6 +12,7 @@
       height: 100%;
       overflow-x: hidden;
       font-family: Arial, sans-serif;
+      background-color: #fff;
     }
 
     body {
@@ -60,7 +61,7 @@
     }
 
     .logo img {
-      max-height: 120px;
+      max-height: 150px;
       width: auto;
       transition: transform 0.3s ease;
     }
@@ -70,47 +71,55 @@
     }
 
     .black-section {
-      position: absolute;
-      top: 0;
+      position: relative;
       width: 100%;
-      height: 45vh;
+      height: 30vh;
       background-color: #000;
-      clip-path: polygon(0 0, 100% 0, 100% 70%, 0% 85%);
       z-index: 0;
     }
 
     .banner-container {
-      position: absolute;
-      top: 35vh;
+      position: relative;
       width: 100%;
-      padding: 0 16px;
+      height: 30vh;
+      overflow: hidden;
       z-index: 1;
-      transform: translateY(-50%);
+      background-color: #fff;
+      margin-top: -8vh;
     }
 
-    .banner-container img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      max-height: 20vh;
-      object-fit: contain;
+    .banner-track {
+      display: flex;
+      height: 100%;
+      animation: scrollBanner 20s linear infinite;
+    }
+
+    .banner-track img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    @keyframes scrollBanner {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
 
     .images-container {
-      position: absolute;
-      top: 48vh;
+      position: relative;
       width: 100%;
       display: flex;
       justify-content: center;
-      padding: 0 16px;
+      padding: 20px 10px;
+      background-color: #fff;
       z-index: 2;
     }
 
     .image-pair {
       display: flex;
       gap: 16px;
-      max-width: 800px;
+      max-width: 900px;
       width: 100%;
       justify-content: center;
     }
@@ -128,108 +137,63 @@
     .image-pair img {
       width: 100%;
       height: auto;
-      max-height: 25vh;
+      max-height: 45vh;
       object-fit: contain;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
     }
 
     .site-footer {
       background-color: #000;
       color: #fff;
-      padding: 15px 20px;
+      padding: 20px;
       z-index: 3;
-      min-height: 100px;
-    }
-
-    .footer-content {
+      min-height: 60px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .footer-line {
-      display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 10px;
-    }
-
-    .instagram-icon {
-      width: 20px;
-      height: 20px;
-    }
-
-    .footer-line a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 16px;
     }
 
     .copyright {
-      font-size: 13px;
-      margin-top: 6px;
+      font-size: 18px;
+      text-align: center;
     }
 
-    @media (min-height: 700px) {
-      .black-section {
-        height: 48vh;
-      }
-      .banner-container {
-        top: 38vh;
-      }
-      .images-container {
-        top: 52vh;
-      }
-      .banner-container img {
-        max-height: 22vh;
-      }
-      .image-pair img {
-        max-height: 28vh;
-      }
-    }
-
-    @media (max-width: 480px) and (max-height: 700px) {
+    @media (max-width: 480px) {
       .logo img {
-        max-height: 90px;
+        max-height: 120px;
       }
-      .black-section {
-        height: 42vh;
-        clip-path: polygon(0 0, 100% 0, 100% 75%, 0% 90%);
-      }
+
       .banner-container {
-        top: 32vh;
+        height: 25vh;
+        margin-top: -6vh;
       }
+
       .images-container {
-        top: 45vh;
+        padding: 15px 5px;
       }
+
       .image-pair img {
-        max-height: 22vh;
+        max-height: 40vh;
       }
+
       .site-footer {
-        padding: 12px 15px;
-        min-height: 90px;
+        padding: 15px;
       }
-      .footer-line a {
-        font-size: 14px;
-      }
+
       .copyright {
-        font-size: 11px;
+        font-size: 16px;
       }
     }
 
     @media (max-width: 360px) {
-      .footer-line a {
-        font-size: 13px;
-      }
       .copyright {
-        font-size: 10px;
-      }
-      .site-footer {
-        min-height: 85px;
+        font-size: 14px;
       }
     }
 
-    /* Menu */
+    /* Menu - Ajustado para ficar igual ao novo código */
     #overlayMenu {
       position: fixed;
       top: 0;
@@ -262,15 +226,17 @@
       color: white;
       text-decoration: none;
       margin: 10px 0;
+      transition: color 0.3s ease;
     }
 
     #overlayMenu nav a:hover {
-      text-decoration: underline;
+      color: #ccc;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <!-- Menu Overlay -->
+  <!-- Menu Overlay - Ajustado para ficar igual ao novo código -->
   <div id="overlayMenu">
     <div class="close-btn">&times;</div>
     <nav>
@@ -282,9 +248,8 @@
     </nav>
   </div>
 
-  <!-- Conteúdo principal -->
   <main>
-    <!-- Header com menu e logo -->
+    <!-- Header -->
     <header class="header">
       <div class="header-top">
         <div class="menu-icon">&#9776;</div>
@@ -294,15 +259,19 @@
       </div>
     </header>
 
-    <!-- Área preta com linha diagonal -->
+    <!-- Área preta -->
     <div class="black-section"></div>
 
-    <!-- Banner -->
+    <!-- Banner em loop -->
     <div class="banner-container">
-      <img src="banner.webp" alt="Banner">
+      <div class="banner-track">
+        <img src="banner.webp" alt="Banner 1">
+        <img src="banner.webp" alt="Banner 2">
+        <img src="banner.webp" alt="Banner 3">
+      </div>
     </div>
 
-    <!-- Imagens emparelhadas -->
+    <!-- Imagens principais -->
     <div class="images-container">
       <div class="image-pair">
         <a href="https://divasbijouxshoes.netlify.app/" target="_blank">
@@ -315,26 +284,15 @@
     </div>
   </main>
 
-  <!-- Footer -->
+  <!-- Footer simplificado -->
   <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-line">
-        <img src="instagramicon.png" alt="Instagram" class="instagram-icon">
-        <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank">Instagram</a>
-      </div>
-      <div class="footer-line">
-        <a href="https://wa.me/5598992124926" target="_blank">5598992124926</a>
-      </div>
-      <div class="footer-line">
-        <a href="tel:5598992124926">98992124926</a>
-      </div>
-      <div class="copyright">
-        © Flowmize – 2025. Todos os direitos reservados.
-      </div>
+    <div class="copyright">
+      © Flowmize – 2025. Todos os direitos reservados.
     </div>
   </footer>
 
   <script>
+    // JavaScript ajustado para ficar igual ao novo código
     const overlay = document.getElementById('overlayMenu');
     const body = document.body;
 
