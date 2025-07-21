@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Miss Fit Beachwear</title>
+  <link rel="icon" type="image/png" href="miss.png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(to bottom, #000 45%, #fff 55%);
+    }
+
+    /* HEADER */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 16px;
+    }
+
+    .header-top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .menu-icon {
+      font-size: 28px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .logo {
+      margin-top: 20px;
+    }
+
+    .logo img {
+      max-height: 150px; /* Aumentada */
+      width: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+
+    /* BANNER */
+    .banner-container {
+      position: absolute;
+      top: 45%;
+      transform: translateY(-50%);
+      width: 100%;
+      padding: 0 16px;
+      z-index: 1;
+    }
+    .banner-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* IMAGENS */
+    .images-container {
+      position: absolute;
+      top: 55%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+      background-color: #fff;
+    }
+    .image-pair {
+      display: flex;
+      gap: 16px;
+      max-width: 800px;
+      width: 100%;
+      justify-content: center;
+    }
+    .image-pair a {
+      display: inline-block;
+      width: calc(50% - 8px);
+      transition: transform 0.2s ease;
+    }
+
+    .image-pair a:hover {
+      transform: scale(1.05);
+    }
+
+    .image-pair img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* MENU OVERLAY */
+    #overlayMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 2000;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #overlayMenu.open {
+      transform: translateX(0);
+    }
+
+    #overlayMenu .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 32px;
+      cursor: pointer;
+    }
+
+    #overlayMenu nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    #overlayMenu nav a {
+      font-size: 20px;
+      color: #000;
+      text-decoration: none;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      transition: all 0.3s ease;
+    }
+
+    #overlayMenu nav a:hover {
+      color: #000;
+      padding-left: 8px;
+    }
+
+    /* FOOTER */
+    .site-footer {
+      background-color: #000;
+      color: #fff;
+      padding: 16px;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .site-footer p {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu Overlay -->
+  <div id="overlayMenu">
+    <div class="close-btn">&times;</div>
+    <nav>
+      <a href="#" id="homeLink">Home</a>
+      <a href="https://divasbijouxshoes.netlify.app/" target="_blank">Divasbijouxshoes</a>
+      <a href="https://missfitbeachwear.netlify.app/" target="_blank">Miss Fit Beachwear</a>
+      <a href="sobre.html">Sobre Nós</a>
+      <a href="contato.html">Contato</a>
+    </nav>
+  </div>
+
+  <!-- Header com menu e logo -->
+  <header class="header">
+    <div class="header-top">
+      <div class="menu-icon">&#9776;</div>
+    </div>
+    <div class="logo">
+      <img src="logo.webp" alt="Miss Fit Beachwear">
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <div class="banner-container">
+    <img src="banner.webp" alt="Banner">
+  </div>
+
+  <!-- Imagens emparelhadas -->
+  <div class="images-container">
+    <div class="image-pair">
+      <a href="https://divasbijouxshoes.netlify.app/" target="_blank">
+        <img src="foto1.webp" alt="Foto 1">
+      </a>
+      <a href="https://missfitbeachwear.netlify.app/" target="_blank">
+        <img src="foto2.webp" alt="Foto 2">
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>© Flowmize – 2025. Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    const overlay = document.getElementById('overlayMenu');
+
+    // Abrir menu
+    document.querySelector('.menu-icon').addEventListener('click', () => {
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Fechar menu
+    overlay.querySelector('.close-btn').addEventListener('click', () => {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+
+    // Fechar ao clicar em link (exceto externos)
+    document.querySelectorAll('#overlayMenu nav a').forEach(link => {
+      if (!link.target || link.target !== '_blank') {
+        link.addEventListener('click', () => {
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+        });
+      }
+    });
+
+    // Link Home sem recarregar
+    document.getElementById('homeLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+
+    // ESC fecha menu
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  </script>
+</body>
+</html>
