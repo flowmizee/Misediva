@@ -74,7 +74,7 @@
       position: absolute;
       top: 0;
       width: 100%;
-      height: 48vh; /* Reduzida para dispositivos menores */
+      height: 45vh; /* Reduzida para dar mais espaço ao footer */
       background-color: #000;
       clip-path: polygon(0 0, 100% 0, 100% 70%, 0% 85%);
       z-index: 0;
@@ -83,7 +83,7 @@
     /* BANNER - POSICIONAMENTO RESPONSIVO */
     .banner-container {
       position: absolute;
-      top: 38vh; /* Posicionado mais para cima */
+      top: 35vh; /* Posicionado mais para cima */
       width: 100%;
       padding: 0 16px;
       z-index: 1;
@@ -95,14 +95,14 @@
       height: auto;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      max-height: 22vh; /* Reduzido para telas menores */
+      max-height: 20vh; /* Reduzido para telas menores */
       object-fit: contain;
     }
 
     /* IMAGENS - AJUSTE PARA NÃO CORTAR */
     .images-container {
       position: absolute;
-      top: 52vh; /* Posicionado mais para cima */
+      top: 48vh; /* Posicionado mais para cima */
       width: 100%;
       display: flex;
       justify-content: center;
@@ -131,7 +131,7 @@
     .image-pair img {
       width: 100%;
       height: auto;
-      max-height: 28vh; /* Ajustado para telas menores */
+      max-height: 25vh; /* Ajustado para telas menores */
       object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -145,56 +145,56 @@
       right: 0;
       background-color: #000;
       color: #fff;
-      padding: 12px 20px;
+      padding: 15px 20px; /* Aumentado o padding */
       z-index: 3;
-      min-height: 80px; /* Altura mínima garantida */
+      min-height: 100px; /* Altura aumentada */
     }
 
     .footer-content {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px; /* Aumentado o espaçamento */
     }
 
     .footer-line {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px; /* Aumentado o espaçamento */
     }
 
     .instagram-icon {
-      width: 18px;
-      height: 18px;
+      width: 20px; /* Aumentado o tamanho */
+      height: 20px; /* Aumentado o tamanho */
     }
 
     .footer-line a {
       color: #fff;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 16px; /* Aumentado o tamanho da fonte */
     }
 
     .copyright {
-      font-size: 11px;
-      margin-top: 4px;
+      font-size: 13px; /* Aumentado o tamanho da fonte */
+      margin-top: 6px; /* Aumentado o espaçamento */
     }
 
     /* MEDIA QUERIES PARA DIFERENTES TELAS */
     @media (min-height: 700px) {
       /* Para telas maiores (computadores) */
       .black-section {
-        height: 50vh;
+        height: 48vh;
       }
       .banner-container {
-        top: 40vh;
+        top: 38vh;
       }
       .images-container {
-        top: 55vh;
+        top: 52vh;
       }
       .banner-container img {
-        max-height: 25vh;
+        max-height: 22vh;
       }
       .image-pair img {
-        max-height: 30vh;
+        max-height: 28vh;
       }
     }
 
@@ -204,31 +204,40 @@
         max-height: 90px;
       }
       .black-section {
-        height: 45vh;
+        height: 42vh;
         clip-path: polygon(0 0, 100% 0, 100% 75%, 0% 90%);
       }
       .banner-container {
-        top: 35vh;
+        top: 32vh;
       }
       .images-container {
-        top: 48vh;
+        top: 45vh;
       }
       .image-pair img {
-        max-height: 24vh;
+        max-height: 22vh;
       }
       .site-footer {
-        padding: 10px 15px;
-        min-height: 70px;
+        padding: 12px 15px;
+        min-height: 90px;
+      }
+      .footer-line a {
+        font-size: 14px;
+      }
+      .copyright {
+        font-size: 11px;
       }
     }
 
     @media (max-width: 360px) {
       /* Para celulares muito pequenos */
       .footer-line a {
-        font-size: 12px;
+        font-size: 13px;
       }
       .copyright {
         font-size: 10px;
+      }
+      .site-footer {
+        min-height: 85px;
       }
     }
   </style>
@@ -310,16 +319,15 @@
       // Ajusta as alturas baseado na viewport
       if (windowHeight < 600) {
         // Para telas muito curtas (como Redmi 12)
-        document.querySelector('.black-section').style.height = '42vh';
-        document.querySelector('.banner-container').style.top = '32vh';
-        document.querySelector('.images-container').style.top = '44vh';
+        document.querySelector('.black-section').style.height = '40vh';
+        document.querySelector('.banner-container').style.top = '30vh';
+        document.querySelector('.images-container').style.top = '42vh';
         
         images.forEach(img => {
-          img.style.maxHeight = '22vh';
+          img.style.maxHeight = '20vh';
         });
         
-        footer.style.minHeight = '60px';
-        footer.style.padding = '8px 12px';
+        footer.style.minHeight = '85px';
       } else {
         // Reset para tamanhos normais
         document.querySelector('.black-section').style.height = '';
@@ -331,7 +339,6 @@
         });
         
         footer.style.minHeight = '';
-        footer.style.padding = '';
       }
       
       // Garante que o footer não cubra o conteúdo
@@ -340,7 +347,7 @@
       
       if (contentHeight + footerHeight > windowHeight) {
         const adjustValue = (contentHeight + footerHeight) - windowHeight;
-        document.querySelector('.images-container').style.top = `calc(52vh - ${adjustValue}px)`;
+        document.querySelector('.images-container').style.top = `calc(48vh - ${adjustValue}px)`;
       }
     }
 
