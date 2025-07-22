@@ -404,10 +404,10 @@
         const lines = csv.split('\n').slice(1);
         const bannerContainer = document.getElementById('banner-scroll');
 
-        // Limpa banners antigos
+        // Clear old banners
         allBanners = [];
         
-        // Processa apenas a primeira linha para banners
+        // Process only first line for banners
         if (lines.length > 0) {
           const firstLine = lines[0].split(',');
           if (firstLine[0]?.trim() && firstLine[0].trim() !== 'Banner 1') {
@@ -418,9 +418,9 @@
           }
         }
 
-        // Processa produtos (todas as linhas exceto cabeçalho)
+        // Process products (all lines except header)
         lines.forEach((line, index) => {
-          if (index === 0) return; // Pula cabeçalho
+          if (index === 0) return; // Skip header
           
           const cells = line.split(',');
           const productTag = cells[14]?.trim();
@@ -453,7 +453,7 @@
 
         bannerContainer.innerHTML = '';
 
-        // Renderiza banners corretamente
+        // Render banners correctly
         if (allBanners.length === 1) {
           bannerContainer.classList.add('single-banner');
           const img = document.createElement('img');
@@ -465,14 +465,14 @@
         } else if (allBanners.length === 2) {
           bannerContainer.classList.add('scrolling');
           
-          // Adiciona apenas os 2 banners (sem duplicar)
+          // Add only the 2 banners (without duplicating)
           allBanners.forEach(url => {
             const img = document.createElement('img');
             img.src = url;
             bannerContainer.appendChild(img);
           });
           
-          // Adiciona cópias para criar o efeito de loop contínuo
+          // Add copies to create continuous loop effect
           allBanners.forEach(url => {
             const img = document.createElement('img');
             img.src = url;
@@ -483,7 +483,7 @@
         renderProdutos(launchProdutos);
       })
       .catch(error => {
-        console.error('Erro ao carregar dados:', error);
+        console.error('Error loading data:', error);
       });
 
     function renderProdutos(list) {
@@ -493,7 +493,7 @@
       const validProducts = list.filter(p => p.nome && p.imagens && p.imagens.length > 0);
       
       if (validProducts.length === 0) {
-        cont.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Nenhum produto encontrado</div>';
+        cont.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">No products found</div>';
         return;
       }
       
@@ -586,10 +586,10 @@
 
     pathEl.addEventListener('click', resetToHomePage);
     
-    // Modificado para recarregar a página ao clicar no logo
-    logoImg.addEventListener('click', function(e) {
+    // Modified to reload page when clicking logo
+    document.querySelector('.logo').addEventListener('click', function(e) {
       e.preventDefault();
-      window.location.href = 'index.html';
+      window.location.href = 'miss-index.html';
     });
 
     searchInput.addEventListener('input', () => {
