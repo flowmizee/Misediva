@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Miss Fit Beachwear</title>
-  <link rel="icon" type="image/png" href="miss.png" />
-  <style>
+<html lang="pt-br">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />  
+  <title>Miss Fit Beachwear</title>  
+  <link rel="icon" type="image/png" href="miss.png" />  
+  <style>  
     html, body {
       margin: 0;
       padding: 0;
@@ -127,7 +127,7 @@
       width: calc(50% - 8px);
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
 
     .image-box img {
@@ -136,7 +136,6 @@
       max-height: 45vh;
       object-fit: cover;
       display: block;
-      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
     }
 
     .explore-button {
@@ -188,8 +187,9 @@
       color: white;
       display: none;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 80px 0 0 40px;
       z-index: 9999;
     }
 
@@ -203,6 +203,12 @@
       right: 30px;
       font-size: 30px;
       cursor: pointer;
+    }
+
+    #overlayMenu nav {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     #overlayMenu nav a {
@@ -245,72 +251,72 @@
         padding: 12px;
       }
     }
-  </style>
-</head>
-<body>
+  </style>  
+</head>  
+<body>  
 
-  <!-- Menu -->
-  <div id="overlayMenu">
-    <div class="close-btn">&times;</div>
-    <nav>
-      <a href="#" id="homeLink">Home</a>
-      <a href="https://divasbijouxshoes.netlify.app/" target="_blank">Divasbijouxshoes</a>
-      <a href="https://missfitbeachwear.netlify.app/" target="_blank">Miss Fit Beachwear</a>
-      <a href="sobre.html">Sobre Nós</a>
-      <a href="contato.html">Contato</a>
-    </nav>
-  </div>
+  <!-- Menu -->  
+  <div id="overlayMenu">  
+    <div class="close-btn">&times;</div>  
+    <nav>  
+      <a href="index.html" id="homeLink">Home</a>  
+      <a href="divas-index.html">Loja Divas</a>  
+      <a href="miss-index.html">Loja Miss Fit</a>  
+      <a href="sobre.html">Sobre Nós</a>  
+      <a href="contato.html">Contato</a>  
+    </nav>  
+  </div>  
 
-  <main>
-    <!-- Header -->
-    <header class="header">
-      <div class="header-top">
-        <div class="menu-icon">&#9776;</div>
-      </div>
-      <div class="logo">
-        <img src="logo.webp" alt="Miss Fit Beachwear">
-      </div>
-    </header>
+  <main>  
+    <!-- Header -->  
+    <header class="header">  
+      <div class="header-top">  
+        <div class="menu-icon">&#9776;</div>  
+      </div>  
+      <div class="logo">  
+        <img src="logo.webp" alt="Miss Fit Beachwear">  
+      </div>  
+    </header>  
 
-    <!-- Área preta -->
-    <div class="black-section"></div>
+    <!-- Área preta -->  
+    <div class="black-section"></div>  
 
-    <!-- Banner -->
-    <div class="banner-container">
-      <div class="banner-track">
-        <img src="banner.webp" alt="Banner 1">
-        <img src="banner.webp" alt="Banner 2">
-        <img src="banner.webp" alt="Banner 3">
-      </div>
-    </div>
+    <!-- Banner -->  
+    <div class="banner-container">  
+      <div class="banner-track">  
+        <img src="banner.webp" alt="Banner 1">  
+        <img src="banner.webp" alt="Banner 2">  
+        <img src="banner.webp" alt="Banner 3">  
+      </div>  
+    </div>  
 
-    <!-- Imagens com botões -->
-    <div class="images-container">
-      <div class="image-pair">
-        <div class="image-box">
-          <a href="https://divasbijouxshoes.netlify.app/" target="_blank">
-            <img src="foto1.webp" alt="Foto 1">
-          </a>
-          <a class="explore-button" href="https://divasbijouxshoes.netlify.app/" target="_blank">Explorar Coleção</a>
-        </div>
-        <div class="image-box">
-          <a href="https://missfitbeachwear.netlify.app/" target="_blank">
-            <img src="foto2.webp" alt="Foto 2">
-          </a>
-          <a class="explore-button" href="https://missfitbeachwear.netlify.app/" target="_blank">Explorar Coleção</a>
-        </div>
-      </div>
-    </div>
-  </main>
+    <!-- Imagens com botões -->  
+    <div class="images-container">  
+      <div class="image-pair">  
+        <div class="image-box">  
+          <a href="divas-index.html">  
+            <img src="foto1.webp" alt="Foto 1">  
+          </a>  
+          <a class="explore-button" href="divas-index.html">Explorar Coleção</a>  
+        </div>  
+        <div class="image-box">  
+          <a href="miss-index.html">  
+            <img src="foto2.webp" alt="Foto 2">  
+          </a>  
+          <a class="explore-button" href="miss-index.html">Explorar Coleção</a>  
+        </div>  
+      </div>  
+    </div>  
+  </main>  
 
-  <!-- Rodapé fixo -->
-  <footer class="site-footer">
-    © Flowmize – 2025. Todos os direitos reservados.
-  </footer>
+  <!-- Rodapé fixo -->  
+  <footer class="site-footer">  
+    © Flowmize – 2025. Todos os direitos reservados.  
+  </footer>  
 
-  <!-- JavaScript do menu -->
-  <script>
-    const overlay = document.getElementById('overlayMenu');
+  <!-- JavaScript do menu -->  
+  <script>  
+    const overlay = document.getElementById('overlayMenu');  
     const body = document.body;
 
     document.querySelector('.menu-icon').addEventListener('click', () => {
@@ -344,7 +350,6 @@
         body.style.overflow = '';
       }
     });
-  </script>
-
-</body>
+  </script>  
+</body>  
 </html>
