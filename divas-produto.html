@@ -24,7 +24,7 @@
     .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
     .bag-icon .cart-count {
       position: absolute; top: -4px; right: -8px;
-      background: #72202f; color: #fff; font-size: 12px;
+      background: #ff0000; color: #fff; font-size: 12px;
       padding: 2px 6px; border-radius: 12px; display: none;
     }
     .logo img { max-height: 80px; width: auto; cursor: pointer; }
@@ -35,7 +35,7 @@
       outline: none; font-size: 16px; background-color: #f2f2f2;
     }
     .search-button {
-      background-color: #72202f; border: none;
+      background-color: #ff69b4; border: none;
       padding: 0 16px; border-radius: 0 8px 8px 0;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
@@ -76,11 +76,11 @@
     .breadcrumb-list { font-size: 14px; color: #666; margin-bottom: 16px; } 
     .breadcrumb-list a { color: #007bff; text-decoration: none; } 
     .carousel img {
-      max-width: 100%;
-      height: 350px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
+  max-width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 8px;
+}
     .carousel img { width: 100%; border-radius: 8px; } 
     .badge { position: absolute; top: 8px; left: 8px; background: rgba(255,0,0,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; } 
     .counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 14px; } 
@@ -99,7 +99,7 @@
     .qty-controls { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; } 
     .qty-controls button { background: none; border: none; font-size: 18px; padding: 8px 12px; cursor: pointer; } 
     .qty-controls .qty { padding: 0 12px; font-size: 18px; min-width: 24px; text-align: center; } 
-    .buy-btn { flex: 1; background-color: #72202f; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; } 
+    .buy-btn { flex: 1; background-color: #ff69b4; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; } 
     .info-section { font-size: 14px; color: #555; margin-bottom: 4px; } 
     .descricao { font-size: 14px; color: #333; margin-top: 8px; line-height: 1.5; } 
     hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
@@ -179,9 +179,9 @@
       padding: 8px 0; 
     }
     
-    /* RODAPÉ VERMELHO */
+    /* RODAPÉ ROSA */
     .site-footer { 
-      background-color: #72202f;
+      background-color: #ff69b4;
       color: #fff;
       padding: 16px;
       margin-top: auto;
@@ -211,17 +211,17 @@
   <div id="overlayMenu">
     <div class="close-btn">&times;</div>
     <nav>
-      <a href="index.html">Início</a>
+      <a href="divas-index.html">Início</a>
       <a href="#" id="all-products-link">Produtos</a>
-      <a href="contato.html">Contato</a>
+      <a href="divas-contato.html">Contato</a>
     </nav>
   </div>
   
   <div class="nav-wrapper">
     <header class="header">
       <div class="menu-icon">&#9776;</div>
-      <a href="index.html" class="logo">
-        <img src="logo.webp" alt="Logo">
+      <a href="divas-index.html" class="logo">
+        <img src="logodivas.webp" alt="Logo">
       </a>
       <a href="carrinho.html" class="bag-icon" id="cart-icon">
         &#128717;
@@ -233,14 +233,16 @@
       <button class="search-button"><img src="lupa.webp" alt="Buscar" /></button>
     </div>
     <div id="cats" class="categories-container">
-      <div class="category">BIQUÍNIS</div>
+      <div class="category">BRINCOS</div>
+      <div class="category">ANÉIS</div>
+      <div class="category">BRACELETES</div>
+      <div class="category">COLARES</div>
       <div class="category">CONJUNTOS</div>
-      <div class="category">SAÍDAS</div>
-      <div class="category">ROUPAS FITNESS</div>
+      <div class="category">PULSEIRAS</div>
+      <div class="category">PERFUMES</div>
       <div class="category">BOLSAS</div>
-      <div class="category">MOCHILAS</div>
-      <div class="category">ACESSÓRIOS</div>
-      <div class="category">MODA CASUAL PRAIA</div>
+      <div class="category">CINTOS</div>
+      <div class="category">ÓCULOS</div>
     </div>
   </div>
   
@@ -263,7 +265,7 @@
     <div id="produtos" class="produtos-grid" style="display:none;"></div>
   </div>
   
-  <!-- RODAPÉ VERMELHO -->
+  <!-- RODAPÉ ROSA -->
   <footer class="site-footer">
     <div class="footer-item instagram">
       <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank" rel="noopener">
@@ -373,7 +375,7 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
         const extra = c[12]?.trim() || '';
         const parc = c[13]?.trim() || '';
     
-        let html = `<div class="breadcrumb-list"><a href="index.html">Início</a> &gt; ${nome}</div>`;
+        let html = `<div class="breadcrumb-list"><a href="divas-index.html">Início</a> &gt; ${nome}</div>`;
         html += `
           <div class="carousel">
             ${status?`<div class="badge">${status}</div>`:``}
@@ -627,7 +629,7 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
       
       // Se estiver na página de produto único, recarrega a página
       if (nomeProduto) {
-        window.location.href = 'index.html';
+        window.location.href = 'divas-index.html';
       }
     });
     
