@@ -76,11 +76,11 @@
     .breadcrumb-list { font-size: 14px; color: #666; margin-bottom: 16px; } 
     .breadcrumb-list a { color: #007bff; text-decoration: none; } 
     .carousel img {
-  max-width: 100%;
-  height: 350px;
-  object-fit: cover;
-  border-radius: 8px;
-}
+      max-width: 100%;
+      height: 350px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
     .carousel img { width: 100%; border-radius: 8px; } 
     .badge { position: absolute; top: 8px; left: 8px; background: rgba(255,0,0,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; } 
     .counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 14px; } 
@@ -213,6 +213,7 @@
     <nav>
       <a href="divas-index.html">Início</a>
       <a href="#" id="all-products-link">Produtos</a>
+      <a href="miss-index.html">MISS FIT BEACHWEAR</a>
       <a href="divas-contato.html">Contato</a>
     </nav>
   </div>
@@ -288,32 +289,33 @@
   </footer>
   
   <script>
-   // ––––––––––––––––––––––––––––––––––
-// Gerenciamento de carrinho no localStorage
-const CART_KEY = 'cartItems';
+    // ––––––––––––––––––––––––––––––––––
+    // Gerenciamento de carrinho no localStorage
+    const CART_KEY = 'cartItems';
 
-function getCartItems() {
-  try {
-    return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
+    function getCartItems() {
+      try {
+        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
 
-function setCartItems(items) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
-  renderCartCount();
-}
+    function setCartItems(items) {
+      localStorage.setItem(CART_KEY, JSON.stringify(items));
+      renderCartCount();
+    }
 
-function renderCartCount() {
-  const cartCountEl = document.getElementById('cart-count');
-  const totalQty = getCartItems().reduce((sum, item) => sum + item.quantidade, 0);
-  cartCountEl.textContent = totalQty;
-  cartCountEl.style.display = totalQty > 0 ? 'inline-block' : 'none';
-}
+    function renderCartCount() {
+      const cartCountEl = document.getElementById('cart-count');
+      const totalQty = getCartItems().reduce((sum, item) => sum + item.quantidade, 0);
+      cartCountEl.textContent = totalQty;
+      cartCountEl.style.display = totalQty > 0 ? 'inline-block' : 'none';
+    }
 
-document.addEventListener('DOMContentLoaded', renderCartCount);
-// ––––––––––––––––––––––––––––––––––
+    document.addEventListener('DOMContentLoaded', renderCartCount);
+    // ––––––––––––––––––––––––––––––––––
+    
     // OVERLAY MENU
     const overlay = document.getElementById('overlayMenu');
     document.querySelector('.menu-icon').onclick = () => overlay.classList.add('open');
@@ -487,8 +489,6 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
             });
           }
           setCartItems(items);
-
-          // **Não redirecionar aqui**; só atualiza o carrinho
         };
         
         break;
@@ -525,7 +525,10 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
       list.forEach(p => {
         const d = document.createElement('div');
         d.className = 'produto';
-        d.onclick = () => location.href = `produto.html?produto=${encodeURIComponent(p.nome)}`;
+        d.onclick = () => {
+          // Redireciona para divas-produto.html com o produto como parâmetro
+          window.location.href = `divas-produto.html?produto=${encodeURIComponent(p.nome)}`;
+        };
         d.innerHTML = `
           <img src="${p.imagens[0]||''}" alt="${p.nome}">
           <div class="nome">${p.nome}</div>
