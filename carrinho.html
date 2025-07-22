@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Carrinho</title>
+  <link rel="icon" type="image/png" href="divas.png">
+  <style>
+    /* ESTILOS EXISTENTES (mantidos iguais) */
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .nav-wrapper { position: sticky; top: 0; background: #fff; z-index: 1000; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
+    .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
+    .bag-icon .cart-count {
+      position: absolute; top: -4px; right: -8px;
+      background: #ff0000; color: #fff; font-size: 12px;
+      padding: 2px 6px; border-radius: 12px; display: none;
+    }
+    .logo img { max-height: 80px; width: auto; cursor: pointer; }
+    .back-icon img {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+    .cart-container { padding: 16px; flex: 1; }
+    .cart-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; }
+    
+    .cart-item { 
+      display: flex; 
+      gap: 16px; 
+      margin-bottom: 24px; 
+      padding-bottom: 16px; 
+      border-bottom: 1px solid #eee;
+      position: relative;
+    }
+    .remove-item {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      padding: 4px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .cart-item-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+    .cart-item-details { flex: 1; }
+    .cart-item-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; text-transform: capitalize; }
+    .cart-item-option { font-size: 14px; color: #666; margin-bottom: 8px; }
+    .cart-item-price { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+    .cart-item-qty { font-size: 14px; color: #555; }
+    .cart-item-subtotal { font-size: 16px; font-weight: bold; margin-top: 8px; }
+    .cart-summary { padding: 16px; border-top: 1px solid #eee; }
+    .cart-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 16px; }
+    .checkout-btn { width: 100%; background-color: #ff69b4; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 16px; }
+    .continue-shopping { display: block; text-align: center; color: #007bff; text-decoration: none; font-size: 14px; }
+    
+    .site-footer { 
+      background-color: #ff69b4;
+      color: #fff;
+      padding: 16px;
+      margin-top: auto;
+    }
+    .footer-item {
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .footer-item.instagram {
+      margin-bottom: 32px;
+    }
+    .footer-item.instagram img {
+      width: 20px;
+      height: auto;
+      display: block;
+    }
+    .footer-item a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* NOVOS ESTILOS DO MODAL */
+    .modal-backdrop {
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.4);
+      display: none; 
+      z-index: 50;
+    }
+    .modal-sheet {
+      position: fixed; 
+      bottom: -100%; 
+      left: 0; 
+      right: 0;
+      background: #fff; 
+      border-top-left-radius: 16px; 
+      border-top-right-radius: 16px;
+      max-height: 90vh; 
+      overflow-y: auto; 
+      padding: 24px;
+      transition: bottom .35s ease;
+      z-index: 51; 
+      width: 100%; 
+      max-width: 480px; 
+      margin: 0 auto;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+    }
+    .modal-sheet.open { 
+      bottom: 0; 
+    }
+    .modal-header { 
+      display: flex; 
+      justify-content: flex-end; 
+      margin-bottom: 20px;
+    }
+    .close-btn { 
+      font-size: 24px; 
+      background: none; 
+      border: none; 
+      cursor: pointer; 
+      color: #666;
+    }
+
+    /* FORMULÁRIO EM GRID */
+    #checkoutForm {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 16px;
+    }
+    #checkoutForm .full { 
+      grid-column: 1 / -1; 
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+      color: #333;
+    }
+    .form-group input, 
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .required::after {
+      content: "*";
+      color: red;
+      margin-left: 3px;
+    }
+    .error {
+      color: #d00;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    #pixInfo {
+      display: none;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      grid-column: 1 / -1;
+    }
+    /* Campos de texto */
+    #nome {
+      width: 84%;    /* altera só o campo Nome */
+    }
+
+    #whatsapp {
+      width: 84%;    /* altera só o campo WhatsApp */
+    }
+
+    #estado {
+      width: 68%;    /* altera só o campo Estado */
+    }
+
+    #cidade {
+      width: 68%;    /* altera só o campo Cidade */
+    }
+
+    #complemento {
+      width: 84%;    /* altera só o campo Complemento */
+    }
+    /* Campo Ponto de Referência */
+    #referencia {
+      width: 84%;
+    }
+
+    /* Drop-downs */
+    #tipoEntrega {
+      width: 90%;    /* altera só o select Tipo de Entrega */
+    }
+
+    #pagamento {
+      width: 90%;    /* altera só o select Pagamento */
+    }
+
+    /* Botão "FAZER PEDIDO" */
+    #modal-sheet button.checkout-btn.full {
+      width: 90%;    /* altera só o botão */
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-wrapper">
+    <header class="header">
+      <a href="index.html" class="back-icon">
+        <img src="voltar.png" alt="Voltar">
+      </a>
+      <a href="index.html" class="logo">
+        <img src="logo.webp" alt="Logo">
+      </a>
+      <a href="carrinho.html" class="bag-icon" id="cart-icon">
+        &#128717;
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </header>
+  </div>
+
+  <div class="cart-container">
+    <h1 class="cart-title">Seu Carrinho</h1>
+    <div id="cart-items"></div>
+  </div>
+
+  <div class="cart-summary">
+    <div class="cart-total">
+      <span>Total:</span>
+      <span id="cart-total">R$ 0,00</span>
+    </div>
+    <button class="checkout-btn" id="open-modal">CONTINUAR PARA O PAGAMENTO</button>
+    <a href="index.html" class="continue-shopping">Voltar às compras</a>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="backdrop"></div>
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-header">
+      <button class="close-btn" id="close-modal">&times;</button>
+    </div>
+    <form id="checkoutForm">
+      <div class="form-group full">
+        <label class="required">Tipo de Entrega</label>
+        <select id="tipoEntrega" required>
+          <option value="">Selecione...</option>
+          <option value="retirada">Retirada</option>
+          <option value="entrega">Entrega</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label class="required">Nome Completo</label>
+        <input type="text" id="nome" required>
+      </div>
+
+      <div class="form-group full">
+        <label class="required">WhatsApp</label>
+        <input type="tel" id="whatsapp" pattern="[0-9]{11}" required>
+        <div class="error" id="error-whatsapp"></div>
+      </div>
+
+      <div class="form-group entrega-field" style="display: none;">
+        <label class="required">Estado</label>
+        <input type="text" id="estado">
+        <div class="error" id="error-estado"></div>
+      </div>
+
+      <div class="form-group entrega-field" style="display: none;">
+        <label class="required">Cidade</label>
+        <input type="text" id="cidade">
+        <div class="error" id="error-cidade"></div>
+      </div>
+      
+      <div class="form-group entrega-field full" style="display: none;">
+        <label class="required">Ponto de Referência</label>
+        <input type="text" id="referencia">
+        <div class="error" id="error-referencia"></div>
+      </div>
+
+      <div class="form-group entrega-field full" style="display: none;">
+        <label>Complemento (Opcional)</label>
+        <input type="text" id="complemento">
+      </div>
+
+      <div class="form-group full">
+        <label class="required">Forma de Pagamento</label>
+        <select id="pagamento" required>
+          <option value="">Selecione...</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartão de Crédito">Cartão de Crédito</option>
+          <option value="Cartão de Débito">Cartão de Débito</option>
+        </select>
+      </div>
+
+      <div id="pixInfo">
+        <p>Chave Pix: 98992124926</p>
+      </div>
+
+      <button type="submit" class="checkout-btn full">FAZER PEDIDO</button>
+    </form>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-item instagram">
+      <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank" rel="noopener">
+        <img src="instagramicon.png" alt="Instagram">
+      </a>
+    </div>
+    <div class="footer-item">
+      <a href="https://wa.me/5598992124926" target="_blank" rel="noopener">
+        5598992124926
+      </a>
+    </div>
+    <div class="footer-item">
+      <a href="tel:+5589982124926">
+        98992124926
+      </a>
+    </div>
+    <div class="footer-item copyright">
+      © Flowmize – 2025. Todos os direitos reservados.
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      const cartItemsEl = document.getElementById('cart-items');
+      const cartTotalEl = document.getElementById('cart-total');
+      const cartCountEl = document.getElementById('cart-count');
+      const openModalBtn = document.getElementById('open-modal');
+      const closeModalBtn = document.getElementById('close-modal');
+      const backdrop = document.getElementById('backdrop');
+      const modal = document.getElementById('modal-sheet');
+      const errorWhatsapp = document.getElementById('error-whatsapp');
+      const errorReferencia = document.getElementById('error-referencia');
+      const errorEstado = document.getElementById('error-estado');
+      const errorCidade = document.getElementById('error-cidade');
+
+      // URL do Google AppScript - SUBSTITUA PELA SUA URL
+      const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTg9fJLlwPeHcguEPNKs5-goUipOhD1e2-90rhoUXbrHZHtKj9lROUImIHHLTfHNcV/exec";
+
+      // Funções existentes do carrinho
+      function renderCartCount() {
+        const totalQty = cartItems.reduce((sum, item) => sum + item.quantidade, 0);
+        cartCountEl.textContent = totalQty;
+        cartCountEl.style.display = totalQty > 0 ? 'inline-block' : 'none';
+      }
+
+      function formatPrice(price) {
+        return 'R$ ' + parseFloat(price).toFixed(2).replace('.', ',');
+      }
+
+      function renderCartItems() {
+        if (cartItems.length === 0) {
+          cartItemsEl.innerHTML = '<p>Seu carrinho está vazio</p>';
+          cartTotalEl.textContent = 'R$ 0,00';
+          return;
+        }
+
+        let total = 0;
+        cartItemsEl.innerHTML = '';
+
+        cartItems.forEach((item, index) => {
+          const subtotal = parseFloat(item.preco) * item.quantidade;
+          total += subtotal;
+
+          const itemEl = document.createElement('div');
+          itemEl.className = 'cart-item';
+          itemEl.innerHTML = `
+            <img src="${item.imagens?.[0] || ''}" alt="${item.nome}" class="cart-item-image">
+            <div class="cart-item-details">
+              <div class="cart-item-name">${item.nome}</div>
+              ${item.opcao ? `<div class="cart-item-option">${item.opcao}</div>` : ''}
+              <div class="cart-item-price">${formatPrice(item.preco)}</div>
+              <div class="cart-item-qty">Quantidade: ${item.quantidade}</div>
+              <div class="cart-item-subtotal">Subtotal: ${formatPrice(subtotal)}</div>
+            </div>
+            <img src="lixeira.png" 
+                 class="remove-item" 
+                 data-index="${index}"
+                 alt="Remover item"
+                 title="Remover item">
+          `;
+          cartItemsEl.appendChild(itemEl);
+        });
+
+        document.querySelectorAll('.remove-item').forEach(icon => {
+          icon.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            cartItems.splice(index, 1);
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            renderCartItems();
+            renderCartCount();
+          });
+        });
+
+        cartTotalEl.textContent = formatPrice(total);
+      }
+
+      function showModal() {
+        if (cartItems.length === 0) {
+          alert('Seu carrinho está vazio!');
+          return;
+        }
+        modal.classList.add('open');
+        backdrop.style.display = 'block';
+      }
+
+      function hideModal() {
+        modal.classList.remove('open');
+        backdrop.style.display = 'none';
+      }
+
+      // Função para enviar dados para o Google Sheets - VERSÃO AJUSTADA
+      async function sendToGoogleSheets(formData) {
+        try {
+          // Formata os itens no padrão "Nome xQuantidade - R$Preço"
+          const itemsText = formData.itens.map(item => 
+            `${item.nome}${item.opcao ? ' (' + item.opcao + ')' : ''} x${item.quantidade} - ${formatPrice(item.preco)}`
+          ).join('\n');
+          
+          // Calcula o total de itens
+          const totalItems = formData.itens.reduce((sum, item) => sum + item.quantidade, 0);
+          
+          // Prepara os dados para a aba Pedidos
+          const pedidoData = {
+            nome: formData.nome,
+            whatsapp: formData.whatsapp,
+            items: itemsText,
+            qtdTotal: totalItems,
+            total: formData.total,
+            tipoEntrega: formData.tipoEntrega,
+            pagamento: formData.pagamento,
+            referencia: formData.referencia || '',
+            complemento: formData.complemento || '',
+            estado: formData.estado || '',
+            cidade: formData.cidade || ''
+          };
+
+          // Envia via GET (mais confiável para AppScript)
+          const params = new URLSearchParams(pedidoData);
+          const response = await fetch(`${APPSCRIPT_URL}?${params}`);
+          
+          if (!response.ok) {
+            throw new Error('Erro ao enviar dados');
+          }
+          
+          return await response.json();
+        } catch (error) {
+          console.error('Erro ao enviar para Google Sheets:', error);
+          throw error;
+        }
+      }
+
+      // Event listeners do modal
+      openModalBtn.addEventListener('click', showModal);
+      closeModalBtn.addEventListener('click', hideModal);
+      backdrop.addEventListener('click', hideModal);
+
+      // Mostrar campos de entrega
+      document.getElementById('tipoEntrega').addEventListener('change', function() {
+        const entregaFields = document.querySelectorAll('.entrega-field');
+        entregaFields.forEach(field => {
+          field.style.display = this.value === 'entrega' ? 'block' : 'none';
+        });
+      });
+
+      // Mostrar info do Pix
+      document.getElementById('pagamento').addEventListener('change', function() {
+        document.getElementById('pixInfo').style.display = 
+          this.value === 'Pix' ? 'block' : 'none';
+      });
+
+      // Validar WhatsApp
+      document.getElementById('whatsapp').addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '');
+      });
+
+      // Enviar pedido - VERSÃO SIMPLIFICADA
+      document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Resetar mensagens de erro
+        errorWhatsapp.textContent = '';
+        errorReferencia.textContent = '';
+        errorEstado.textContent = '';
+        errorCidade.textContent = '';
+
+        // Validações rápidas
+        if (cartItems.length === 0) {
+          alert('Seu carrinho está vazio!');
+          return;
+        }
+
+        // Validar WhatsApp
+        const whatsapp = document.getElementById('whatsapp').value;
+        if (!/^\d{11}$/.test(whatsapp)) {
+          errorWhatsapp.textContent = 'WhatsApp inválido! Deve conter 11 dígitos numéricos.';
+          document.getElementById('whatsapp').focus();
+          return;
+        }
+
+        const tipoEntrega = document.getElementById('tipoEntrega').value;
+        
+        // Validar campos de entrega se necessário
+        if (tipoEntrega === 'entrega') {
+          const estado = document.getElementById('estado').value.trim();
+          if (!estado) {
+            errorEstado.textContent = 'Por favor, informe o estado.';
+            document.getElementById('estado').focus();
+            return;
+          }
+
+          const cidade = document.getElementById('cidade').value.trim();
+          if (!cidade) {
+            errorCidade.textContent = 'Por favor, informe a cidade.';
+            document.getElementById('cidade').focus();
+            return;
+          }
+
+          const referencia = document.getElementById('referencia').value.trim();
+          if (!referencia) {
+            errorReferencia.textContent = 'Por favor, informe um ponto de referência.';
+            document.getElementById('referencia').focus();
+            return;
+          }
+        }
+
+        // Montar dados do formulário
+        const formData = {
+          tipoEntrega,
+          nome: document.getElementById('nome').value,
+          whatsapp,
+          estado: document.getElementById('estado').value || '',
+          cidade: document.getElementById('cidade').value || '',
+          complemento: document.getElementById('complemento').value || '',
+          referencia: document.getElementById('referencia').value || '',
+          pagamento: document.getElementById('pagamento').value,
+          itens: cartItems,
+          total: document.getElementById('cart-total').textContent
+        };
+
+        // 1. Montar mensagem para WhatsApp
+        let message = `================================%0A`;
+        message += `         *COMPROVANTE DE PEDIDO*%0A`;
+        message += `================================%0A%0A`;
+        
+        // Depois
+        message += `*Nome:* ${formData.nome}%0A`;
+        message += `*Tipo de Entrega:* ${formData.tipoEntrega === 'entrega' ? 'ENTREGA' : 'RETIRADA'}%0A%0A`;
+
+        
+        if (formData.tipoEntrega === 'entrega') {
+          message += `*Estado:* ${formData.estado}%0A`;
+          message += `*Cidade:* ${formData.cidade}%0A`;
+          message += `*Ponto de Referência:* ${formData.referencia}%0A`;
+          if (formData.complemento) {
+            message += `*Complemento:* ${formData.complemento}%0A`;
+          }
+          message += `%0A`;
+        }
+
+        message += `______________________________________%0A`;
+        message += `*Forma de Pagamento:* ${formData.pagamento}%0A`;
+        if (formData.pagamento === 'Pix') {
+          message += `*Chave Pix:* 98992124926%0A`;
+        }
+        message += `______________________________________%0A%0A`;
+
+        message += `*Itens do Pedido:*%0A`;
+        formData.itens.forEach(item => {
+          message += `➤ *${item.nome}*%0A`;
+          if (item.opcao) {
+            message += `   *Opção:* ${item.opcao}%0A`;
+          }
+          message += `   *Quantidade:* ${item.quantidade}%0A`;
+          message += `   *Subtotal:* ${formatPrice(item.preco)}%0A%0A`;
+        });
+
+        message += `______________________________________%0A`;
+        message += `*TOTAL DO PEDIDO:* ${formData.total}%0A`;
+        message += `______________________________________%0A%0A`;
+
+        // 2. Limpar carrinho
+        localStorage.removeItem('cartItems');
+        renderCartItems();
+        renderCartCount();
+
+        // 3. Abrir WhatsApp IMEDIATAMENTE
+        window.open(`https://wa.me/5598992124926?text=${message}`, '_blank');
+
+        // 4. Enviar para Google Sheets em segundo plano (sem bloquear a interface)
+        if (APPSCRIPT_URL && APPSCRIPT_URL !== "SUA_URL_DO_APPSCRIPT_AQUI") {
+          // Usamos setTimeout para não bloquear a abertura do WhatsApp
+          setTimeout(() => {
+            sendToGoogleSheets(formData)
+              .then(() => console.log("Dados enviados para planilha"))
+              .catch(err => console.error("Erro no envio:", err));
+          }, 0);
+        }
+
+        // 5. Fechar o modal
+        hideModal();
+      });
+
+      renderCartItems();
+      renderCartCount();
+    });
+  </script>
+</body>
+</html>
