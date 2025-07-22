@@ -211,17 +211,18 @@
   <div id="overlayMenu">
     <div class="close-btn">&times;</div>
     <nav>
-      <a href="index.html">Início</a>
+      <a href="miss-index.html">Início</a>
       <a href="#" id="all-products-link">Produtos</a>
-      <a href="contato.html">Contato</a>
+      <a href="divas-index.html">DIVAS BIJOUXSHOES</a>
+      <a href="miss-contato.html">Contato</a>
     </nav>
   </div>
   
   <div class="nav-wrapper">
     <header class="header">
       <div class="menu-icon">&#9776;</div>
-      <a href="index.html" class="logo">
-        <img src="logo.webp" alt="Logo">
+      <a href="miss-index.html" class="logo">
+        <img src="logomiss.webp" alt="Logo">
       </a>
       <a href="carrinho.html" class="bag-icon" id="cart-icon">
         &#128717;
@@ -373,7 +374,7 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
         const extra = c[12]?.trim() || '';
         const parc = c[13]?.trim() || '';
     
-        let html = `<div class="breadcrumb-list"><a href="index.html">Início</a> &gt; ${nome}</div>`;
+        let html = `<div class="breadcrumb-list"><a href="miss-index.html">Início</a> &gt; ${nome}</div>`;
         html += `
           <div class="carousel">
             ${status?`<div class="badge">${status}</div>`:``}
@@ -627,7 +628,7 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
       
       // Se estiver na página de produto único, recarrega a página
       if (nomeProduto) {
-        window.location.href = 'index.html';
+        window.location.href = 'miss-index.html';
       }
     });
     
