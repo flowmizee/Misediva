@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', renderCartCount);
     const nomeProduto = decodeURIComponent(params.get('produto') || '');
     let allProdutos = [];
     
-    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSjVHrLe1BOGqHZC9O2o1FxjWZluP8UCK6ZdcJSxcQRKIv1uJkO2NMKsrDdaTBg1fTS-XCwTq4RZzIb/pub?output=csv')
+    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv')
       .then(r => r.text())
       .then(csv => {
         const lines = csv.split('\n').slice(1);
