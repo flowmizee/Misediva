@@ -219,7 +219,8 @@
     <nav>
       <a href="index.html" id="home-link">Início</a>
       <a href="#" id="all-products-link">Produtos</a>
-      <a href="contato.html">Contato</a>
+      <a href="divas-index.html">DIVAS BIJOUXSHOES</a>
+      <a href="miss-contato.html">Contato</a>
     </nav>
   </div>
 
@@ -227,7 +228,7 @@
     <header class="header">
       <div class="menu-icon">&#9776;</div>
       <a href="index.html" class="logo">
-        <img src="logo.webp" alt="Logo">
+        <img src="logomiss.webp" alt="Logo">
       </a>
       <a href="carrinho.html" class="bag-icon" id="cart-icon">
         &#128717;
@@ -255,16 +256,16 @@
   <div class="main-content">
     <div class="photo-scroll-wrapper">
       <div class="photo-scroll">
-        <div class="photo-item" data-category="BIQUÍNIS"><div class="photo-img"><img src="biquinis.webp" alt="Biquínis"></div><div class="label">Biquínis</div></div>
-        <div class="photo-item" data-category="CONJUNTOS"><div class="photo-img"><img src="conjuntos.webp" alt="Conjuntos"></div><div class="label">Conjuntos</div></div>
-        <div class="photo-item" data-category="SAÍDAS"><div class="photo-img"><img src="saidas.webp" alt="Saídas"></div><div class="label">Saídas</div></div>
-        <div class="photo-item" data-category="ROUPAS FITNESS"><div class="photo-img"><img src="fitness.webp" alt="Roupas Fitness"></div><div class="label">Roupas Fitness</div></div>
-        <div class="photo-item" data-category="BOLSAS"><div class="photo-img"><img src="bolsas.webp" alt="Bolsas"></div><div class="label">Bolsas</div></div>
-        <div class="photo-item" data-category="MOCHILAS"><div class="photo-img"><img src="mochilas.webp" alt="Mochilas"></div><div class="label">Mochilas</div></div>
-        <div class="photo-item" data-category="MAIÔS"><div class="photo-img"><img src="maios.webp" alt="Maiôs"></div><div class="label">Maiôs</div></div>
-        <div class="photo-item" data-category="CROCHÊS"><div class="photo-img"><img src="croches.webp" alt="Crochês"></div><div class="label">Crochês</div></div>
-        <div class="photo-item" data-category="ACESSÓRIOS"><div class="photo-img"><img src="acessorios.webp" alt="Acessórios"></div><div class="label">Acessórios</div></div>
-        <div class="photo-item" data-category="MODA CASUAL PRAIA"><div class="photo-img"><img src="modapraia.webp" alt="Moda Casual Praia"></div><div class="label">Moda Casual Praia</div></div>
+        <div class="photo-item" data-category="BIQUÍNIS"><div class="photo-img"><img src="biquinis1.webp" alt="Biquínis"></div><div class="label">Biquínis</div></div>
+        <div class="photo-item" data-category="CONJUNTOS"><div class="photo-img"><img src="conjuntos2.webp" alt="Conjuntos"></div><div class="label">Conjuntos</div></div>
+        <div class="photo-item" data-category="SAÍDAS"><div class="photo-img"><img src="saidas3.webp" alt="Saídas"></div><div class="label">Saídas</div></div>
+        <div class="photo-item" data-category="ROUPAS FITNESS"><div class="photo-img"><img src="fitness4.webp" alt="Roupas Fitness"></div><div class="label">Roupas Fitness</div></div>
+        <div class="photo-item" data-category="BOLSAS"><div class="photo-img"><img src="bolsas5.webp" alt="Bolsas"></div><div class="label">Bolsas</div></div>
+        <div class="photo-item" data-category="MOCHILAS"><div class="photo-img"><img src="mochilas6.webp" alt="Mochilas"></div><div class="label">Mochilas</div></div>
+        <div class="photo-item" data-category="MAIÔS"><div class="photo-img"><img src="maios7.webp" alt="Maiôs"></div><div class="label">Maiôs</div></div>
+        <div class="photo-item" data-category="CROCHÊS"><div class="photo-img"><img src="croches8.webp" alt="Crochês"></div><div class="label">Crochês</div></div>
+        <div class="photo-item" data-category="ACESSÓRIOS"><div class="photo-img"><img src="acessorios9.webp" alt="Acessórios"></div><div class="label">Acessórios</div></div>
+        <div class="photo-item" data-category="MODA CASUAL PRAIA"><div class="photo-img"><img src="modapraia10.webp" alt="Moda Casual Praia"></div><div class="label">Moda Casual Praia</div></div>
       </div>
     </div>
 
@@ -509,7 +510,7 @@
           params.set('preco', p.preco);
           params.set('mensagem', p.mensagem);
           params.set('parcelamento', p.parcelamento);
-          location.href = `produto.html?${params.toString()}`;
+          location.href = `miss-produto.html?${params.toString()}`;
         });
         div.innerHTML = `
           <img src="${p.imagens[0]}" alt="${p.nome}">
@@ -584,7 +585,12 @@
     });
 
     pathEl.addEventListener('click', resetToHomePage);
-    logoImg.addEventListener('click', resetToHomePage);
+    
+    // Modificado para recarregar a página ao clicar no logo
+    logoImg.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
 
     searchInput.addEventListener('input', () => {
       const term = searchInput.value.trim();
