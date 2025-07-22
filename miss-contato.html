@@ -105,7 +105,7 @@
       margin-right: 12px;
     }
     
-    /* RODAPÉ ROSA */
+    /* RODAPÉ */
     .site-footer {
       background-color: #72202f;
       color: #fff;
@@ -175,20 +175,20 @@
     <div class="close-btn">&times;</div>
     <nav>
       <a href="index.html">Início</a>
-      <a href="contato.html">Contato</a>
+      <a href="miss-contato.html">Contato</a>
     </nav>
   </div>
 
   <div class="nav-wrapper">
     <header class="header">
       <div class="menu-icon">&#9776;</div>
-      <a href="index.html" class="logo">
-        <img src="logo.webp" alt="Logo">
+      <a href="miss-contato.html" class="logo">
+        <img src="logomiss.webp" alt="Logo">
       </a>
       <a href="carrinho.html" class="bag-icon" id="cart-icon">
-  &#128717;
-  <span class="cart-count" id="cart-count">0</span>
-</a>
+        &#128717;
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
     </header>
   </div>
 
@@ -220,11 +220,10 @@
     <div class="contato-item">
       <img src="localize.png" alt="Localização">
       Avenida Bahia, Bairro Turu, São Luís - MA, CEP 65066-659
-      
     </div>
   </div>
 
-  <!-- RODAPÉ ROSA -->
+  <!-- RODAPÉ -->
   <footer class="site-footer">
     <div class="footer-item instagram">
       <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank" rel="noopener">
@@ -247,34 +246,35 @@
   </footer>
 
   <script>
-  // — CARRINHO UNIFICADO USANDO cartItems —
-const CART_KEY = 'cartItems';
-const cartCountEl = document.getElementById('cart-count');
+    // — CARRINHO UNIFICADO USANDO cartItems —
+    const CART_KEY = 'cartItems';
+    const cartCountEl = document.getElementById('cart-count');
 
-function getCartItems() {
-  try {
-    return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
+    function getCartItems() {
+      try {
+        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
 
-function renderCartCount() {
-  const totalQty = getCartItems().reduce((sum, item) => sum + (item.quantidade || 0), 0);
-  if (totalQty > 0) {
-    cartCountEl.textContent = totalQty;
-    cartCountEl.style.display = 'inline-block';
-  } else {
-    cartCountEl.style.display = 'none';
-  }
-}
+    function renderCartCount() {
+      const totalQty = getCartItems().reduce((sum, item) => sum + (item.quantidade || 0), 0);
+      if (totalQty > 0) {
+        cartCountEl.textContent = totalQty;
+        cartCountEl.style.display = 'inline-block';
+      } else {
+        cartCountEl.style.display = 'none';
+      }
+    }
 
-// Inicializa e mantém atualizado ao voltar de outra aba
-document.addEventListener('DOMContentLoaded', renderCartCount);
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) renderCartCount();
-});
-     // OVERLAY MENU
+    // Inicializa e mantém atualizado ao voltar de outra aba
+    document.addEventListener('DOMContentLoaded', renderCartCount);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) renderCartCount();
+    });
+    
+    // OVERLAY MENU
     const overlay = document.getElementById('overlayMenu');
     document.querySelector('.menu-icon').onclick = () => overlay.classList.add('open');
     overlay.querySelector('.close-btn').onclick = () => overlay.classList.remove('open');
