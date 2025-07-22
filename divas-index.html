@@ -584,7 +584,12 @@
     });
 
     pathEl.addEventListener('click', resetToHomePage);
-    logoImg.addEventListener('click', resetToHomePage);
+    
+    // Modificado para recarregar a página ao clicar no logo
+    logoImg.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'divas-index.html';
+    });
 
     searchInput.addEventListener('input', () => {
       const term = searchInput.value.trim();
