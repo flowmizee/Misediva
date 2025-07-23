@@ -89,7 +89,7 @@
     .banner-scroll { 
       display: flex;
       gap: 16px;
-      padding: 0;
+      padding: 0,
       width: max-content;
     }
     .banner-scroll.single-banner {
@@ -396,62 +396,109 @@
       });
     }
 
+    function parseCSV(csv) {
+      const lines = csv.split('\n');
+      const result = [];
+      const headers = lines[0].split(',');
+
+      for (let i = 1; i < lines.length; i++) {
+        const obj = {};
+        const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+        for (let j = 0; j < headers.length; j++) {
+          obj[headers[j].trim()] = currentline[j] ? currentline[j].trim().replace(/^"|"$/g, '') : '';
+        }
+        result.push(obj);
+      }
+      return result;
+    }
+
+    function formatPrice(price) {
+      if (!price) return '';
+      
+      // Extrai apenas números e vírgulas/pontos
+      const numericValue = price.replace(/[^\d,.]/g, '');
+      
+      // Verifica se tem vírgula como separador decimal
+      if (numericValue.includes(',')) {
+        // Formato brasileiro: 1.234,56
+        const parts = numericValue.split(',');
+        let integerPart = parts[0].replace(/\./g, ''); // Remove pontos dos milhares
+        const decimalPart = parts[1] ? parts[1].substring(0, 2) : '00';
+        
+        // Formata os milhares com pontos
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        
+        return `R$ ${integerPart},${decimalPart.padEnd(2, '0')}`;
+      } else if (numericValue.includes('.')) {
+        // Formato internacional: 1,234.56
+        const parts = numericValue.split('.');
+        if (parts.length > 2) {
+          // Tem pontos para milhares e decimal
+          const integerPart = parts.slice(0, -1).join('');
+          const decimalPart = parts[parts.length - 1].substring(0, 2);
+          return `R$ ${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${decimalPart.padEnd(2, '0')}`;
+        } else {
+          // Apenas ponto decimal
+          const integerPart = parts[0];
+          const decimalPart = parts[1] ? parts[1].substring(0, 2) : '00';
+          return `R$ ${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${decimalPart.padEnd(2, '0')}`;
+        }
+      } else {
+        // Apenas números inteiros
+        if (numericValue.length === 0) return '';
+        const formatted = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return `R$ ${formatted},00`;
+      }
+    }
+
     fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSjVHrLe1BOGqHZC9O2o1FxjWZluP8UCK6ZdcJSxcQRKIv1uJkO2NMKsrDdaTBg1fTS-XCwTq4RZzIb/pub?output=csv')
       .then(res => res.text())
       .then(csv => {
-        const lines = csv.split('\n').slice(1);
+        const parsedData = parseCSV(csv);
         const bannerContainer = document.getElementById('banner-scroll');
 
-        // Limpa banners antigos
+        // Processa banners
         allBanners = [];
-        
-        // Processa apenas a primeira linha para banners
-        if (lines.length > 0) {
-          const firstLine = lines[0].split(',');
-          if (firstLine[0]?.trim() && firstLine[0].trim() !== 'Banner 1') {
-            allBanners.push(firstLine[0].trim());
-          }
-          if (firstLine[1]?.trim() && firstLine[1].trim() !== 'Banner 2') {
-            allBanners.push(firstLine[1].trim());
-          }
-        }
+        if (parsedData[0]['Banner 1']) allBanners.push(parsedData[0]['Banner 1']);
+        if (parsedData[0]['Banner 2']) allBanners.push(parsedData[0]['Banner 2']);
 
-        // Processa produtos (todas as linhas exceto cabeçalho)
-        lines.forEach((line, index) => {
-          if (index === 0) return; // Pula cabeçalho
-          
-          const cells = line.split(',');
-          const productTag = cells[14]?.trim();
-          
-          if (productTag === '0') return;
-          
-          const productName = cells[2]?.trim();
-          const productImages = [cells[3],cells[4],cells[5]].map(u=>u?.trim()).filter(u=>u);
-          
-          if (!productName || productImages.length === 0) return;
+        // Processa produtos
+        allProdutos = [];
+        launchProdutos = [];
+        
+        parsedData.forEach(row => {
+          if (!row['Produtos'] || row['Tag'] === '0') return;
           
           const product = {
-            nome: productName,
-            imagens: productImages,
-            opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.trim()).filter(o=>o),
-            status: cells[9]?.trim() || '',
-            descricao: cells[10]?.trim() || '',
-            preco: cells[11]?.trim() || '',
-            mensagem: cells[12]?.trim() || '',
-            parcelamento: cells[13]?.trim() || '',
-            tag: productTag
+            nome: row['Produtos'],
+            imagens: [
+              row['Imagem do Produto'],
+              row['Imagem 2'],
+              row['Imagem 3']
+            ].filter(img => img),
+            opcoes: [
+              row['Opção'],
+              row['Opção 2'],
+              row['Opção 3']
+            ].filter(opt => opt),
+            status: row['Status'] || '',
+            descricao: row['Descrição do Produto'] || '',
+            preco: row['Preço'] || '',
+            mensagem: row['Mensagem Extra'] || '',
+            parcelamento: row['Parcelamento'] || '',
+            tag: row['Tag'] || ''
           };
 
           allProdutos.push(product);
           
-          if (productTag === 'Lançamento') {
+          if (product.tag === 'Lançamento') {
             launchProdutos.push(product);
           }
         });
 
+        // Renderiza banners
         bannerContainer.innerHTML = '';
-
-        // Renderiza banners corretamente
         if (allBanners.length === 1) {
           bannerContainer.classList.add('single-banner');
           const img = document.createElement('img');
@@ -463,14 +510,12 @@
         } else if (allBanners.length === 2) {
           bannerContainer.classList.add('scrolling');
           
-          // Adiciona apenas os 2 banners (sem duplicar)
           allBanners.forEach(url => {
             const img = document.createElement('img');
             img.src = url;
             bannerContainer.appendChild(img);
           });
           
-          // Adiciona cópias para criar o efeito de loop contínuo
           allBanners.forEach(url => {
             const img = document.createElement('img');
             img.src = url;
@@ -500,20 +545,20 @@
         div.className = 'produto';
         div.addEventListener('click', () => {
           const params = new URLSearchParams();
-          params.set('produto', p.nome);
+          params.set('produto', encodeURIComponent(p.nome));
           params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));
           params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));
-          params.set('status', p.status);
-          params.set('descricao', p.descricao);
-          params.set('preco', p.preco);
-          params.set('mensagem', p.mensagem);
-          params.set('parcelamento', p.parcelamento);
+          params.set('status', encodeURIComponent(p.status));
+          params.set('descricao', encodeURIComponent(p.descricao));
+          params.set('preco', encodeURIComponent(p.preco));
+          params.set('mensagem', encodeURIComponent(p.mensagem));
+          params.set('parcelamento', encodeURIComponent(p.parcelamento));
           location.href = `divas-produto.html?${params.toString()}`;
         });
         div.innerHTML = `
-          <img src="${p.imagens[0]}" alt="${p.nome}">
+          <img src="${p.imagens[0]}" alt="${p.nome}" onerror="this.src='placeholder.webp'">
           <div class="nome">${p.nome}</div>
-          <div class="preco">${p.preco}</div>
+          <div class="preco">${formatPrice(p.preco)}</div>
           <div class="parcelamento">${p.parcelamento}</div>
         `;
         cont.appendChild(div);
@@ -583,7 +628,6 @@
 
     pathEl.addEventListener('click', resetToHomePage);
     
-    // Modificado para recarregar a página ao clicar no logo
     logoImg.addEventListener('click', function(e) {
       e.preventDefault();
       window.location.href = 'divas-index.html';
