@@ -134,8 +134,7 @@
     .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
-    .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
-    .produto .extra { color: #007bff; }
+    .produto .parcelamento { font-size: 13px; margin-bottom: 8px; }
 
     /* MENU OVERLAY */
     #overlayMenu { 
@@ -516,7 +515,6 @@
           <div class="nome">${p.nome}</div>
           <div class="preco">${p.preco}</div>
           <div class="parcelamento">${p.parcelamento}</div>
-          <div class="extra">${p.mensagem}</div>
         `;
         cont.appendChild(div);
       });
