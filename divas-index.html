@@ -89,26 +89,26 @@
     .banner-scroll { 
       display: flex;
       gap: 16px;
-      padding: 0,
-      width: max-content;
+      width: 100%;
+      height: 500px;
     }
     .banner-scroll.single-banner {
-      width: 100%;
-      padding: 0;
+      justify-content: center;
     }
-    .banner-scroll.scrolling {
+    .banner-scroll.multiple-banners {
       animation: scrollBanners 15s linear infinite;
-      padding: 0 16px;
+      width: max-content;
     }
     .banner-scroll img { 
-      height: 500px; 
-      width: calc(100vw - 100px);
+      height: 100%;
+      width: calc(100vw - 32px);
       object-fit: cover; 
       border-radius: 12px;
       flex-shrink: 0;
     }
     .banner-scroll.single-banner img {
       width: 100%;
+      max-width: 1200px;
       border-radius: 0;
     }
     @keyframes scrollBanners { 
@@ -177,11 +177,11 @@
     @media (max-width: 480px) {
       .produtos-grid { grid-template-columns: 1fr 1fr; }
       .produto img { height: 220px; }
-      .banner-scroll img {
+      .banner-scroll, .banner-scroll.single-banner {
         height: 300px;
       }
-      .banner-scroll.single-banner img {
-        height: 300px;
+      .banner-scroll img {
+        width: calc(100vw - 32px);
       }
     }
 
@@ -397,14 +397,46 @@
       });
     }
 
+    function setupBannerScroll(banners) {
+      const bannerContainer = document.getElementById('banner-scroll');
+      bannerContainer.innerHTML = '';
+      
+      if (banners.length === 1) {
+        bannerContainer.className = 'banner-scroll single-banner';
+        const img = document.createElement('img');
+        img.src = banners[0];
+        img.alt = 'Banner';
+        bannerContainer.appendChild(img);
+      } else if (banners.length > 1) {
+        bannerContainer.className = 'banner-scroll multiple-banners';
+        
+        // Adiciona os banners originais
+        banners.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Banner';
+          bannerContainer.appendChild(img);
+        });
+        
+        // Adiciona cópias para criar o efeito de loop contínuo
+        banners.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Banner';
+          bannerContainer.appendChild(img);
+        });
+      }
+    }
+
     fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSjVHrLe1BOGqHZC9O2o1FxjWZluP8UCK6ZdcJSxcQRKIv1uJkO2NMKsrDdaTBg1fTS-XCwTq4RZzIb/pub?output=csv')
       .then(res => res.text())
       .then(csv => {
         const lines = csv.split('\n').slice(1);
-        const bannerContainer = document.getElementById('banner-scroll');
-
-        // Limpa banners antigos
+        
+        // Limpa banners e produtos antigos
         allBanners = [];
+        allProdutos = [];
+        launchProdutos = [];
         
         // Processa apenas a primeira linha para banners
         if (lines.length > 0) {
@@ -416,6 +448,9 @@
             allBanners.push(firstLine[1].trim());
           }
         }
+
+        // Configura os banners
+        setupBannerScroll(allBanners);
 
         // Processa produtos (todas as linhas exceto cabeçalho)
         lines.forEach((line, index) => {
@@ -449,35 +484,6 @@
             launchProdutos.push(product);
           }
         });
-
-        bannerContainer.innerHTML = '';
-
-        // Renderiza banners corretamente
-        if (allBanners.length === 1) {
-          bannerContainer.classList.add('single-banner');
-          const img = document.createElement('img');
-          img.src = allBanners[0];
-          img.style.width = '100%';
-          img.style.height = '500px';
-          img.style.objectFit = 'cover';
-          bannerContainer.appendChild(img);
-        } else if (allBanners.length === 2) {
-          bannerContainer.classList.add('scrolling');
-          
-          // Adiciona apenas os 2 banners (sem duplicar)
-          allBanners.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            bannerContainer.appendChild(img);
-          });
-          
-          // Adiciona cópias para criar o efeito de loop contínuo
-          allBanners.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            bannerContainer.appendChild(img);
-          });
-        }
 
         renderProdutos(launchProdutos);
       })
