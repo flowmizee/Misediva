@@ -308,12 +308,15 @@
         98992124926
       </a>
     </div>
-    <div class="footer-item copyright">
+    <div class-footer-item copyright">
       © Flowmize – 2025. Todos os direitos reservados.
     </div>
   </footer>
 
   <script>
+    // URL do Google AppScript
+    const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVFfe8VPSCUxewMt8D7vM7bdroWWZ0BCW8lSJ2peaaPhxwQnC0GEz8YxSG9jmmo_qS/exec";
+    
     const CART_KEY = 'cartItems';
     const cartCountEl = document.getElementById('cart-count');
 
@@ -428,68 +431,41 @@
       }
     }
 
-    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSjVHrLe1BOGqHZC9O2o1FxjWZluP8UCK6ZdcJSxcQRKIv1uJkO2NMKsrDdaTBg1fTS-XCwTq4RZzIb/pub?output=csv')
-      .then(res => res.text())
-      .then(csv => {
-        const lines = csv.split('\n').slice(1);
-        
-        // Limpa banners e produtos antigos
-        allBanners = [];
-        allProdutos = [];
-        launchProdutos = [];
-        
-        // Processa apenas a primeira linha para banners
-        if (lines.length > 0) {
-          const firstLine = lines[0].split(',');
-          if (firstLine[0]?.trim() && firstLine[0].trim() !== 'Banner 1') {
-            allBanners.push(firstLine[0].trim());
-          }
-          if (firstLine[1]?.trim() && firstLine[1].trim() !== 'Banner 2') {
-            allBanners.push(firstLine[1].trim());
-          }
-        }
-
-        // Configura os banners
-        setupBannerScroll(allBanners);
-
-        // Processa produtos (todas as linhas exceto cabeçalho)
-        lines.forEach((line, index) => {
-          if (index === 0) return; // Pula cabeçalho
-          
-          const cells = line.split(',');
-          const productTag = cells[14]?.trim();
-          
-          if (productTag === '0') return;
-          
-          const productName = cells[2]?.trim();
-          const productImages = [cells[3],cells[4],cells[5]].map(u=>u?.trim()).filter(u=>u);
-          
-          if (!productName || productImages.length === 0) return;
-          
-          const product = {
-            nome: productName,
-            imagens: productImages,
-            opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.trim()).filter(o=>o),
-            status: cells[9]?.trim() || '',
-            descricao: cells[10]?.trim() || '',
-            preco: cells[11]?.trim() || '',
-            mensagem: cells[12]?.trim() || '',
-            parcelamento: cells[13]?.trim() || '',
-            tag: productTag
-          };
-
-          allProdutos.push(product);
-          
-          if (productTag === 'Lançamento') {
-            launchProdutos.push(product);
+    // Função para buscar dados do Google Apps Script
+    async function fetchDataFromAppScript() {
+      try {
+        const response = await fetch(APPSCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
           }
         });
-
-        renderProdutos(launchProdutos);
-      })
-      .catch(error => {
+        
+        if (!response.ok) {
+          throw new Error('Erro ao carregar dados');
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          allBanners = data.banners || [];
+          allProdutos = data.produtos || [];
+          
+          // Filtra produtos de lançamento
+          launchProdutos = allProdutos.filter(p => p.tag === 'Lançamento');
+          
+          // Configura os banners
+          setupBannerScroll(allBanners);
+          
+          // Renderiza produtos
+          renderProdutos(launchProdutos);
+        } else {
+          console.error('Erro no servidor:', data.message);
+        }
+      } catch (error) {
         console.error('Erro ao carregar dados:', error);
-      });
+      }
+    }
 
     function renderProdutos(list) {
       const cont = document.getElementById('produtos');
@@ -506,16 +482,8 @@
         const div = document.createElement('div');
         div.className = 'produto';
         div.addEventListener('click', () => {
-          const params = new URLSearchParams();
-          params.set('produto', p.nome);
-          params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));
-          params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));
-          params.set('status', p.status);
-          params.set('descricao', p.descricao);
-          params.set('preco', p.preco);
-          params.set('mensagem', p.mensagem);
-          params.set('parcelamento', p.parcelamento);
-          location.href = `divas-produto.html?${params.toString()}`;
+          // Redireciona para a página de produto correta
+          window.location.href = `divas-produto.html?produto=${encodeURIComponent(p.nome)}`;
         });
         div.innerHTML = `
           <img src="${p.imagens[0]}" alt="${p.nome}">
@@ -567,16 +535,24 @@
       });
     });
 
+    // CORREÇÃO: Ao clicar nas fotos dos produtos, redireciona para a página de produto
     document.querySelectorAll('.photo-item').forEach(el => {
       el.addEventListener('click', () => {
         const category = el.getAttribute('data-category');
         const filtered = filterByCategory(category);
-        document.querySelector('.photo-scroll-wrapper').style.display = 'none';
-        document.querySelector('.image-scroll-wrapper').style.display = 'none';
-        document.querySelector('.banner-scroll-wrapper').style.display = 'none';
-        launchTitleEl.style.display = 'none';
-        renderProdutos(filtered);
-        showBreadcrumb(category, filtered);
+        
+        // Se houver apenas um produto na categoria, redireciona diretamente para a página do produto
+        if (filtered.length === 1) {
+          window.location.href = `divas-produto.html?produto=${encodeURIComponent(filtered[0].nome)}`;
+        } else {
+          // Se houver vários produtos, mostra a lista
+          document.querySelector('.photo-scroll-wrapper').style.display = 'none';
+          document.querySelector('.image-scroll-wrapper').style.display = 'none';
+          document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+          launchTitleEl.style.display = 'none';
+          renderProdutos(filtered);
+          showBreadcrumb(category, filtered);
+        }
       });
     });
 
@@ -646,6 +622,9 @@
       renderProdutos(sortedList);
       showBreadcrumb('Todos os Produtos', sortedList);
     });
+
+    // Inicializa carregando dados do AppScript
+    fetchDataFromAppScript();
   </script>
 </body>
 </html>
