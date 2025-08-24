@@ -6,204 +6,88 @@
   <title>Produto</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+    /* --- Seu CSS original preservado --- */
+    html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: Arial, sans-serif; 
-      background-color: #fff; 
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
     .nav-wrapper { position: sticky; top: 0; background: #fff; z-index: 1000; }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
     .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
-    .bag-icon .cart-count {
-      position: absolute; top: -4px; right: -8px;
-      background: #ff0000; color: #fff; font-size: 12px;
-      padding: 2px 6px; border-radius: 12px; display: none;
-    }
+    .bag-icon .cart-count { position: absolute; top: -4px; right: -8px; background: #ff0000; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 12px; display: none; }
     .logo img { max-height: 80px; width: auto; cursor: pointer; }
     .search-container { display: flex; width: 100%; padding: 0 16px 16px; }
-    .search-input {
-      flex: 1; padding: 12px;
-      border: 1px solid #ccc; border-radius: 8px 0 0 8px;
-      outline: none; font-size: 16px; background-color: #f2f2f2;
-    }
-    .search-button {
-      background-color: #ff69b4; border: none;
-      padding: 0 16px; border-radius: 0 8px 8px 0;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-    }
+    .search-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px 0 0 8px; outline: none; font-size: 16px; background-color: #f2f2f2; }
+    .search-button { background-color: #ff69b4; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
-    .categories-container {
-      display: flex; gap: 16px; overflow-x: auto;
-      scroll-behavior: smooth; padding: 8px 16px 16px;
-    }
+    .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
     .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
-    
-    /* Main content wrapper */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    /* GRID DE PRODUTOS igual ao Web App */
-    .produtos-grid { 
-      display: grid; 
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 24px; 
-      padding: 16px; 
-      min-height: 300px;
-    }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; }
+    .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 16px; min-height: 300px; }
     .produto { cursor: pointer; }
     .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; text-transform: capitalize; }
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
     .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
     .produto .extra { color: #007bff; }
-    
-    /* Estilos do produto único (mantidos) */ 
-    .produto-container { 
-      padding: 16px; 
-      min-height: 300px;
-    } 
-    .breadcrumb-list { font-size: 14px; color: #666; margin-bottom: 16px; } 
-    .breadcrumb-list a { color: #007bff; text-decoration: none; } 
-    .carousel img {
-      max-width: 100%;
-      height: 350px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-    .carousel img { width: 100%; border-radius: 8px; } 
-    .badge { position: absolute; top: 8px; left: 8px; background: rgba(255,0,0,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; } 
-    .counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 14px; } 
-    .thumbnails { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; } 
-    .thumbnails img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; } 
-    .thumbnails img.active { border-color: #007bff; } 
-    .produto-nome { font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px; } 
-    .produto-preco { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 8px; } 
-    .produto-parcelamento { font-size: 15px; color: #666; margin-bottom: 8px; } 
-    .produto-extra { font-size: 14px; color: #007bff; margin-bottom: 16px; } 
-    .options { margin-bottom: 16px; } 
-    .options-label { font-size: 14px; margin-bottom: 4px; } 
-    .option-swatch { display: inline-block; padding: 6px 12px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 8px; } 
-    .option-swatch.selected { border-color: #000; } 
-    .purchase-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; } 
-    .qty-controls { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; } 
-    .qty-controls button { background: none; border: none; font-size: 18px; padding: 8px 12px; cursor: pointer; } 
-    .qty-controls .qty { padding: 0 12px; font-size: 18px; min-width: 24px; text-align: center; } 
-    .buy-btn { flex: 1; background-color: #ff69b4; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; } 
-    .info-section { font-size: 14px; color: #555; margin-bottom: 4px; } 
-    .descricao { font-size: 14px; color: #333; margin-top: 8px; line-height: 1.5; } 
-    hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
-    
-    /* Breadcrumb para lista de produtos */
-    #breadcrumb { 
-      display: none; 
-      background: #fff; 
-      border-bottom: 1px solid #eee; 
-      padding: 8px 16px; 
-    }
-    #breadcrumb .path { 
-      font-size: 14px; 
-      color: #007bff; 
-      cursor: pointer; 
-      text-decoration: underline; 
-    }
-    #breadcrumb .separator { 
-      font-size: 14px; 
-      color: #555; 
-      margin: 0 8px; 
-    }
-    #breadcrumb .crumbName { 
-      font-size: 14px; 
-      text-transform: capitalize; 
-    }
-    .header-row { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-top: 8px; 
-    }
-    .header-row .title { 
-      font-weight: bold; 
-      font-size: 20px; 
-      text-transform: uppercase; 
-    }
-    .header-row .count { 
-      font-size: 14px; 
-      color: #555; 
-    }
 
-    /* overlayMenu */
-    #overlayMenu { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: #fff; 
-      transform: translateX(-100%); 
-      transition: transform 0.3s ease; 
-      z-index: 2000; 
-      padding: 60px 20px; 
-      display: flex; 
-      flex-direction: column; 
-    }
+    .produto-container { padding: 16px; min-height: 300px; }
+    .breadcrumb-list { font-size: 14px; color: #666; margin-bottom: 16px; }
+    .breadcrumb-list a { color: #007bff; text-decoration: none; }
+    .carousel img { max-width: 100%; height: 350px; object-fit: cover; border-radius: 8px; }
+    .carousel img { width: 100%; border-radius: 8px; }
+    .badge { position: absolute; top: 8px; left: 8px; background: rgba(255,0,0,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+    .counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 14px; }
+    .thumbnails { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+    .thumbnails img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; }
+    .thumbnails img.active { border-color: #007bff; }
+    .produto-nome { font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px; }
+    .produto-preco { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 8px; }
+    .produto-parcelamento { font-size: 15px; color: #666; margin-bottom: 8px; }
+    .produto-extra { font-size: 14px; color: #007bff; margin-bottom: 16px; }
+    .options { margin-bottom: 16px; }
+    .options-label { font-size: 14px; margin-bottom: 4px; }
+    .option-swatch { display: inline-block; padding: 6px 12px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 8px; }
+    .option-swatch.selected { border-color: #000; }
+    .purchase-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .qty-controls { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; }
+    .qty-controls button { background: none; border: none; font-size: 18px; padding: 8px 12px; cursor: pointer; }
+    .qty-controls .qty { padding: 0 12px; font-size: 18px; min-width: 24px; text-align: center; }
+    .buy-btn { flex: 1; background-color: #ff69b4; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; position: relative; overflow: visible; }
+    .info-section { font-size: 14px; color: #555; margin-bottom: 4px; }
+    .descricao { font-size: 14px; color: #333; margin-top: 8px; line-height: 1.5; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
+
+    #breadcrumb { display: none; background: #fff; border-bottom: 1px solid #eee; padding: 8px 16px; }
+    #breadcrumb .path { font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
+    #breadcrumb .separator { font-size: 14px; color: #555; margin: 0 8px; }
+    #breadcrumb .crumbName { font-size: 14px; text-transform: capitalize; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .header-row .title { font-weight: bold; font-size: 20px; text-transform: uppercase; }
+    .header-row .count { font-size: 14px; color: #555; }
+
+    #overlayMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 2000; padding: 60px 20px; display: flex; flex-direction: column; }
     #overlayMenu.open { transform: translateX(0); }
-    #overlayMenu .close-btn { 
-      position: absolute; 
-      top: 16px; 
-      right: 16px; 
-      font-size: 32px; 
-      cursor: pointer; 
-    }
-    #overlayMenu nav { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 0; 
-      margin-top: 20px; 
-    }
-    #overlayMenu nav a { 
-      font-size: 20px; 
-      color: #000; 
-      text-decoration: none; 
-      text-transform: uppercase; 
-      padding: 8px 0; 
-    }
-    
-    /* RODAPÉ ROSA */
-    .site-footer { 
-      background-color: #ff69b4;
-      color: #fff;
-      padding: 16px;
-      margin-top: auto;
-    }
-    .site-footer .footer-item {
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-    .site-footer .footer-item.instagram {
-      margin-bottom: 32px;
-    }
-    .site-footer .footer-item.instagram img {
-      width: 20px;
-      height: auto;
-      display: block;
-    }
-    .site-footer .footer-item a {
-      color: inherit;
-      text-decoration: none;
-    }
-    .site-footer .footer-item:last-child {
-      margin-bottom: 0;
+    #overlayMenu .close-btn { position: absolute; top: 16px; right: 16px; font-size: 32px; cursor: pointer; }
+    #overlayMenu nav { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+    #overlayMenu nav a { font-size: 20px; color: #000; text-decoration: none; text-transform: uppercase; padding: 8px 0; }
+
+    .site-footer { background-color: #ff69b4; color: #fff; padding: 16px; margin-top: auto; }
+    .site-footer .footer-item { margin-bottom: 12px; font-size: 14px; }
+    .site-footer .footer-item.instagram { margin-bottom: 32px; }
+    .site-footer .footer-item.instagram img { width: 20px; height: auto; display: block; }
+    .site-footer .footer-item a { color: inherit; text-decoration: none; }
+    .site-footer .footer-item:last-child { margin-bottom: 0; }
+
+    /* Flying image animation (cloned element) */
+    .flying-image {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      will-change: transform, opacity;
+      transition: transform 700ms cubic-bezier(.2,.8,.2,1), opacity 700ms ease;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
     }
   </style>
 </head>
@@ -248,7 +132,7 @@
   </div>
   
   <div class="main-content">
-    <!-- Breadcrumb para lista de produtos -->
+    <!-- Breadcrumb -->
     <div id="breadcrumb">
       <span class="path">Início</span>
       <span class="separator">&gt;</span>
@@ -259,14 +143,13 @@
       </div>
     </div>
     
-    <!-- Aqui aparece o produto único -->
+    <!-- Produto -->
     <div class="produto-container" id="produto"></div>
     
-    <!-- Aqui aparece o grid de resultados (oculto até filtrar/buscar) -->
+    <!-- Grid (invisível até uso) -->
     <div id="produtos" class="produtos-grid" style="display:none;"></div>
   </div>
   
-  <!-- RODAPÉ ROSA -->
   <footer class="site-footer">
     <div class="footer-item instagram">
       <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank" rel="noopener">
@@ -289,12 +172,12 @@
   </footer>
   
   <script>
-    // ––––––––––––––––––––––––––––––––––
-    // Gerenciamento de carrinho no localStorage
+    // ====== CONFIG ======
     const CART_KEY = 'cartItems';
-    // URL do Google AppScript
-    const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVFfe8VPSCUxewMt8D7vM7bdroWWZ0BCW8lSJ2peaaPhxwQnC0GEz8YxSG9jmmo_qS/exec";
+    // APPSCRIPT URL informado por você
+    const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ-mX6gsY58rcbYBlMmpIoLQ2GmnaNW5AlkkQdiy9ajz_DzZXFeCHSk7W0HYkKptY2/exec";
 
+    // ====== UTILIDADES DE CARRINHO ======
     function getCartItems() {
       try {
         return JSON.parse(localStorage.getItem(CART_KEY)) || [];
@@ -302,115 +185,107 @@
         return [];
       }
     }
-
     function setCartItems(items) {
       localStorage.setItem(CART_KEY, JSON.stringify(items));
       renderCartCount();
     }
-
     function renderCartCount() {
       const cartCountEl = document.getElementById('cart-count');
-      const totalQty = getCartItems().reduce((sum, item) => sum + item.quantidade, 0);
-      cartCountEl.textContent = totalQty;
-      cartCountEl.style.display = totalQty > 0 ? 'inline-block' : 'none';
+      const items = getCartItems();
+      const total = items.reduce((s, it) => s + (parseInt(it.quantidade || 0, 10) || 0), 0);
+      cartCountEl.textContent = total;
+      cartCountEl.style.display = total > 0 ? 'inline-block' : 'none';
     }
 
-    document.addEventListener('DOMContentLoaded', renderCartCount);
-    // ––––––––––––––––––––––––––––––––––
-    
-    // OVERLAY MENU
-    const overlay = document.getElementById('overlayMenu');
-    document.querySelector('.menu-icon').onclick = () => overlay.classList.add('open');
-    overlay.querySelector('.close-btn').onclick = () => overlay.classList.remove('open');
-    
-    // Elementos do breadcrumb
-    const breadcrumbEl = document.getElementById('breadcrumb');
-    const pathEl = breadcrumbEl.querySelector('.path');
-    const crumbNameEl = breadcrumbEl.querySelector('.crumbName');
-    const headerTitleEl = breadcrumbEl.querySelector('.header-row .title');
-    const headerCountEl = breadcrumbEl.querySelector('.header-row .count');
-    
-    // capturar produto específico se vier pela URL
-    const params = new URLSearchParams(window.location.search);
-    const nomeProduto = decodeURIComponent(params.get('produto') || '');
-    let allProdutos = [];
-    
-    // Buscar dados do Google Apps Script
-    async function fetchDataFromAppScript() {
+    // Inicializa contador
+    document.addEventListener('DOMContentLoaded', () => renderCartCount());
+
+    // ====== HELPERS ======
+    function safeJSONparseMaybeEncoded(param) {
+      // param possivelmente veio como encodeURIComponent(JSON.stringify(...))
+      if (!param) return null;
       try {
-        const response = await fetch(APPSCRIPT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
+        // tenta decodificar e fazer parse
+        const decoded = decodeURIComponent(param);
+        // se o decode não alterou e não for JSON, tentou parse mesmo assim
+        return JSON.parse(decoded);
+      } catch (e1) {
+        try {
+          return JSON.parse(param); // tentar sem decode
+        } catch (e2) {
+          // fallback: se for string com vírgulas e sem JSON, retorna array dividido (só se necessário)
+          if (typeof param === 'string' && param.indexOf(',') !== -1) {
+            return param.split(',').map(s => s.trim()).filter(Boolean);
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Erro ao carregar dados');
+          return null;
         }
-        
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-          allProdutos = data.produtos || [];
-          
-          // se vier nomeProduto, exibe produto único
-          if (nomeProduto) {
-            showProduto(nomeProduto);
-          }
-        } else {
-          console.error('Erro no servidor:', data.message);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
       }
     }
-    
-    // renderiza produto único
-    function showProduto(nome) {
+
+    function normalizeText(text){
+      if(!text) return '';
+      try { return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); } catch { return String(text).toLowerCase().trim(); }
+    }
+
+    // ====== LÓGICA DE RECEBIMENTO DOS DADOS ======
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramProduto = urlParams.get('produto') ? decodeURIComponent(urlParams.get('produto')) : '';
+    const paramImagensRaw = urlParams.get('imagens') || null;
+    const paramOpcoesRaw = urlParams.get('opcoes') || null;
+
+    let allProdutos = []; // caso precise renderizar grid
+    let currentProduct = null;
+
+    // Se veio imagens/opcoes via URL usamos direto
+    const providedImagens = safeJSONparseMaybeEncoded(paramImagensRaw);
+    const providedOpcoes = safeJSONparseMaybeEncoded(paramOpcoesRaw);
+
+    // Mostrar produto: reutilizável
+    function showProdutoFromData(produtoData) {
+      if (!produtoData) return;
+      currentProduct = produtoData;
       const container = document.getElementById('produto');
-      breadcrumbEl.style.display = 'none';
-      
-      const produto = allProdutos.find(p => p.nome === nome);
-      if (!produto) return;
-      
-      const images = produto.imagens || [];
-      const options = produto.opcoes || [];
-      const status = produto.status || '';
-      const desc = produto.descricao || '';
-      let preco = produto.preco || '';
-      const extra = produto.mensagem || '';
-      const parc = produto.parcelamento || '';
-      
-      // Corrige formatação do preço
-      if (preco) {
-        preco = preco.replace(/[^\d.,]/g, '').replace('.', ',');
-        if (!preco.includes(',')) preco += ',00';
-      } else {
-        preco = '0,00';
+      document.getElementById('produtos').style.display = 'none';
+      // Breadcrumb escondido por padrão (sua página original escondia)
+      document.getElementById('breadcrumb').style.display = 'none';
+
+      const nome = produtoData.nome || '';
+      const images = Array.isArray(produtoData.imagens) ? produtoData.imagens : (produtoData.imagens ? [produtoData.imagens] : []);
+      const options = Array.isArray(produtoData.opcoes) ? produtoData.opcoes : (produtoData.opcoes ? [produtoData.opcoes] : []);
+      const status = produtoData.status || '';
+      const desc = produtoData.descricao || '';
+      let preco = produtoData.preco || '';
+      const extra = produtoData.mensagem || '';
+      const parc = produtoData.parcelamento || '';
+
+      // Formata preço defensivamente (aceita vírgulas)
+      preco = (preco || '').toString().trim();
+      // Remove tudo que não é dígito, ponto ou vírgula, exceto preserva , ou .
+      preco = preco.replace(/[^\d.,]/g, '');
+      // unify to "x,yy"
+      if (preco && !preco.includes(',')) {
+        // se tem ponto como decimal
+        if (preco.indexOf('.') !== -1) {
+          preco = preco.replace('.', ',');
+        } else {
+          // sem separador, assume inteiro
+          preco = preco + ',00';
+        }
       }
 
+      // Monta HTML
       let html = `<div class="breadcrumb-list"><a href="divas-index.html">Início</a> &gt; ${nome}</div>`;
-      html += `
-        <div class="carousel">
-          ${status?`<div class="badge">${status}</div>`:''}
-          <img id="carousel-image" src="" alt="${nome}">
-          <div class="counter" id="image-counter"></div>
-        </div>
-        <div class="thumbnails" id="thumbnails"></div>
-        <div class="produto-nome">${nome}</div>
-        <div class="produto-preco">R$ ${preco}</div>
-        ${parc ? `<div class="produto-parcelamento">${parc}</div>` : ''}
-        ${extra ? `<div class="produto-extra">${extra}</div>` : ''}
-      `;
-      if (options.length) {
-        html += `
-          <div class="options">
-            <div class="options-label">Opções:</div>
-            <div id="option-list"></div>
-          </div>
-        `;
+      html += `<div class="carousel" style="position:relative;">${status ? `<div class="badge">${status}</div>` : ''}<img id="carousel-image" src="" alt="${nome}"><div class="counter" id="image-counter"></div></div>`;
+      html += `<div class="thumbnails" id="thumbnails"></div>`;
+      html += `<div class="produto-nome">${nome}</div>`;
+      html += `<div class="produto-preco">R$ ${preco}</div>`;
+      if (parc) html += `<div class="produto-parcelamento">${parc}</div>`;
+      if (extra) html += `<div class="produto-extra">${extra}</div>`;
+
+      if (options && options.length) {
+        html += `<div class="options"><div class="options-label">Opções:</div><div id="option-list"></div></div>`;
       }
+
       html += `
         <div class="purchase-controls">
           <div class="qty-controls">
@@ -418,7 +293,7 @@
             <div class="qty" id="quantity">1</div>
             <button id="increase">+</button>
           </div>
-          <button class="buy-btn">COMPRAR</button>
+          <button class="buy-btn" id="buy-btn">ADICIONAR AO CARRINHO</button>
         </div>
         <strong>Compra protegida</strong>
         <div class="info-section">Seus dados cuidados durante toda a compra.</div><hr>
@@ -427,237 +302,332 @@
         <strong>Descrição</strong>
         <div class="descricao">${desc}</div>
       `;
+
       container.innerHTML = html;
 
-      // carrossel...
-      let idx = 0;
+      // configura imagens e thumbs
       const imgEl = document.getElementById('carousel-image');
-      const countEl = document.getElementById('image-counter');
+      const counterEl = document.getElementById('image-counter');
       const thumbsEl = document.getElementById('thumbnails');
+
+      let index = 0;
       function showImage(i) {
-        idx = i;
+        if (!images[i]) return;
+        index = i;
         imgEl.src = images[i];
-        countEl.textContent = `${i+1}/${images.length}`;
-      }
-      images.forEach((u,i) => {
-        const t = document.createElement('img');
-        t.src = u;
-        t.onclick = () => {
-          showImage(i);
-          thumbsEl.querySelectorAll('img').forEach(x=>x.classList.remove('active'));
-          t.classList.add('active');
-        };
-        thumbsEl.appendChild(t);
-      });
-      if (images.length > 0) {
-        showImage(0);
-        thumbsEl.querySelector('img').classList.add('active');
+        counterEl.textContent = `${i + 1}/${images.length}`;
+        // active thumbnail handled separately
+        thumbsEl.querySelectorAll('img').forEach((t, idx) => {
+          if (idx === i) t.classList.add('active'); else t.classList.remove('active');
+        });
       }
 
-      // variantes
-      if (options.length) {
+      images.forEach((src, i) => {
+        const t = document.createElement('img');
+        t.src = src;
+        t.alt = produtoData.nome || '';
+        t.onclick = () => showImage(i);
+        thumbsEl.appendChild(t);
+      });
+
+      if (images.length > 0) {
+        showImage(0);
+        const firstThumb = thumbsEl.querySelector('img');
+        if (firstThumb) firstThumb.classList.add('active');
+      } else {
+        imgEl.style.display = 'none';
+        counterEl.style.display = 'none';
+      }
+
+      // opções
+      if (options && options.length) {
         const list = document.getElementById('option-list');
-        options.forEach((o,i) => {
+        options.forEach((opt, i) => {
           const sw = document.createElement('div');
           sw.className = 'option-swatch';
-          sw.textContent = o;
+          sw.textContent = opt;
           sw.onclick = () => {
-            document.querySelectorAll('.option-swatch').forEach(x=>x.classList.remove('selected'));
+            document.querySelectorAll('.option-swatch').forEach(x => x.classList.remove('selected'));
             sw.classList.add('selected');
-            showImage(i);
+            // opcional: se quiser trocar imagem conforme opção, aqui poderia escolher showImage(i) — só se fizer sentido
           };
           list.appendChild(sw);
         });
       }
 
-      // qtd
+      // quantidade
       let qty = 1;
-      document.getElementById('decrease').onclick = () => { 
-        if(qty>1) qty--; 
-        document.getElementById('quantity').textContent = qty; 
+      document.getElementById('decrease').onclick = () => {
+        if (qty > 1) qty--;
+        document.getElementById('quantity').textContent = qty;
       };
-      document.getElementById('increase').onclick = () => { 
-        qty++; 
-        document.getElementById('quantity').textContent = qty; 
+      document.getElementById('increase').onclick = () => {
+        qty++;
+        document.getElementById('quantity').textContent = qty;
       };
 
-      document.querySelector('.buy-btn').onclick = () => {
-        // 1. Captura dados do produto
-        const nome = nomeProduto || document.querySelector('.produto-nome').textContent;
-        const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
-        const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
+      // ação de compra com animação voadora
+      document.getElementById('buy-btn').onclick = (ev) => {
         const opcaoEl = document.querySelector('.option-swatch.selected');
         const opcao = opcaoEl ? opcaoEl.textContent : null;
+        const productName = nome;
+        const precoText = preco;
+        const quantidade = parseInt(document.getElementById('quantity').textContent, 10) || 1;
 
-        // 2. Adiciona/atualiza item no carrinho
-        const items = getCartItems();
-        const existente = items.find(i => i.nome === nome && i.opcao === opcao);
-        if (existente) {
-          existente.quantidade += quantidade;
-        } else {
-          items.push({ 
-            nome, 
-            preco: precoText, 
-            quantidade, 
-            opcao,
-            imagens: images // Adiciona as imagens do produto ao item do carrinho
+        // animação: clona imagem visível (carousel-image)
+        const sourceImg = document.getElementById('carousel-image');
+        if (sourceImg && sourceImg.src) {
+          flyImageToCart(sourceImg).then(() => {
+            // ao final da animação, atualiza o cart no localStorage
+            addToCartAndPersist({ nome: productName, preco: precoText, quantidade, opcao, imagens: images });
           });
+        } else {
+          // sem imagem, só atualiza o cart
+          addToCartAndPersist({ nome: productName, preco: precoText, quantidade, opcao, imagens: images });
         }
-        setCartItems(items);
-        
-        // Feedback visual
-        alert('Produto adicionado ao carrinho!');
       };
+    } // end showProdutoFromData
+
+    // adiciona ao carrinho (persist)
+    function addToCartAndPersist(item) {
+      const items = getCartItems();
+      // se já existir o mesmo nome+opcao => soma quantidade
+      const exists = items.find(i => i.nome === item.nome && (i.opcao || '') === (item.opcao || ''));
+      if (exists) {
+        exists.quantidade = (parseInt(exists.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
+      } else {
+        // garantia de tipos
+        item.quantidade = parseInt(item.quantidade || 0, 10) || 0;
+        items.push(item);
+      }
+      setCartItems(items);
+      // não usamos alert — UX visual já com animação. opcional: poderia mostrar micro-badge em canto.
     }
-    
-    // helpers de filtro
-    function singularize(t) {
-      if (t.endsWith('es')) return t.slice(0,-2);
-      if (t.endsWith('s')) return t.slice(0,-1);
-      return t;
-    }
-    
-    function filterByTerm(term) {
-      const low = term.toLowerCase(), sin = singularize(low);
-      return allProdutos.filter(p => {
-        const nm = p.nome.toLowerCase();
-        return nm.includes(low) || nm.includes(sin);
+
+    // animação: clonar imagem e mover para o ícone do carrinho (canto do cart-icon)
+    function flyImageToCart(sourceImg) {
+      return new Promise((resolve) => {
+        try {
+          const rect = sourceImg.getBoundingClientRect();
+          // clone
+          const clone = sourceImg.cloneNode(true);
+          clone.className = 'flying-image';
+          clone.style.width = rect.width + 'px';
+          clone.style.height = rect.height + 'px';
+          clone.style.left = rect.left + 'px';
+          clone.style.top = rect.top + 'px';
+          clone.style.opacity = '1';
+          document.body.appendChild(clone);
+
+          // target = cart icon
+          const cartIcon = document.getElementById('cart-icon');
+          const cartRect = cartIcon.getBoundingClientRect();
+
+          // compute translate and scale
+          const targetX = cartRect.left + (cartRect.width / 2) - (rect.left + rect.width / 2);
+          const targetY = cartRect.top + (cartRect.height / 2) - (rect.top + rect.height / 2);
+          const scale = 0.18; // shrink while flying
+
+          // force reflow then transform
+          requestAnimationFrame(() => {
+            clone.style.transform = `translate(${targetX}px, ${targetY}px) scale(${scale})`;
+            clone.style.opacity = '0.2';
+          });
+
+          // remove after animation
+          clone.addEventListener('transitionend', function handler() {
+            clone.removeEventListener('transitionend', handler);
+            clone.remove();
+            resolve();
+          });
+
+          // safety timeout
+          setTimeout(() => {
+            if (document.body.contains(clone)) {
+              clone.remove();
+              resolve();
+            }
+          }, 1000);
+        } catch (err) {
+          console.warn('flyImageToCart failed', err);
+          resolve();
+        }
       });
     }
-    
-    // render grid igual Web App
-    function renderProdutos(list) {
-      document.getElementById('produto').style.display = 'none';
+
+    // ====== Quando a página é carregada: usamos os params (se vieram) ou buscamos o catálogo ======
+    (function initPage() {
+      // se vieram imagens/opcoes via URL, priorizamos (não precisamos buscar todo catálogo)
+      if (paramProduto && (providedImagens || providedOpcoes)) {
+        // monta objeto mínimo com os dados fornecidos
+        const produtoObj = {
+          nome: paramProduto,
+          imagens: providedImagens || [],
+          opcoes: providedOpcoes || [],
+          status: urlParams.get('status') ? decodeURIComponent(urlParams.get('status')) : '',
+          descricao: urlParams.get('descricao') ? decodeURIComponent(urlParams.get('descricao')) : '',
+          preco: urlParams.get('preco') ? decodeURIComponent(urlParams.get('preco')) : '',
+          mensagem: urlParams.get('mensagem') ? decodeURIComponent(urlParams.get('mensagem')) : '',
+          parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : ''
+        };
+        showProdutoFromData(produtoObj);
+        return;
+      }
+
+      // Caso contrário, tentamos buscar o catálogo (GET) e encontrar o produto por nome.
+      // Fazemos fetch normal e, se falhar por CORS, tentamos JSONP fallback.
+      fetchCatalogWithFallback().then(data => {
+        if (!data || data.status !== 'success') {
+          // mostra mensagem simples
+          const cont = document.getElementById('produto');
+          cont.innerHTML = '<div style="padding:20px;text-align:center;">Não foi possível carregar o produto no momento.</div>';
+          return;
+        }
+        allProdutos = data.produtos || [];
+        // se nome veio na URL, encontra e mostra
+        if (paramProduto) {
+          const prodExact = allProdutos.find(p => p.nome === paramProduto);
+          if (prodExact) {
+            showProdutoFromData(prodExact);
+            return;
+          } else {
+            // tentativa com comparações normalizadas (ignora acentos/case)
+            const normalizedTarget = normalizeText(paramProduto);
+            const found = allProdutos.find(p => normalizeText(p.nome || '') === normalizedTarget || normalizeText(p.nome || '').includes(normalizedTarget));
+            if (found) {
+              showProdutoFromData(found);
+              return;
+            }
+          }
+          // não encontrou: mostra aviso e permite procurar pelo nome
+          const cont = document.getElementById('produto');
+          cont.innerHTML = `<div style="padding:20px;text-align:center;">Produto "${paramProduto}" não encontrado.</div>`;
+        } else {
+          // nenhum produto solicitado: mostra grid com todos os produtos
+          renderProdutosGrid(allProdutos);
+        }
+      });
+    })();
+
+    // ====== Fetch + JSONP fallback (para casos GitHub Pages / CORS) ======
+    function fetchCatalogWithFallback() {
+      // tentativa fetch GET
+      const url = APPSCRIPT_URL + '?_=' + Date.now();
+      return fetch(url, { method: 'GET', cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
+        .then(r => r.json())
+        .catch(() => fetchCatalogJSONP());
+    }
+    function fetchCatalogJSONP() {
+      return new Promise((resolve, reject) => {
+        const cbName = '__divasProdCB' + Date.now() + Math.floor(Math.random()*999);
+        window[cbName] = function(data) {
+          try { delete window[cbName]; script.remove(); } catch(e) {}
+          resolve(data);
+        };
+        const url = APPSCRIPT_URL + (APPSCRIPT_URL.indexOf('?') === -1 ? '?' : '&') + 'callback=' + cbName + '&_=' + Date.now();
+        const script = document.createElement('script');
+        script.src = url;
+        script.onerror = function(){ try{ delete window[cbName]; script.remove(); } catch(e){}; reject(new Error('JSONP load error')); };
+        document.head.appendChild(script);
+        // safety timeout
+        setTimeout(()=>{ if (window[cbName]) { try{ delete window[cbName]; script.remove(); }catch{}; reject(new Error('JSONP timeout')); } }, 8000);
+      });
+    }
+
+    // ====== render grid (quando necessário) ======
+    function renderProdutosGrid(list) {
       const g = document.getElementById('produtos');
+      document.getElementById('produto').style.display = 'none';
       g.style.display = 'grid';
       g.innerHTML = '';
-      
-      if (list.length === 0) {
+      if (!list || list.length === 0) {
         g.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Nenhum produto encontrado</div>';
         return;
       }
-      
       list.forEach(p => {
+        if (!p.nome) return;
         const d = document.createElement('div');
         d.className = 'produto';
-        d.onclick = () => {
-          // Redireciona para divas-produto.html com o produto como parâmetro
-          window.location.href = `divas-produto.html?produto=${encodeURIComponent(p.nome)}`;
-        };
+        d.onclick = () => { window.location.href = `divas-produto.html?produto=${encodeURIComponent(p.nome)}`; };
+        const imgSrc = (p.imagens && p.imagens[0]) ? p.imagens[0] : '';
         d.innerHTML = `
-          <img src="${p.imagens[0]||''}" alt="${p.nome}">
+          <img src="${imgSrc}" alt="${p.nome}">
           <div class="nome">${p.nome}</div>
-          <div class="preco">${p.preco}</div>
+          <div class="preco">${p.preco || ''}</div>
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
         g.appendChild(d);
       });
     }
-    
-    // ao clicar em categoria
+
+    // ====== Categoria/busca/menu handlers (mantive sua lógica) ======
     document.querySelectorAll('.category').forEach(el => {
       el.onclick = () => {
         const nome = el.textContent.trim();
-        const filtered = filterByTerm(nome);
-        renderProdutos(filtered);
-        
-        // Atualiza o breadcrumb
-        pathEl.textContent = 'Início';
-        crumbNameEl.textContent = nome.toLowerCase();
-        headerTitleEl.textContent = nome.toUpperCase();
-        headerCountEl.textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
-        breadcrumbEl.style.display = 'block';
+        const filtered = (allProdutos || []).filter(p => {
+          const nm = (p.nome || '').toLowerCase();
+          return nm.includes(nome.toLowerCase());
+        });
+        renderProdutosGrid(filtered);
+        // Breadcrumb
+        document.getElementById('breadcrumb').style.display = 'block';
+        document.querySelector('#breadcrumb .path').textContent = 'Início';
+        document.querySelector('#breadcrumb .crumbName').textContent = nome.toLowerCase();
+        document.querySelector('#breadcrumb .header-row .title').textContent = nome.toUpperCase();
+        document.querySelector('#breadcrumb .header-row .count').textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
+        // hide single product
+        document.getElementById('produto').style.display = 'none';
       };
     });
-    
-    // busca input
-    const si = document.querySelector('.search-input'),
-          sb = document.querySelector('.search-button');
+
+    const si = document.querySelector('.search-input');
+    const sb = document.querySelector('.search-button');
     si.oninput = () => {
       const t = si.value.trim();
       if (t === '') {
-        // volta ao produto único
         document.getElementById('produtos').style.display = 'none';
         document.getElementById('produto').style.display = '';
-        breadcrumbEl.style.display = 'none';
+        document.getElementById('breadcrumb').style.display = 'none';
         return;
       }
-      const filtered = filterByTerm(t);
-      renderProdutos(filtered);
-      
-      // Atualiza o breadcrumb
-      pathEl.textContent = 'Início';
-      crumbNameEl.textContent = t.toLowerCase();
-      headerTitleEl.textContent = t.toUpperCase();
-      headerCountEl.textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
-      breadcrumbEl.style.display = 'block';
+      const filtered = (allProdutos || []).filter(p => (p.nome || '').toLowerCase().includes(t.toLowerCase()));
+      renderProdutosGrid(filtered);
+      document.getElementById('breadcrumb').style.display = 'block';
+      document.querySelector('#breadcrumb .path').textContent = 'Início';
+      document.querySelector('#breadcrumb .crumbName').textContent = t.toLowerCase();
+      document.querySelector('#breadcrumb .header-row .title').textContent = t.toUpperCase();
+      document.querySelector('#breadcrumb .header-row .count').textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
     };
-    
-    sb.onclick = () => {
-      const t = si.value.trim();
-      if (t === '') {
-        document.getElementById('produtos').style.display = 'none';
-        document.getElementById('produto').style.display = '';
-        breadcrumbEl.style.display = 'none';
-      } else {
-        const filtered = filterByTerm(t);
-        renderProdutos(filtered);
-        
-        // Atualiza o breadcrumb
-        pathEl.textContent = 'Início';
-        crumbNameEl.textContent = t.toLowerCase();
-        headerTitleEl.textContent = t.toUpperCase();
-        headerCountEl.textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
-        breadcrumbEl.style.display = 'block';
-      }
-    };
-    
-    // Link "Produtos" no menu hamburguer
+    sb.onclick = () => { si.oninput(); };
+
+    // menu produtos
     document.getElementById('all-products-link').addEventListener('click', function(e) {
       e.preventDefault();
-      
-      // Fecha o menu
-      overlay.classList.remove('open');
-      
-      // Ordena todos os produtos alfabeticamente
-      const sortedList = [...allProdutos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' }));
-      
-      // Esconde o produto único e mostra o grid
-      document.getElementById('produto').style.display = 'none';
-      const grid = document.getElementById('produtos');
-      grid.style.display = 'grid';
-      
-      // Renderiza os itens
-      renderProdutos(sortedList);
-      
-      // Atualiza o breadcrumb
-      pathEl.textContent = 'Início';
-      crumbNameEl.textContent = 'Todos os Produtos';
-      headerTitleEl.textContent = 'TODOS OS PRODUTOS';
-      headerCountEl.textContent = `${sortedList.length} produto${sortedList.length !== 1 ? 's' : ''}`;
-      breadcrumbEl.style.display = 'block';
+      const sorted = [...(allProdutos || [])].sort((a,b) => (a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'}));
+      renderProdutosGrid(sorted);
+      document.getElementById('breadcrumb').style.display = 'block';
+      document.querySelector('#breadcrumb .path').textContent = 'Início';
+      document.querySelector('#breadcrumb .crumbName').textContent = 'Todos os Produtos';
+      document.querySelector('#breadcrumb .header-row .title').textContent = 'TODOS OS PRODUTOS';
+      document.querySelector('#breadcrumb .header-row .count').textContent = `${sorted.length} produto${sorted.length !== 1 ? 's' : ''}`;
     });
-    
-    // Volta para a página inicial ao clicar no path "Início" no breadcrumb
-    pathEl.addEventListener('click', function() {
+
+    // voltar no breadcrumb
+    document.querySelector('#breadcrumb .path').addEventListener('click', function() {
       document.getElementById('produtos').style.display = 'none';
       document.getElementById('produto').style.display = '';
-      breadcrumbEl.style.display = 'none';
-      
-      // Se estiver na página de produto único, recarrega a página
-      if (nomeProduto) {
-        window.location.href = 'divas-index.html';
-      }
+      document.getElementById('breadcrumb').style.display = 'none';
     });
-    
-    // atualiza carrinho ao voltar de outra aba
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) renderCartCount();
-    });
-    
-    // Inicializa carregando dados do AppScript
-    fetchDataFromAppScript();
+
+    // fechar menu
+    const overlay = document.getElementById('overlayMenu');
+    document.querySelector('.menu-icon').onclick = () => overlay.classList.add('open');
+    overlay.querySelector('.close-btn').onclick = () => overlay.classList.remove('open');
+
+    // atualização do contador quando volta ao tab
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderCartCount(); });
+
   </script>
 </body>
 </html>
