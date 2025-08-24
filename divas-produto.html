@@ -6,7 +6,7 @@
   <title>Produto</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
-    /* --- Seu CSS original preservado --- */
+    /* --- Seu CSS original preservado (ajustado: categorias sem negrito) --- */
     html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
@@ -20,7 +20,8 @@
     .search-button { background-color: #ff69b4; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
     .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
-    .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
+    /* aqui removi qualquer negrito: font-weight normal */
+    .category { cursor: pointer; white-space: nowrap; padding: 8px 0; font-weight: normal; color: #333; }
 
     .main-content { flex: 1; display: flex; flex-direction: column; }
     .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 16px; min-height: 300px; }
