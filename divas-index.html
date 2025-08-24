@@ -403,8 +403,8 @@
   </footer>
 
   <script>
-    // URL do Web App do Google Apps Script
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbze2w-aiK5QPBBgKMT_PHJpmaro79LDhQhG-g9P6qZpwJ0SMEPKoCxI5F5DdhP9iTDW/exec';
+    // URL do Web App do Google Apps Script - SUBSTITUA PELA SUA URL
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxL9PeD4wdUKFVW7dgB_n79DKt41cRsp3OkQXKAJzT_fN9anRxyH4CFqOZKDRCxskUV/exec';
 
     const CART_KEY = 'cartItems';
     const cartCountEl = document.getElementById('cart-count');
@@ -550,24 +550,29 @@
       }
     }
 
-    // Função para carregar dados do Google Apps Script SEM cache
+    // Função para carregar dados do Google Apps Script
     function loadDataFromGoogleAppsScript() {
       // Adiciona um parâmetro aleatório para evitar cache
       const url = WEB_APP_URL + '?t=' + new Date().getTime();
       
       fetch(url)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('Erro na rede');
+          }
+          return res.json();
+        })
         .then(data => {
           if (data.status === 'success') {
             processData(data);
           } else {
-            console.error('Erro ao carregar dados:', data.message);
-            showError();
+            console.error('Erro no servidor:', data.message);
+            showError('Erro no servidor: ' + (data.message || 'Desconhecido'));
           }
         })
         .catch(error => {
           console.error('Erro ao carregar dados:', error);
-          showError();
+          showError('Erro de conexão. Verifique sua internet.');
         });
     }
 
@@ -585,8 +590,16 @@
       renderProdutos(launchProdutos);
     }
 
-    function showError() {
-      document.getElementById('produtos').innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Erro ao carregar produtos. Tente recarregar a página.</div>';
+    function showError(message) {
+      document.getElementById('produtos').innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 20px;">
+          ${message || 'Erro ao carregar produtos.'}
+          <br>
+          <button onclick="loadDataFromGoogleAppsScript()" style="margin-top: 10px; padding: 10px 20px; background: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Tentar Novamente
+          </button>
+        </div>
+      `;
     }
 
     function renderProdutos(list) {
@@ -752,6 +765,9 @@
 
     // Atualiza os dados a cada 30 segundos para garantir que está sempre atualizado
     setInterval(loadDataFromGoogleAppsScript, 30 * 1000);
+    
+    // Torna a função global para o botão "Tentar Novamente"
+    window.loadDataFromGoogleAppsScript = loadDataFromGoogleAppsScript;
   </script>
 </body>
 </html>
