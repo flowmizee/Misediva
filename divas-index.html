@@ -255,25 +255,10 @@
     .skeleton-text.short {
       width: 60%;
     }
-    
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #333;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(100px);
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
+    .skeleton-banner {
+      width: calc(100vw - 32px);
+      height: 100%;
+      border-radius: 12px;
     }
   </style>
 </head>
@@ -347,7 +332,9 @@
     </div>
 
     <div class="banner-scroll-wrapper">
-      <div id="banner-scroll" class="banner-scroll"></div>
+      <div id="banner-scroll" class="banner-scroll">
+        <div class="skeleton skeleton-banner"></div>
+      </div>
     </div>
 
     <div class="produtos-wrapper">
@@ -415,25 +402,12 @@
     </div>
   </footer>
 
-  <div class="toast" id="update-toast">Novos produtos disponíveis! Atualizando...</div>
-
   <script>
     // URL do Web App do Google Apps Script
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx6124bHaWB4zXu7IboSo0xOTVAwQ8BGZT1VR2UXLGkC7cXorN1T8JHvJR3zNhuFlCe/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbze2w-aiK5QPBBgKMT_PHJpmaro79LDhQhG-g9P6qZpwJ0SMEPKoCxI5F5DdhP9iTDW/exec';
 
-    // Cache em localStorage para dados dos produtos (apenas para fallback)
-    const CACHE_KEY = 'divasProductsCache';
     const CART_KEY = 'cartItems';
     const cartCountEl = document.getElementById('cart-count');
-    const toastEl = document.getElementById('update-toast');
-
-    function showToast(message) {
-      toastEl.textContent = message;
-      toastEl.classList.add('show');
-      setTimeout(() => {
-        toastEl.classList.remove('show');
-      }, 3000);
-    }
 
     function getCartItems() {
       try {
@@ -455,7 +429,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderCartCount();
-      // Inicia o carregamento dos dados imediatamente SEM cache
+      // Inicia o carregamento dos dados imediatamente
       loadDataFromGoogleAppsScript();
     });
     
@@ -463,7 +437,6 @@
       // Quando a página fica visível novamente, verifica se há atualizações
       if (!document.hidden) {
         renderCartCount();
-        // Recarrega os dados para garantir que está tudo atualizado
         loadDataFromGoogleAppsScript();
       }
     });
@@ -527,10 +500,17 @@
 
     function setupBannerScroll(banners) {
       const bannerContainer = document.getElementById('banner-scroll');
-      bannerContainer.innerHTML = '';
       
       // Filtra apenas banners válidos (não vazios)
       const validBanners = banners.filter(b => b && b.trim() !== '');
+      
+      if (validBanners.length === 0) {
+        // Se não houver banners, esconde o container
+        document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+        return;
+      }
+      
+      document.querySelector('.banner-scroll-wrapper').style.display = '';
       
       if (validBanners.length === 1) {
         bannerContainer.className = 'banner-scroll single-banner';
@@ -540,9 +520,11 @@
         img.onerror = function() {
           this.style.display = 'none';
         };
+        bannerContainer.innerHTML = '';
         bannerContainer.appendChild(img);
       } else if (validBanners.length > 1) {
         bannerContainer.className = 'banner-scroll multiple-banners';
+        bannerContainer.innerHTML = '';
         
         // Adiciona os banners originais
         validBanners.forEach(url => {
@@ -565,15 +547,12 @@
           };
           bannerContainer.appendChild(img);
         });
-      } else {
-        // Se não houver banners, esconde o container
-        document.querySelector('.banner-scroll-wrapper').style.display = 'none';
       }
     }
 
     // Função para carregar dados do Google Apps Script SEM cache
     function loadDataFromGoogleAppsScript() {
-      // Adiciona um parâmetro aleatório para evitar cache do navegador
+      // Adiciona um parâmetro aleatório para evitar cache
       const url = WEB_APP_URL + '?t=' + new Date().getTime();
       
       fetch(url)
@@ -583,45 +562,16 @@
             processData(data);
           } else {
             console.error('Erro ao carregar dados:', data.message);
-            // Tenta usar cache apenas em caso de erro
-            try {
-              const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
-              if (cachedData) {
-                processData(cachedData);
-                showToast('Usando dados offline');
-              } else {
-                showError();
-              }
-            } catch {
-              showError();
-            }
+            showError();
           }
         })
         .catch(error => {
           console.error('Erro ao carregar dados:', error);
-          // Tenta usar cache apenas em caso de erro
-          try {
-            const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
-            if (cachedData) {
-              processData(cachedData);
-              showToast('Usando dados offline (sem conexão)');
-            } else {
-              showError();
-            }
-          } catch {
-            showError();
-          }
+          showError();
         });
     }
 
     function processData(data) {
-      // Salva no cache apenas como fallback para offline
-      try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-      } catch (e) {
-        console.error('Erro ao salvar no cache:', e);
-      }
-      
       allBanners = data.banners || [];
       allProdutos = data.produtos || [];
       
@@ -800,35 +750,8 @@
       showBreadcrumb('Todos os Produtos', sortedList);
     });
 
-    // Pré-carrega imagens importantes
-    function preloadCriticalImages() {
-      const criticalImages = [
-        'logodivas.webp',
-        'lupa.webp',
-        'colares.webp',
-        'brincos.webp',
-        'aneis.webp',
-        'pulseiras.webp',
-        'conjuntos.webp',
-        'braceletes.webp',
-        'perfumes.webp',
-        'bolsas.webp',
-        'oculos.webp',
-        'instagramicon.png'
-      ];
-      
-      criticalImages.forEach(src => {
-        const img = new Image();
-        img.src = src;
-      });
-    }
-
-    // Inicia o pré-carregamento de imagens críticas
-    preloadCriticalImages();
-
-    // Atualiza os dados a cada 1 minuto para garantir que está sempre atualizado
-    setInterval(loadDataFromGoogleAppsScript, 60 * 1000);
+    // Atualiza os dados a cada 30 segundos para garantir que está sempre atualizado
+    setInterval(loadDataFromGoogleAppsScript, 30 * 1000);
   </script>
 </body>
-</html>l
-l
+</html>
