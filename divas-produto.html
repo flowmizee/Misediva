@@ -292,6 +292,8 @@
     // ––––––––––––––––––––––––––––––––––
     // Gerenciamento de carrinho no localStorage
     const CART_KEY = 'cartItems';
+    // URL do Google AppScript
+    const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVFfe8VPSCUxewMt8D7vM7bdroWWZ0BCW8lSJ2peaaPhxwQnC0GEz8YxSG9jmmo_qS/exec";
 
     function getCartItems() {
       try {
@@ -333,176 +335,179 @@
     const nomeProduto = decodeURIComponent(params.get('produto') || '');
     let allProdutos = [];
     
-    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSjVHrLe1BOGqHZC9O2o1FxjWZluP8UCK6ZdcJSxcQRKIv1uJkO2NMKsrDdaTBg1fTS-XCwTq4RZzIb/pub?output=csv')
-      .then(r => r.text())
-      .then(csv => {
-        const lines = csv.split('\n').slice(1);
-    
-        // popula allProdutos
-        lines.forEach(line => {
-          const c = line.split(',');
-          if (!c[2]?.trim()) return;
-          allProdutos.push({
-            nome: c[2].trim(),
-            imagens: [c[3],c[4],c[5]].map(u=>u?.trim()).filter(u=>u),
-            opcoes: [c[6],c[7],c[8]].map(o=>o?.trim()).filter(o=>o),
-            status: c[9]?.trim() || '',
-            descricao: c[10]?.trim() || '',
-            preco: c[11]?.trim() || '',
-            mensagem: c[12]?.trim() || '',
-            parcelamento: c[13]?.trim() || ''
-          });
+    // Buscar dados do Google Apps Script
+    async function fetchDataFromAppScript() {
+      try {
+        const response = await fetch(APPSCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
-    
-        // se vier nomeProduto, exibe produto único
-        if (nomeProduto) {
-          showProduto(nomeProduto, lines);
+        
+        if (!response.ok) {
+          throw new Error('Erro ao carregar dados');
         }
-      });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          allProdutos = data.produtos || [];
+          
+          // se vier nomeProduto, exibe produto único
+          if (nomeProduto) {
+            showProduto(nomeProduto);
+          }
+        } else {
+          console.error('Erro no servidor:', data.message);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+    }
     
-    // renderiza produto único - FUNÇÃO CORRIGIDA
-    function showProduto(nome, lines) {
+    // renderiza produto único
+    function showProduto(nome) {
       const container = document.getElementById('produto');
       breadcrumbEl.style.display = 'none';
       
-      for (const line of lines) {
-        const c = line.split(',');
-        if ((c[2]||'').trim() !== nome) continue;
-    
-        const images = [c[3]?.trim(),c[4]?.trim(),c[5]?.trim()].filter(u=>u);
-        const options = [c[6]?.trim(),c[7]?.trim(),c[8]?.trim()].filter(o=>o);
-        const status = c[9]?.trim() || '';
-        const desc = (c[10]||'').trim().replace(/"/g, ''); // Remove aspas se existirem
-        let preco = (c[11]||'').trim();
-        const extra = (c[12]||'').trim();
-        const parc = (c[13]||'').trim();
-        
-        // Corrige formatação do preço
-        if (preco) {
-          preco = preco.replace(/[^\d.,]/g, '').replace('.', ',');
-          if (!preco.includes(',')) preco += ',00';
-        } else {
-          preco = '0,00';
-        }
-    
-        let html = `<div class="breadcrumb-list"><a href="divas-index.html">Início</a> &gt; ${nome}</div>`;
+      const produto = allProdutos.find(p => p.nome === nome);
+      if (!produto) return;
+      
+      const images = produto.imagens || [];
+      const options = produto.opcoes || [];
+      const status = produto.status || '';
+      const desc = produto.descricao || '';
+      let preco = produto.preco || '';
+      const extra = produto.mensagem || '';
+      const parc = produto.parcelamento || '';
+      
+      // Corrige formatação do preço
+      if (preco) {
+        preco = preco.replace(/[^\d.,]/g, '').replace('.', ',');
+        if (!preco.includes(',')) preco += ',00';
+      } else {
+        preco = '0,00';
+      }
+
+      let html = `<div class="breadcrumb-list"><a href="divas-index.html">Início</a> &gt; ${nome}</div>`;
+      html += `
+        <div class="carousel">
+          ${status?`<div class="badge">${status}</div>`:''}
+          <img id="carousel-image" src="" alt="${nome}">
+          <div class="counter" id="image-counter"></div>
+        </div>
+        <div class="thumbnails" id="thumbnails"></div>
+        <div class="produto-nome">${nome}</div>
+        <div class="produto-preco">R$ ${preco}</div>
+        ${parc ? `<div class="produto-parcelamento">${parc}</div>` : ''}
+        ${extra ? `<div class="produto-extra">${extra}</div>` : ''}
+      `;
+      if (options.length) {
         html += `
-          <div class="carousel">
-            ${status?`<div class="badge">${status}</div>`:''}
-            <img id="carousel-image" src="" alt="${nome}">
-            <div class="counter" id="image-counter"></div>
+          <div class="options">
+            <div class="options-label">Opções:</div>
+            <div id="option-list"></div>
           </div>
-          <div class="thumbnails" id="thumbnails"></div>
-          <div class="produto-nome">${nome}</div>
-          <div class="produto-preco">R$ ${preco}</div>
-          ${parc ? `<div class="produto-parcelamento">${parc}</div>` : ''}
-          ${extra ? `<div class="produto-extra">${extra}</div>` : ''}
         `;
-        if (options.length) {
-          html += `
-            <div class="options">
-              <div class="options-label">Opções:</div>
-              <div id="option-list"></div>
-            </div>
-          `;
-        }
-        html += `
-          <div class="purchase-controls">
-            <div class="qty-controls">
-              <button id="decrease">-</button>
-              <div class="qty" id="quantity">1</div>
-              <button id="increase">+</button>
-            </div>
-            <button class="buy-btn">COMPRAR</button>
+      }
+      html += `
+        <div class="purchase-controls">
+          <div class="qty-controls">
+            <button id="decrease">-</button>
+            <div class="qty" id="quantity">1</div>
+            <button id="increase">+</button>
           </div>
-          <strong>Compra protegida</strong>
-          <div class="info-section">Seus dados cuidados durante toda a compra.</div><hr>
-          <strong>Trocas e devoluções</strong>
-          <div class="info-section">Se não gostar, você pode trocar ou devolver em até 7 dias após a entrega.</div><hr>
-          <strong>Descrição</strong>
-          <div class="descricao">${desc}</div>
-        `;
-        container.innerHTML = html;
-    
-        // carrossel...
-        let idx = 0;
-        const imgEl = document.getElementById('carousel-image');
-        const countEl = document.getElementById('image-counter');
-        const thumbsEl = document.getElementById('thumbnails');
-        function showImage(i) {
-          idx = i;
-          imgEl.src = images[i];
-          countEl.textContent = `${i+1}/${images.length}`;
-        }
-        images.forEach((u,i) => {
-          const t = document.createElement('img');
-          t.src = u;
-          t.onclick = () => {
-            showImage(i);
-            thumbsEl.querySelectorAll('img').forEach(x=>x.classList.remove('active'));
-            t.classList.add('active');
-          };
-          thumbsEl.appendChild(t);
-        });
+          <button class="buy-btn">COMPRAR</button>
+        </div>
+        <strong>Compra protegida</strong>
+        <div class="info-section">Seus dados cuidados durante toda a compra.</div><hr>
+        <strong>Trocas e devoluções</strong>
+        <div class="info-section">Se não gostar, você pode trocar ou devolver em até 7 dias após a entrega.</div><hr>
+        <strong>Descrição</strong>
+        <div class="descricao">${desc}</div>
+      `;
+      container.innerHTML = html;
+
+      // carrossel...
+      let idx = 0;
+      const imgEl = document.getElementById('carousel-image');
+      const countEl = document.getElementById('image-counter');
+      const thumbsEl = document.getElementById('thumbnails');
+      function showImage(i) {
+        idx = i;
+        imgEl.src = images[i];
+        countEl.textContent = `${i+1}/${images.length}`;
+      }
+      images.forEach((u,i) => {
+        const t = document.createElement('img');
+        t.src = u;
+        t.onclick = () => {
+          showImage(i);
+          thumbsEl.querySelectorAll('img').forEach(x=>x.classList.remove('active'));
+          t.classList.add('active');
+        };
+        thumbsEl.appendChild(t);
+      });
+      if (images.length > 0) {
         showImage(0);
-        if (images.length > 0) {
-          thumbsEl.querySelector('img').classList.add('active');
-        }
-    
-        // variantes
-        if (options.length) {
-          const list = document.getElementById('option-list');
-          options.forEach((o,i) => {
-            const sw = document.createElement('div');
-            sw.className = 'option-swatch';
-            sw.textContent = o;
-            sw.onclick = () => {
-              document.querySelectorAll('.option-swatch').forEach(x=>x.classList.remove('selected'));
-              sw.classList.add('selected');
-              showImage(i);
-            };
-            list.appendChild(sw);
+        thumbsEl.querySelector('img').classList.add('active');
+      }
+
+      // variantes
+      if (options.length) {
+        const list = document.getElementById('option-list');
+        options.forEach((o,i) => {
+          const sw = document.createElement('div');
+          sw.className = 'option-swatch';
+          sw.textContent = o;
+          sw.onclick = () => {
+            document.querySelectorAll('.option-swatch').forEach(x=>x.classList.remove('selected'));
+            sw.classList.add('selected');
+            showImage(i);
+          };
+          list.appendChild(sw);
+        });
+      }
+
+      // qtd
+      let qty = 1;
+      document.getElementById('decrease').onclick = () => { 
+        if(qty>1) qty--; 
+        document.getElementById('quantity').textContent = qty; 
+      };
+      document.getElementById('increase').onclick = () => { 
+        qty++; 
+        document.getElementById('quantity').textContent = qty; 
+      };
+
+      document.querySelector('.buy-btn').onclick = () => {
+        // 1. Captura dados do produto
+        const nome = nomeProduto || document.querySelector('.produto-nome').textContent;
+        const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
+        const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
+        const opcaoEl = document.querySelector('.option-swatch.selected');
+        const opcao = opcaoEl ? opcaoEl.textContent : null;
+
+        // 2. Adiciona/atualiza item no carrinho
+        const items = getCartItems();
+        const existente = items.find(i => i.nome === nome && i.opcao === opcao);
+        if (existente) {
+          existente.quantidade += quantidade;
+        } else {
+          items.push({ 
+            nome, 
+            preco: precoText, 
+            quantidade, 
+            opcao,
+            imagens: images // Adiciona as imagens do produto ao item do carrinho
           });
         }
-    
-        // qtd
-        let qty = 1;
-        document.getElementById('decrease').onclick = () => { 
-          if(qty>1) qty--; 
-          document.getElementById('quantity').textContent = qty; 
-        };
-        document.getElementById('increase').onclick = () => { 
-          qty++; 
-          document.getElementById('quantity').textContent = qty; 
-        };
-    
-        document.querySelector('.buy-btn').onclick = () => {
-          // 1. Captura dados do produto
-          const nome = nomeProduto || document.querySelector('.produto-nome').textContent;
-          const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
-          const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
-          const opcaoEl = document.querySelector('.option-swatch.selected');
-          const opcao = opcaoEl ? opcaoEl.textContent : null;
-
-          // 2. Adiciona/atualiza item no carrinho
-          const items = getCartItems();
-          const existente = items.find(i => i.nome === nome && i.opcao === opcao);
-          if (existente) {
-            existente.quantidade += quantidade;
-          } else {
-            items.push({ 
-              nome, 
-              preco: precoText, 
-              quantidade, 
-              opcao,
-              imagens: images // Adiciona as imagens do produto ao item do carrinho
-            });
-          }
-          setCartItems(items);
-        };
+        setCartItems(items);
         
-        break;
-      }
+        // Feedback visual
+        alert('Produto adicionado ao carrinho!');
+      };
     }
     
     // helpers de filtro
@@ -650,6 +655,9 @@
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) renderCartCount();
     });
+    
+    // Inicializa carregando dados do AppScript
+    fetchDataFromAppScript();
   </script>
 </body>
 </html>
