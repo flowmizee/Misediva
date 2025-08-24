@@ -211,6 +211,50 @@
     .site-footer .footer-item:last-child {
       margin-bottom: 0;
     }
+
+    /* Loading indicator */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #ff69b4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-img {
+      width: 100%;
+      height: 240px;
+      margin-bottom: 12px;
+    }
+    .skeleton-text {
+      height: 16px;
+      margin-bottom: 8px;
+    }
+    .skeleton-text.short {
+      width: 60%;
+    }
   </style>
 </head>
 <body>
@@ -288,7 +332,45 @@
 
     <div class="produtos-wrapper">
       <div class="launch-title">Lançamentos</div>
-      <div id="produtos" class="produtos-grid"></div>
+      <div id="produtos" class="produtos-grid">
+        <!-- Skeleton loading para 6 produtos -->
+        <div class="produto">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -314,6 +396,14 @@
   </footer>
 
   <script>
+    // URL do Web App do Google Apps Script - SUBSTITUA PELA SUA URL
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyttNHOHP5tKRQxbF-5mGmmEMy9qtbZSyn04D_rWa4_5aKa3mtZsXiS4T8x1fSkGZgd/exec';
+
+    // Cache em localStorage para dados dos produtos
+    const CACHE_KEY = 'divasProductsCache';
+    const CACHE_TIMESTAMP_KEY = 'divasProductsCacheTimestamp';
+    const CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutos
+
     const CART_KEY = 'cartItems';
     const cartCountEl = document.getElementById('cart-count');
 
@@ -335,7 +425,12 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', renderCartCount);
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartCount();
+      // Inicia o carregamento dos dados imediatamente
+      loadDataFromGoogleAppsScript();
+    });
+    
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) renderCartCount();
     });
@@ -401,99 +496,133 @@
       const bannerContainer = document.getElementById('banner-scroll');
       bannerContainer.innerHTML = '';
       
-      if (banners.length === 1) {
+      // Filtra apenas banners válidos (não vazios)
+      const validBanners = banners.filter(b => b && b.trim() !== '');
+      
+      if (validBanners.length === 1) {
         bannerContainer.className = 'banner-scroll single-banner';
         const img = document.createElement('img');
-        img.src = banners[0];
+        img.src = validBanners[0];
         img.alt = 'Banner';
+        img.onerror = function() {
+          this.style.display = 'none';
+        };
         bannerContainer.appendChild(img);
-      } else if (banners.length > 1) {
+      } else if (validBanners.length > 1) {
         bannerContainer.className = 'banner-scroll multiple-banners';
         
         // Adiciona os banners originais
-        banners.forEach(url => {
+        validBanners.forEach(url => {
           const img = document.createElement('img');
           img.src = url;
           img.alt = 'Banner';
+          img.onerror = function() {
+            this.style.display = 'none';
+          };
           bannerContainer.appendChild(img);
         });
         
         // Adiciona cópias para criar o efeito de loop contínuo
-        banners.forEach(url => {
+        validBanners.forEach(url => {
           const img = document.createElement('img');
           img.src = url;
           img.alt = 'Banner';
+          img.onerror = function() {
+            this.style.display = 'none';
+          };
           bannerContainer.appendChild(img);
         });
+      } else {
+        // Se não houver banners, esconde o container
+        document.querySelector('.banner-scroll-wrapper').style.display = 'none';
       }
     }
 
-    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSjVHrLe1BOGqHZC9O2o1FxjWZluP8UCK6ZdcJSxcQRKIv1uJkO2NMKsrDdaTBg1fTS-XCwTq4RZzIb/pub?output=csv')
-      .then(res => res.text())
-      .then(csv => {
-        const lines = csv.split('\n').slice(1);
-        
-        // Limpa banners e produtos antigos
-        allBanners = [];
-        allProdutos = [];
-        launchProdutos = [];
-        
-        // Processa apenas a primeira linha para banners
-        if (lines.length > 0) {
-          const firstLine = lines[0].split(',');
-          if (firstLine[0]?.trim() && firstLine[0].trim() !== 'Banner 1') {
-            allBanners.push(firstLine[0].trim());
-          }
-          if (firstLine[1]?.trim() && firstLine[1].trim() !== 'Banner 2') {
-            allBanners.push(firstLine[1].trim());
-          }
+    // Verifica se os dados em cache ainda são válidos
+    function isCacheValid() {
+      const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      if (!timestamp) return false;
+      
+      return (Date.now() - parseInt(timestamp)) < CACHE_EXPIRY;
+    }
+
+    // Salva dados no cache
+    function saveToCache(data) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      } catch (e) {
+        console.error('Erro ao salvar no cache:', e);
+      }
+    }
+
+    // Recupera dados do cache
+    function getFromCache() {
+      try {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        return cachedData ? JSON.parse(cachedData) : null;
+      } catch (e) {
+        console.error('Erro ao recuperar do cache:', e);
+        return null;
+      }
+    }
+
+    // Função para carregar dados do Google Apps Script
+    function loadDataFromGoogleAppsScript() {
+      // Tenta primeiro carregar do cache
+      if (isCacheValid()) {
+        const cachedData = getFromCache();
+        if (cachedData) {
+          processData(cachedData);
+          return;
         }
-
-        // Configura os banners
-        setupBannerScroll(allBanners);
-
-        // Processa produtos (todas as linhas exceto cabeçalho)
-        lines.forEach((line, index) => {
-          if (index === 0) return; // Pula cabeçalho
-          
-          const cells = line.split(',');
-          const productTag = cells[14]?.trim();
-          
-          if (productTag === '0') return;
-          
-          const productName = cells[2]?.trim();
-          const productImages = [cells[3],cells[4],cells[5]].map(u=>u?.trim()).filter(u=>u);
-          
-          if (!productName || productImages.length === 0) return;
-          
-          const product = {
-            nome: productName,
-            imagens: productImages,
-            opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.trim()).filter(o=>o),
-            status: cells[9]?.trim() || '',
-            descricao: cells[10]?.trim() || '',
-            preco: cells[11]?.trim() || '',
-            mensagem: cells[12]?.trim() || '',
-            parcelamento: cells[13]?.trim() || '',
-            tag: productTag
-          };
-
-          allProdutos.push(product);
-          
-          if (productTag === 'Lançamento') {
-            launchProdutos.push(product);
+      }
+      
+      // Se não há cache válido, faz a requisição
+      fetch(WEB_APP_URL)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            // Salva no cache para próximas visitas
+            saveToCache(data);
+            processData(data);
+          } else {
+            console.error('Erro ao carregar dados:', data.message);
+            showError();
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao carregar dados:', error);
+          // Tenta usar cache mesmo expirado em caso de erro
+          const cachedData = getFromCache();
+          if (cachedData) {
+            processData(cachedData);
+          } else {
+            showError();
           }
         });
+    }
 
-        renderProdutos(launchProdutos);
-      })
-      .catch(error => {
-        console.error('Erro ao carregar dados:', error);
-      });
+    function processData(data) {
+      allBanners = data.banners || [];
+      allProdutos = data.produtos || [];
+      
+      // Filtra produtos de lançamento
+      launchProdutos = allProdutos.filter(p => p.tag === 'Lançamento');
+      
+      // Configura os banners
+      setupBannerScroll(allBanners);
+      
+      // Renderiza produtos
+      renderProdutos(launchProdutos);
+    }
+
+    function showError() {
+      document.getElementById('produtos').innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Erro ao carregar produtos. Tente recarregar a página.</div>';
+    }
 
     function renderProdutos(list) {
       const cont = document.getElementById('produtos');
-      cont.innerHTML = '';
       
       const validProducts = list.filter(p => p.nome && p.imagens && p.imagens.length > 0);
       
@@ -502,6 +631,10 @@
         return;
       }
       
+      // Limpa os skeletons
+      cont.innerHTML = '';
+      
+      // Adiciona os produtos reais
       validProducts.forEach(p => {
         const div = document.createElement('div');
         div.className = 'produto';
@@ -517,8 +650,10 @@
           params.set('parcelamento', p.parcelamento);
           location.href = `divas-produto.html?${params.toString()}`;
         });
+        
+        // Adiciona lazy loading para imagens
         div.innerHTML = `
-          <img src="${p.imagens[0]}" alt="${p.nome}">
+          <img src="${p.imagens[0]}" alt="${p.nome}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+Não+Encontrada'">
           <div class="nome">${p.nome}</div>
           <div class="preco">${p.preco}</div>
           <div class="parcelamento">${p.parcelamento}</div>
@@ -646,6 +781,32 @@
       renderProdutos(sortedList);
       showBreadcrumb('Todos os Produtos', sortedList);
     });
+
+    // Pré-carrega imagens importantes
+    function preloadCriticalImages() {
+      const criticalImages = [
+        'logodivas.webp',
+        'lupa.webp',
+        'colares.webp',
+        'brincos.webp',
+        'aneis.webp',
+        'pulseiras.webp',
+        'conjuntos.webp',
+        'braceletes.webp',
+        'perfumes.webp',
+        'bolsas.webp',
+        'oculos.webp',
+        'instagramicon.png'
+      ];
+      
+      criticalImages.forEach(src => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
+
+    // Inicia o pré-carregamento de imagens críticas
+    preloadCriticalImages();
   </script>
 </body>
 </html>
