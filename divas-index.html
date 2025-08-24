@@ -419,15 +419,10 @@
 
   <script>
     // URL do Web App do Google Apps Script
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz6ZWVe-_UrFWPOH5Z46jsgOlJVcuYYMJ1QA3ajDoH1m6U2XmohPEsPhhEVJm5qmjSn/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx6124bHaWB4zXu7IboSo0xOTVAwQ8BGZT1VR2UXLGkC7cXorN1T8JHvJR3zNhuFlCe/exec';
 
-    // Cache em localStorage para dados dos produtos
+    // Cache em localStorage para dados dos produtos (apenas para fallback)
     const CACHE_KEY = 'divasProductsCache';
-    const CACHE_TIMESTAMP_KEY = 'divasProductsCacheTimestamp';
-    const CACHE_ETAG_KEY = 'divasProductsCacheETag';
-    const CACHE_SHORT_EXPIRY = 2 * 60 * 1000; // 2 minutos para dados "quentes"
-    const CACHE_LONG_EXPIRY = 30 * 60 * 1000; // 30 minutos para dados offline
-
     const CART_KEY = 'cartItems';
     const cartCountEl = document.getElementById('cart-count');
     const toastEl = document.getElementById('update-toast');
@@ -460,7 +455,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderCartCount();
-      // Inicia o carregamento dos dados imediatamente
+      // Inicia o carregamento dos dados imediatamente SEM cache
       loadDataFromGoogleAppsScript();
     });
     
@@ -468,7 +463,8 @@
       // Quando a página fica visível novamente, verifica se há atualizações
       if (!document.hidden) {
         renderCartCount();
-        checkForUpdates();
+        // Recarrega os dados para garantir que está tudo atualizado
+        loadDataFromGoogleAppsScript();
       }
     });
 
@@ -575,133 +571,57 @@
       }
     }
 
-    // Verifica se os dados em cache ainda são válidos
-    function isCacheValid(useShortExpiry = true) {
-      const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      if (!timestamp) return false;
+    // Função para carregar dados do Google Apps Script SEM cache
+    function loadDataFromGoogleAppsScript() {
+      // Adiciona um parâmetro aleatório para evitar cache do navegador
+      const url = WEB_APP_URL + '?t=' + new Date().getTime();
       
-      const expiryTime = useShortExpiry ? CACHE_SHORT_EXPIRY : CACHE_LONG_EXPIRY;
-      return (Date.now() - parseInt(timestamp)) < expiryTime;
-    }
-
-    // Salva dados no cache
-    function saveToCache(data, etag) {
-      try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-        if (etag) {
-          localStorage.setItem(CACHE_ETAG_KEY, etag);
-        }
-      } catch (e) {
-        console.error('Erro ao salvar no cache:', e);
-      }
-    }
-
-    // Recupera dados do cache
-    function getFromCache() {
-      try {
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        return cachedData ? JSON.parse(cachedData) : null;
-      } catch (e) {
-        console.error('Erro ao recuperar do cache:', e);
-        return null;
-      }
-    }
-
-    // Obtem o ETag do cache
-    function getCacheETag() {
-      return localStorage.getItem(CACHE_ETAG_KEY) || '';
-    }
-
-    // Verifica se há atualizações no servidor
-    function checkForUpdates() {
-      if (!isCacheValid(true)) { // Usa expiry curto para verificar atualizações
-        fetch(WEB_APP_URL, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'If-None-Match': getCacheETag()
-          }
-        })
-        .then(response => {
-          if (response.status === 304) { // Não modificado
-            // Atualiza o timestamp mas mantém os dados
-            saveToCache(getFromCache(), response.headers.get('ETag'));
-            return null;
-          }
-          return response.json();
-        })
+      fetch(url)
+        .then(res => res.json())
         .then(data => {
-          if (data && data.status === 'success') {
-            // Novos dados disponíveis
-            saveToCache(data, data.etag);
+          if (data.status === 'success') {
             processData(data);
-            showToast('Catálogo atualizado com novos produtos!');
+          } else {
+            console.error('Erro ao carregar dados:', data.message);
+            // Tenta usar cache apenas em caso de erro
+            try {
+              const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+              if (cachedData) {
+                processData(cachedData);
+                showToast('Usando dados offline');
+              } else {
+                showError();
+              }
+            } catch {
+              showError();
+            }
           }
         })
         .catch(error => {
-          console.error('Erro ao verificar atualizações:', error);
-        });
-      }
-    }
-
-    // Função para carregar dados do Google Apps Script
-    function loadDataFromGoogleAppsScript() {
-      // Tenta primeiro carregar do cache (mesmo que expirado)
-      const cachedData = getFromCache();
-      if (cachedData) {
-        processData(cachedData);
-        
-        // Se o cache está expirado (usando expiry curto), busca dados atualizados em segundo plano
-        if (!isCacheValid(true)) {
-          setTimeout(() => {
-            fetch(WEB_APP_URL, {
-              headers: {
-                'Cache-Control': 'no-cache',
-                'If-None-Match': getCacheETag()
-              }
-            })
-            .then(response => {
-              if (response.status === 304) { // Não modificado
-                // Atualiza o timestamp mas mantém os dados
-                saveToCache(cachedData, response.headers.get('ETag'));
-                return null;
-              }
-              return response.json();
-            })
-            .then(data => {
-              if (data && data.status === 'success') {
-                // Novos dados disponíveis
-                saveToCache(data, data.etag);
-                processData(data);
-                showToast('Catálogo atualizado!');
-              }
-            })
-            .catch(error => {
-              console.error('Erro ao buscar dados atualizados:', error);
-            });
-          }, 1000); // Pequeno delay para não interferir com a experiência inicial
-        }
-      } else {
-        // Se não há cache, faz a requisição normalmente
-        fetch(WEB_APP_URL)
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              saveToCache(data, data.etag);
-              processData(data);
+          console.error('Erro ao carregar dados:', error);
+          // Tenta usar cache apenas em caso de erro
+          try {
+            const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+            if (cachedData) {
+              processData(cachedData);
+              showToast('Usando dados offline (sem conexão)');
             } else {
-              console.error('Erro ao carregar dados:', data.message);
               showError();
             }
-          })
-          .catch(error => {
-            console.error('Erro ao carregar dados:', error);
+          } catch {
             showError();
-          });
-      }
+          }
+        });
     }
 
     function processData(data) {
+      // Salva no cache apenas como fallback para offline
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('Erro ao salvar no cache:', e);
+      }
+      
       allBanners = data.banners || [];
       allProdutos = data.produtos || [];
       
@@ -906,8 +826,9 @@
     // Inicia o pré-carregamento de imagens críticas
     preloadCriticalImages();
 
-    // Verifica atualizações periodicamente (a cada 5 minutos)
-    setInterval(checkForUpdates, 5 * 60 * 1000);
+    // Atualiza os dados a cada 1 minuto para garantir que está sempre atualizado
+    setInterval(loadDataFromGoogleAppsScript, 60 * 1000);
   </script>
 </body>
-</html>
+</html>l
+l
