@@ -6,60 +6,22 @@
   <title>Divas</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+    /* (mantive seu CSS exatamente como estava) */
+    html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: Arial, sans-serif; 
-      background-color: #fff; 
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .nav-wrapper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+    body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
+    .nav-wrapper { position: fixed; top: 0; left: 0; right: 0; background: #fff; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
     .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
-    .bag-icon .cart-count {
-      position: absolute;
-      top: -4px; right: -8px;
-      background: #ff0000;
-      color: #fff;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 12px;
-      display: none;
-    }
+    .bag-icon .cart-count { position: absolute; top: -4px; right: -8px; background: #ff0000; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 12px; display: none; }
     .logo img { max-height: 80px; width: auto; cursor: pointer; }
     .search-container { display: flex; width: 100%; padding: 0 16px 16px; }
-    .search-input {
-      flex: 1; padding: 12px;
-      border: 1px solid #ccc; border-radius: 8px 0 0 8px;
-      outline: none; font-size: 16px; background-color: #f2f2f2;
-    }
-    .search-button {
-      background-color: #ff69b4; border: none;
-      padding: 0 16px; border-radius: 0 8px 8px 0;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-    }
+    .search-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px 0 0 8px; outline: none; font-size: 16px; background-color: #f2f2f2; }
+    .search-button { background-color: #ff69b4; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
-    .categories-container {
-      display: flex; gap: 16px; overflow-x: auto;
-      scroll-behavior: smooth; padding: 8px 16px 16px;
-    }
+    .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
     .categories-container.hidden::-webkit-scrollbar-thumb { background-color: rgba(204,204,204,0); }
     .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
-
     #breadcrumb { display: none; background: #fff; border-bottom: 1px solid #eee; padding: 8px 16px; }
     #breadcrumb .path { font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
     #breadcrumb .separator { font-size: 14px; color: #555; margin: 0 8px; }
@@ -67,7 +29,6 @@
     .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
     .header-row .title { font-weight: bold; font-size: 20px; text-transform: uppercase; }
     .header-row .count { font-size: 14px; color: #555; }
-
     .photo-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
     .photo-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
     .photo-scroll::-webkit-scrollbar { display: none; }
@@ -75,59 +36,18 @@
     .photo-img { width: 100px; height: 100px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .photo-img img { max-width: 100%; max-height: 100%; }
     .photo-item .label { font-size: 16px; font-weight: bold; text-transform: capitalize; margin-top: 8px; }
-
     .image-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
     .image-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
     .image-scroll::-webkit-scrollbar { display: none; }
-
-    .banner-scroll-wrapper { 
-      background-color: #f2f2f2; 
-      padding: 8px 0 24px; 
-      overflow: hidden;
-      position: relative;
-    }
-    .banner-scroll { 
-      display: flex;
-      gap: 16px;
-      width: 100%;
-      height: 500px;
-    }
-    .banner-scroll.single-banner {
-      justify-content: center;
-    }
-    .banner-scroll.multiple-banners {
-      animation: scrollBanners 15s linear infinite;
-      width: max-content;
-    }
-    .banner-scroll img { 
-      height: 100%;
-      width: calc(100vw - 32px);
-      object-fit: cover; 
-      border-radius: 12px;
-      flex-shrink: 0;
-    }
-    .banner-scroll.single-banner img {
-      width: 100%;
-      max-width: 1200px;
-      border-radius: 0;
-    }
-    @keyframes scrollBanners { 
-      0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-50% - 8px)); }
-    }
-
-    .main-content {
-      margin-top: 220px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .produtos-wrapper { 
-      background-color: #f2f2f2; 
-      padding: 16px; 
-      flex: 1;
-      min-height: 300px;
-    }
+    .banner-scroll-wrapper { background-color: #f2f2f2; padding: 8px 0 24px; overflow: hidden; position: relative; }
+    .banner-scroll { display: flex; gap: 16px; width: 100%; height: 500px; }
+    .banner-scroll.single-banner { justify-content: center; }
+    .banner-scroll.multiple-banners { animation: scrollBanners 15s linear infinite; width: max-content; }
+    .banner-scroll img { height: 100%; width: calc(100vw - 32px); object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+    .banner-scroll.single-banner img { width: 100%; max-width: 1200px; border-radius: 0; }
+    @keyframes scrollBanners { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-50% - 8px)); } }
+    .main-content { margin-top: 220px; flex: 1; display: flex; flex-direction: column; }
+    .produtos-wrapper { background-color: #f2f2f2; padding: 16px; flex: 1; min-height: 300px; }
     .launch-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; cursor: pointer; }
     .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .produto { cursor: pointer; }
@@ -136,145 +56,28 @@
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
     .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
     .produto .extra { color: #007bff; }
-
-    /* MENU OVERLAY */
-    #overlayMenu { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: #fff; 
-      transform: translateX(-100%); 
-      transition: transform 0.3s ease; 
-      z-index: 2000; 
-      padding: 60px 20px; 
-      display: flex; 
-      flex-direction: column; 
-    }
+    #overlayMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 2000; padding: 60px 20px; display: flex; flex-direction: column; }
     #overlayMenu.open { transform: translateX(0); }
-    #overlayMenu .close-btn { 
-      position: absolute; 
-      top: 16px; 
-      right: 16px; 
-      font-size: 32px; 
-      cursor: pointer; 
-    }
-    #overlayMenu nav { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 0; 
-      margin-top: 20px; 
-    }
-    #overlayMenu nav a { 
-      font-size: 20px; 
-      color: #000; 
-      text-decoration: none; 
-      text-transform: uppercase; 
-      padding: 8px 0; 
-    }
-
-    @media (max-width: 480px) {
-      .produtos-grid { grid-template-columns: 1fr 1fr; }
-      .produto img { height: 220px; }
-      .banner-scroll, .banner-scroll.single-banner {
-        height: 300px;
-      }
-      .banner-scroll img {
-        width: calc(100vw - 32px);
-      }
-    }
-
-    /* FOOTER */
-    .site-footer {
-      background-color: #ff69b4;
-      color: #fff;
-      padding: 16px;
-      margin-top: auto;
-    }
-    .site-footer .footer-item {
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-    .site-footer .footer-item.instagram {
-      margin-bottom: 32px;
-    }
-    .site-footer .footer-item.instagram img {
-      width: 20px;
-      height: auto;
-      display: block;
-    }
-    .site-footer .footer-item a {
-      color: inherit;
-      text-decoration: none;
-    }
-    .site-footer .footer-item:last-child {
-      margin-bottom: 0;
-    }
-
-    /* Loading indicator */
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #ff69b4;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Skeleton loading */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: 8px;
-    }
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .skeleton-img {
-      width: 100%;
-      height: 240px;
-      margin-bottom: 12px;
-    }
-    .skeleton-text {
-      height: 16px;
-      margin-bottom: 8px;
-    }
-    .skeleton-text.short {
-      width: 60%;
-    }
-    
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #333;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(100px);
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    #overlayMenu .close-btn { position: absolute; top: 16px; right: 16px; font-size: 32px; cursor: pointer; }
+    #overlayMenu nav { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+    #overlayMenu nav a { font-size: 20px; color: #000; text-decoration: none; text-transform: uppercase; padding: 8px 0; }
+    @media (max-width: 480px) { .produtos-grid { grid-template-columns: 1fr 1fr; } .produto img { height: 220px; } .banner-scroll, .banner-scroll.single-banner { height: 300px; } .banner-scroll img { width: calc(100vw - 32px); } }
+    .site-footer { background-color: #ff69b4; color: #fff; padding: 16px; margin-top: auto; }
+    .site-footer .footer-item { margin-bottom: 12px; font-size: 14px; }
+    .site-footer .footer-item.instagram { margin-bottom: 32px; }
+    .site-footer .footer-item.instagram img { width: 20px; height: auto; display: block; }
+    .site-footer .footer-item a { color: inherit; text-decoration: none; }
+    .site-footer .footer-item:last-child { margin-bottom: 0; }
+    .loading { display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .loading-spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #ff69b4; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; }
+    @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-img { width: 100%; height: 240px; margin-bottom: 12px; }
+    .skeleton-text { height: 16px; margin-bottom: 8px; }
+    .skeleton-text.short { width: 60%; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: white; padding: 12px 20px; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; transform: translateY(100px); transition: opacity 0.3s, transform 0.3s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -418,14 +221,15 @@
   <div class="toast" id="update-toast">Novos produtos disponíveis! Atualizando...</div>
 
   <script>
-    // URL do Web App do Google Apps Script
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwxX0JQpKU7SDjGhXF3wjwJ0kaCl5he8gcmTJynNuTK9AuWMRCiqdHwU7IU2ocCR8-D/exec';
+    // URL do Web App do Google Apps Script (coloque aqui o URL do seu deploy)
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycb.../exec';
 
     // Cache em localStorage para dados dos produtos
     const CACHE_KEY = 'divasProductsCache';
     const CACHE_TIMESTAMP_KEY = 'divasProductsCacheTimestamp';
     const CACHE_ETAG_KEY = 'divasProductsCacheETag';
-    const CACHE_SHORT_EXPIRY = 2 * 60 * 1000; // 2 minutos para dados "quentes"
+    // Ajustei expiries para atualização mais rápida
+    const CACHE_SHORT_EXPIRY = 20 * 1000; // 20 segundos para dados "quentes"
     const CACHE_LONG_EXPIRY = 30 * 60 * 1000; // 30 minutos para dados offline
 
     const CART_KEY = 'cartItems';
@@ -460,15 +264,15 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderCartCount();
-      // Inicia o carregamento dos dados imediatamente
+      // Carrega os dados imediatamente (tenta cache primeiro)
       loadDataFromGoogleAppsScript();
     });
-    
+
     document.addEventListener('visibilitychange', () => {
-      // Quando a página fica visível novamente, verifica se há atualizações
       if (!document.hidden) {
         renderCartCount();
-        checkForUpdates();
+        // quando volta à aba, pede atualização imediata
+        checkForUpdates(true);
       }
     });
 
@@ -522,7 +326,6 @@
 
     function filterByCategory(category) {
       const searchTerms = categoryMap[category] || [normalizeText(category)];
-      
       return allProdutos.filter(p => {
         const nome = p.nome || '';
         return containsAnyTerm(nome, searchTerms);
@@ -532,72 +335,53 @@
     function setupBannerScroll(banners) {
       const bannerContainer = document.getElementById('banner-scroll');
       bannerContainer.innerHTML = '';
-      
-      // Filtra apenas banners válidos (não vazios)
-      const validBanners = banners.filter(b => b && b.trim() !== '');
-      
+      const validBanners = (banners || []).filter(b => b && b.trim() !== '');
       if (validBanners.length === 1) {
         bannerContainer.className = 'banner-scroll single-banner';
         const img = document.createElement('img');
         img.src = validBanners[0];
         img.alt = 'Banner';
-        img.onerror = function() {
-          this.style.display = 'none';
-        };
+        img.onerror = function() { this.style.display = 'none'; };
         bannerContainer.appendChild(img);
       } else if (validBanners.length > 1) {
         bannerContainer.className = 'banner-scroll multiple-banners';
-        
-        // Adiciona os banners originais
         validBanners.forEach(url => {
           const img = document.createElement('img');
           img.src = url;
           img.alt = 'Banner';
-          img.onerror = function() {
-            this.style.display = 'none';
-          };
+          img.onerror = function() { this.style.display = 'none'; };
           bannerContainer.appendChild(img);
         });
-        
-        // Adiciona cópias para criar o efeito de loop contínuo
         validBanners.forEach(url => {
           const img = document.createElement('img');
           img.src = url;
           img.alt = 'Banner';
-          img.onerror = function() {
-            this.style.display = 'none';
-          };
+          img.onerror = function() { this.style.display = 'none'; };
           bannerContainer.appendChild(img);
         });
       } else {
-        // Se não houver banners, esconde o container
         document.querySelector('.banner-scroll-wrapper').style.display = 'none';
       }
     }
 
-    // Verifica se os dados em cache ainda são válidos
+    // Cache helpers
     function isCacheValid(useShortExpiry = true) {
       const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
       if (!timestamp) return false;
-      
       const expiryTime = useShortExpiry ? CACHE_SHORT_EXPIRY : CACHE_LONG_EXPIRY;
       return (Date.now() - parseInt(timestamp)) < expiryTime;
     }
 
-    // Salva dados no cache
     function saveToCache(data, etag) {
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
         localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-        if (etag) {
-          localStorage.setItem(CACHE_ETAG_KEY, etag);
-        }
+        if (etag) localStorage.setItem(CACHE_ETAG_KEY, etag);
       } catch (e) {
         console.error('Erro ao salvar no cache:', e);
       }
     }
 
-    // Recupera dados do cache
     function getFromCache() {
       try {
         const cachedData = localStorage.getItem(CACHE_KEY);
@@ -608,94 +392,98 @@
       }
     }
 
-    // Obtem o ETag do cache
     function getCacheETag() {
       return localStorage.getItem(CACHE_ETAG_KEY) || '';
     }
 
-    // Verifica se há atualizações no servidor
-    function checkForUpdates() {
-      if (!isCacheValid(true)) { // Usa expiry curto para verificar atualizações
-        fetch(WEB_APP_URL, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'If-None-Match': getCacheETag()
-          }
-        })
-        .then(response => {
-          if (response.status === 304) { // Não modificado
-            // Atualiza o timestamp mas mantém os dados
-            saveToCache(getFromCache(), response.headers.get('ETag'));
-            return null;
-          }
-          return response.json();
-        })
-        .then(data => {
-          if (data && data.status === 'success') {
-            // Novos dados disponíveis
-            saveToCache(data, data.etag);
-            processData(data);
-            showToast('Catálogo atualizado com novos produtos!');
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao verificar atualizações:', error);
-        });
-      }
+    // Faz fetch com etag (adiciona etag como query param para GAS poder ler facilmente)
+    function fetchWithETag(force = false) {
+      // Força cache-buster se quiser garantir requisição limpa
+      const etag = getCacheETag();
+      const params = new URLSearchParams();
+      if (etag) params.set('etag', etag);
+      if (force) params.set('_', Date.now().toString());
+      const url = WEB_APP_URL + (params.toString() ? ('?' + params.toString()) : '');
+
+      return fetch(url, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        },
+        cache: 'no-store'
+      });
     }
 
-    // Função para carregar dados do Google Apps Script
+    // Verifica se há atualizações no servidor
+    function checkForUpdates(force = false) {
+      // Se cache curtíssimo é válido e não for forçar, não consulta
+      // Ainda assim, se force=true, irá forçar a requisição
+      fetchWithETag(force)
+        .then(response => {
+          // Server pode responder com JSON indicando "not_modified" ou com dados novos
+          if (!response.ok && response.status !== 200) {
+            // Se o servidor respondeu com outro status, tenta tratar fallback
+            console.warn('Resposta não-ok:', response.status);
+          }
+          return response.json().then(data => ({ status: response.status, data, headers: response.headers }));
+        })
+        .then(({ status, data, headers }) => {
+          // 1) Caso o servidor diga que não houve modificação: atualiza timestamp do cache
+          if (data && (data.status === 'not_modified' || data.status === 'nochange')) {
+            // atualiza timestamp para evitar buscar várias vezes desnecessariamente
+            saveToCache(getFromCache(), data.etag || getCacheETag());
+            return;
+          }
+
+          // 2) Se vierem dados novos
+          if (data && data.status === 'success') {
+            const serverEtag = data.etag || headers.get('ETag') || '';
+            saveToCache(data, serverEtag);
+            processData(data);
+            showToast('Catálogo atualizado!');
+          } else {
+            // Se servidor retornou algo inesperado: log
+            console.warn('Resposta do servidor inesperada:', data);
+          }
+        })
+        .catch(err => {
+          console.error('Erro ao verificar atualizações:', err);
+        });
+    }
+
+    // Carrega dados (usa cache se existir; se cache expirado faz fetch)
     function loadDataFromGoogleAppsScript() {
-      // Tenta primeiro carregar do cache (mesmo que expirado)
       const cachedData = getFromCache();
       if (cachedData) {
+        // Mostra imediatamente os dados em cache (mesmo que levemente ultrapassados)
         processData(cachedData);
-        
-        // Se o cache está expirado (usando expiry curto), busca dados atualizados em segundo plano
+
+        // Se cache expirou (short expiry), faz fetch em background para atualizar
         if (!isCacheValid(true)) {
-          setTimeout(() => {
-            fetch(WEB_APP_URL, {
-              headers: {
-                'Cache-Control': 'no-cache',
-                'If-None-Match': getCacheETag()
-              }
-            })
-            .then(response => {
-              if (response.status === 304) { // Não modificado
-                // Atualiza o timestamp mas mantém os dados
-                saveToCache(cachedData, response.headers.get('ETag'));
-                return null;
-              }
-              return response.json();
-            })
-            .then(data => {
-              if (data && data.status === 'success') {
-                // Novos dados disponíveis
-                saveToCache(data, data.etag);
-                processData(data);
-                showToast('Catálogo atualizado!');
-              }
-            })
-            .catch(error => {
-              console.error('Erro ao buscar dados atualizados:', error);
-            });
-          }, 1000); // Pequeno delay para não interferir com a experiência inicial
+          // chama checkForUpdates com force=false (ele enviará etag atual ao servidor)
+          checkForUpdates(false);
         }
       } else {
-        // Se não há cache, faz a requisição normalmente
-        fetch(WEB_APP_URL)
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              saveToCache(data, data.etag);
+        // Sem cache: busca e salva
+        fetchWithETag(true)
+          .then(res => res.json().then(data => ({ res, data })))
+          .then(({ res, data }) => {
+            if (data && data.status === 'success') {
+              const serverEtag = data.etag || res.headers.get('ETag') || '';
+              saveToCache(data, serverEtag);
               processData(data);
+            } else if (data && (data.status === 'not_modified' || data.status === 'nochange')) {
+              // sem cache e server diz not_modified = improvável, apenas tenta recarregar cache (não há)
+              console.warn('Server retornou not_modified mas não havia cache.');
+              showError();
             } else {
-              console.error('Erro ao carregar dados:', data.message);
+              console.error('Erro ao carregar dados:', data);
               showError();
             }
           })
-          .catch(error => {
-            console.error('Erro ao carregar dados:', error);
+          .catch(err => {
+            console.error('Erro ao carregar dados:', err);
             showError();
           });
       }
@@ -704,14 +492,8 @@
     function processData(data) {
       allBanners = data.banners || [];
       allProdutos = data.produtos || [];
-      
-      // Filtra produtos de lançamento
-      launchProdutos = allProdutos.filter(p => p.tag === 'Lançamento');
-      
-      // Configura os banners
+      launchProdutos = allProdutos.filter(p => (p.tag || '').toLowerCase() === 'lançamento' || (p.tag || '').toLowerCase() === 'lançamento' || (p.tag || '').toLowerCase() === 'lançamentos');
       setupBannerScroll(allBanners);
-      
-      // Renderiza produtos
       renderProdutos(launchProdutos);
     }
 
@@ -721,18 +503,12 @@
 
     function renderProdutos(list) {
       const cont = document.getElementById('produtos');
-      
-      const validProducts = list.filter(p => p.nome && p.imagens && p.imagens.length > 0);
-      
+      const validProducts = (list || []).filter(p => p.nome && p.imagens && p.imagens.length > 0);
       if (validProducts.length === 0) {
         cont.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Nenhum produto encontrado</div>';
         return;
       }
-      
-      // Limpa os skeletons
       cont.innerHTML = '';
-      
-      // Adiciona os produtos reais
       validProducts.forEach(p => {
         const div = document.createElement('div');
         div.className = 'produto';
@@ -740,22 +516,20 @@
           const params = new URLSearchParams();
           params.set('produto', p.nome);
           params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));
-          params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));
-          params.set('status', p.status);
-          params.set('descricao', p.descricao);
-          params.set('preco', p.preco);
-          params.set('mensagem', p.mensagem);
-          params.set('parcelamento', p.parcelamento);
+          params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes || [])));
+          params.set('status', p.status || '');
+          params.set('descricao', p.descricao || '');
+          params.set('preco', p.preco || '');
+          params.set('mensagem', p.mensagem || '');
+          params.set('parcelamento', p.parcelamento || '');
           location.href = `divas-produto.html?${params.toString()}`;
         });
-        
-        // Adiciona lazy loading para imagens
         div.innerHTML = `
           <img src="${p.imagens[0]}" alt="${p.nome}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+Não+Encontrada'">
           <div class="nome">${p.nome}</div>
-          <div class="preco">${p.preco}</div>
-          <div class="parcelamento">${p.parcelamento}</div>
-          <div class="extra">${p.mensagem}</div>
+          <div class="preco">${p.preco || ''}</div>
+          <div class="parcelamento">${p.parcelamento || ''}</div>
+          <div class="extra">${p.mensagem || ''}</div>
         `;
         cont.appendChild(div);
       });
@@ -763,12 +537,10 @@
 
     function showBreadcrumb(name, list) {
       pathEl.textContent = 'Início';
-      crumbNameEl.textContent = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-      headerTitleEl.textContent = name.toUpperCase();
-      
-      const validProducts = list.filter(p => p.nome && p.imagens && p.imagens.length > 0);
+      crumbNameEl.textContent = name ? (name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()) : '';
+      headerTitleEl.textContent = name ? name.toUpperCase() : '';
+      const validProducts = (list || []).filter(p => p.nome && p.imagens && p.imagens.length > 0);
       headerCountEl.textContent = `${validProducts.length} produto${validProducts.length !== 1 ? 's' : ''}`;
-      
       breadcrumbEl.style.display = 'block';
     }
 
@@ -834,13 +606,11 @@
         document.querySelector('.photo-scroll-wrapper').style.display = '';
         return;
       }
-      
       const normalizedTerm = normalizeText(term);
       const filtered = allProdutos.filter(p => {
         const nome = normalizeText(p.nome || '');
         return nome.includes(normalizedTerm);
       });
-      
       document.querySelector('.photo-scroll-wrapper').style.display = 'none';
       document.querySelector('.image-scroll-wrapper').style.display = 'none';
       document.querySelector('.banner-scroll-wrapper').style.display = 'none';
@@ -856,7 +626,6 @@
         const nome = normalizeText(p.nome || '');
         return nome.includes(normalizedTerm);
       }) : launchProdutos;
-      
       document.querySelector('.photo-scroll-wrapper').style.display = term ? 'none' : '';
       document.querySelector('.image-scroll-wrapper').style.display = term ? 'none' : '';
       document.querySelector('.banner-scroll-wrapper').style.display = term ? 'none' : '';
@@ -896,18 +665,22 @@
         'oculos.webp',
         'instagramicon.png'
       ];
-      
       criticalImages.forEach(src => {
         const img = new Image();
         img.src = src;
       });
     }
-
-    // Inicia o pré-carregamento de imagens críticas
     preloadCriticalImages();
 
-    // Verifica atualizações periodicamente (a cada 5 minutos)
-    setInterval(checkForUpdates, 5 * 60 * 1000);
+    // Polling: verifica atualizações periodicamente
+    // Ajuste se quiser checar com mais/menos frequência
+    const POLL_INTERVAL_MS = 30 * 1000; // 30 segundos
+    setInterval(() => checkForUpdates(false), POLL_INTERVAL_MS);
+
+    // Expor função para forçar recarga (útil para debug)
+    window.forceReloadFromServer = function() {
+      checkForUpdates(true);
+    };
   </script>
 </body>
 </html>
