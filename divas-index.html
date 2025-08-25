@@ -49,7 +49,7 @@
     .produtos-wrapper { background-color: #f2f2f2; padding: 16px; flex: 1; min-height: 300px; }
     .launch-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; cursor: pointer; }
     .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    .produto { cursor: pointer; }
+    .produto-wrapper { cursor: pointer; }
     .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
@@ -68,6 +68,30 @@
     .site-footer .footer-item a { color: inherit; text-decoration: none; }
     .site-footer .footer-item:last-child { margin-bottom: 0; }
     .loading { display: none; } /* placeholder caso use depois */
+
+    /* ---------- SKELETON / SHIMMER ---------- */
+    .skeleton {
+      background: linear-gradient(90deg, #eeeeee 0%, #f7f7f7 50%, #eeeeee 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s linear infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    /* Product skeleton pieces */
+    .skeleton-card { padding: 0; background: transparent; border-radius: 0; }
+    .skeleton-img { width: 100%; height: 240px; border-radius: 8px; }
+    .skeleton-text { width: 100%; height: 18px; margin-top: 12px; border-radius: 6px; }
+    .skeleton-text.short { width: 60%; height: 16px; margin-top: 8px; }
+    /* banner skeleton */
+    .skeleton-banner { width: calc(100vw - 32px); max-width: 1200px; height: 100%; border-radius: 12px; }
+    /* slight visual spacing for skeleton cards */
+    .produto.skeleton-card { padding: 4px; }
+    /* when content replaced we keep normal spacing */
+    /* ensure banner wrapper visible while skeleton present */
+    .banner-scroll-wrapper { transition: opacity .25s ease; }
   </style>
 </head>
 <body>
@@ -140,16 +164,33 @@
     </div>
 
     <div class="banner-scroll-wrapper">
-      <div id="banner-scroll" class="banner-scroll"></div>
+      <div id="banner-scroll" class="banner-scroll">
+        <!-- skeleton banner inicial será inserido via JS -->
+      </div>
     </div>
 
     <div class="produtos-wrapper">
       <div class="launch-title">Lançamentos</div>
       <div id="produtos" class="produtos-grid">
-        <!-- skeletons iniciais -->
-        <div class="produto"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-text short"></div></div>
-        <div class="produto"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-text short"></div></div>
-        <div class="produto"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-text short"></div></div>
+        <!-- skeletons iniciais (visíveis até os produtos reais chegarem) -->
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -264,7 +305,41 @@
     }
 
     // checkForUpdates: tenta fetch, se falhar usa JSONP
+    let loadingShown = false;
+    function showLoadingArea() {
+      if (loadingShown) return;
+      loadingShown = true;
+      // produtos skeleton
+      const prod = document.getElementById('produtos');
+      prod.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const div = document.createElement('div');
+        div.className = 'produto skeleton-card';
+        div.innerHTML = `
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        `;
+        prod.appendChild(div);
+      }
+      // banner skeleton
+      const bannerContainer = document.getElementById('banner-scroll');
+      bannerContainer.innerHTML = '';
+      bannerContainer.className = 'banner-scroll single-banner';
+      const b = document.createElement('div');
+      b.className = 'skeleton-banner skeleton';
+      bannerContainer.appendChild(b);
+      // ensure wrappers visible
+      document.querySelector('.banner-scroll-wrapper').style.display = '';
+    }
+    function hideLoadingArea() {
+      loadingShown = false;
+      // actual content render functions will replace skeletons
+    }
+
     function checkForUpdates(force=false) {
+      if (force) showLoadingArea();
       return fetchCatalogFetchMode(force)
         .catch(() => fetchCatalogJSONP(force))
         .then(data => {
@@ -287,6 +362,7 @@
             launchProdutos = allProdutos.filter(p => isLaunchTag(p.tag));
             setupBannerScroll(allBanners);
             renderProdutos(launchProdutos);
+            hideLoadingArea();
             return data;
           } else {
             console.warn('Resposta inesperada do servidor', data);
@@ -302,7 +378,8 @@
 
     // start
     function start() {
-      // primeiro carregamento forçado
+      // primeiro carregamento forçado -> mostra skeletons
+      showLoadingArea();
       checkForUpdates(true).then(()=> {
         // sinaliza que os dados foram carregados (evita race com cliques)
         if (_resolveDataReady) _resolveDataReady();
@@ -338,7 +415,7 @@
       }
       cont.innerHTML = '';
       valid.forEach(p => {
-        const div = document.createElement('div'); div.className = 'produto';
+        const div = document.createElement('div'); div.className = 'produto produto-wrapper';
         div.addEventListener('click', ()=> {
           const params = new URLSearchParams();
           params.set('produto', p.nome || '');
@@ -475,7 +552,7 @@
     })();
 
     // expor debug
-    window.forceReloadFromServer = function() { checkForUpdates(true); };
+    window.forceReloadFromServer = function() { showLoadingArea(); checkForUpdates(true); };
 
     // inicial
     renderCartCount();
