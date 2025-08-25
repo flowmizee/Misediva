@@ -6,7 +6,7 @@
   <title>Produto</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
-    /* --- Seu CSS original preservado (apenas override para .category) --- */
+    /* --- Seu CSS original preservado --- */
     html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
@@ -20,7 +20,6 @@
     .search-button { background-color: #ff69b4; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
     .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
-    /* FORÇAR sem negrito (override de regras externas) */
     .category { cursor: pointer; white-space: nowrap; padding: 8px 0; font-weight: normal !important; color: #333; }
 
     .main-content { flex: 1; display: flex; flex-direction: column; }
@@ -376,18 +375,15 @@
       });
     }
 
-    // fetch catalog with fallback (sem cabeçalhos que disparam preflight)
+    // fetch catalog with fallback
     function fetchCatalogWithFallback(){
       const url = APPSCRIPT_URL + '?_=' + Date.now();
-      // tentativa fetch GET simples (sem headers customizados)
       return fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors' })
         .then(r => {
-          // se não OK, cai para JSONP
           if (!r.ok) throw new Error('Fetch não retornou ok: ' + r.status);
           return r.json().catch(()=> { throw new Error('JSON inválido no fetch'); });
         })
         .catch((err) => {
-          // tenta JSONP como fallback
           console.warn('fetch direto falhou, tentando JSONP fallback:', err);
           return fetchCatalogJSONP();
         });
@@ -397,9 +393,7 @@
       return new Promise((resolve, reject) => {
         const cb = '__divasProdCB' + Date.now() + Math.floor(Math.random()*1000);
         const script = document.createElement('script');
-        // build URL com callback
         const url = APPSCRIPT_URL + (APPSCRIPT_URL.indexOf('?')===-1 ? '?' : '&') + 'callback=' + cb + '&_=' + Date.now();
-        // define callback
         window[cb] = function(data) {
           try { delete window[cb]; } catch(e){}
           if(script.parentNode) script.parentNode.removeChild(script);
@@ -412,7 +406,6 @@
           reject(new Error('JSONP load error'));
         };
         document.head.appendChild(script);
-        // timeout
         setTimeout(()=> {
           if(window[cb]) {
             try { delete window[cb]; } catch(e){}
@@ -423,14 +416,13 @@
       });
     }
 
-    // render produtos grid (abre produto na mesma página via pushState)
-    // grava lastRenderedList e popula data-nome (lookup por nome)
+    // render produtos grid (agora com click direto em cada card para abrir sem reload)
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
       g.style.display = 'grid';
       g.innerHTML = '';
-      lastRenderedList = (list || []).slice(); // cópia por segurança
+      lastRenderedList = (list || []).slice();
 
       if(!list || list.length===0){
         g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px">Nenhum produto encontrado</div>';
@@ -439,7 +431,6 @@
       list.forEach((p)=>{
         if(!p || !p.nome) return;
         const d = document.createElement('div'); d.className='produto';
-        // colocamos o nome no atributo para lookup estável
         d.setAttribute('data-nome', p.nome);
         const img = (p.imagens && p.imagens[0]) ? p.imagens[0] : '';
         d.innerHTML = `
@@ -449,40 +440,18 @@
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
+        // click direto no card: garante abertura imediata (fix pro problema de reload)
+        d.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openProduct(p);
+        });
         g.appendChild(d);
       });
     }
 
-    // Delegação de clique na grid: abre produto sem reload,
-    // fazendo lookup por data-nome -> lastRenderedList / allProdutos
-    document.getElementById('produtos').addEventListener('click', (ev) => {
-      const card = ev.target.closest('.produto');
-      if(!card) return;
-      const name = card.getAttribute('data-nome');
-      if(!name) return;
-      // Primeiro tenta buscar na lista exibida para garantir consistência
-      let prod = (lastRenderedList || []).find(x => x && x.nome === name) || null;
-      // fallback para catálogo completo
-      if(!prod) prod = (allProdutos || []).find(x => x && x.nome === name) || null;
-      if(!prod){
-        // tente match por nome normalizado (caso acentos/maiúsculas)
-        const norm = normalizeText(name);
-        prod = (lastRenderedList || []).find(x => normalizeText(x.nome||'') === norm) || (allProdutos || []).find(x => normalizeText(x.nome||'') === norm) || null;
-      }
-      if(!prod) {
-        // última tentativa: se o card contém nome no DOM, use esse nome como string
-        const productName = name;
-        const params = new URLSearchParams();
-        params.set('produto', productName);
-        const newUrl = window.location.pathname + '?' + params.toString();
-        window.history.pushState({}, '', newUrl);
-        // mostrar mensagem temporária
-        document.getElementById('produto').innerHTML = `<div style="padding:20px;text-align:center;">Abrindo "${productName}"... (detalhes não disponíveis localmente)</div>`;
-        document.getElementById('produtos').style.display = 'none';
-        return;
-      }
-
-      // atualiza URL e abre o produto nesta página
+    // função central para abrir produto (faz pushState + show)
+    function openProduct(prod){
+      if(!prod || !prod.nome) return;
       const params = new URLSearchParams();
       params.set('produto', prod.nome || '');
       if(prod.imagens) params.set('imagens', encodeURIComponent(JSON.stringify(prod.imagens)));
@@ -504,6 +473,20 @@
         mensagem: prod.mensagem || '',
         parcelamento: prod.parcelamento || ''
       });
+    }
+
+    // Delegação backup (caso algo gere elementos dinamicamente)
+    document.getElementById('produtos').addEventListener('click', (ev) => {
+      const card = ev.target.closest('.produto');
+      if(!card) return;
+      const name = card.getAttribute('data-nome');
+      if(!name) return;
+      let prod = (lastRenderedList || []).find(x => x && x.nome === name) || (allProdutos || []).find(x => x && x.nome === name) || null;
+      if(!prod){
+        const norm = normalizeText(name);
+        prod = (lastRenderedList || []).find(x => normalizeText(x.nome||'') === norm) || (allProdutos || []).find(x => normalizeText(x.nome||'') === norm) || null;
+      }
+      if(prod) openProduct(prod);
     });
 
     // category mapping & filter
@@ -650,6 +633,7 @@
         // still fetch catalog for filters (non-blocking)
         fetchCatalogWithFallback().then(data=>{
           if(data && data.status === 'success'){ allProdutos = data.produtos || []; catalogLoaded = true; catalogResolve && catalogResolve(); }
+          else if(Array.isArray(data)){ allProdutos = data; catalogLoaded = true; catalogResolve && catalogResolve(); }
           else { catalogLoaded = true; catalogResolve && catalogResolve(); }
         }).catch(()=>{ catalogLoaded = true; catalogResolve && catalogResolve(); });
         return;
@@ -658,13 +642,18 @@
       // fetch catalog, then find product if param present
       try{
         const data = await fetchCatalogWithFallback();
-        if(!data || data.status !== 'success'){
+        if(!data){
           document.getElementById('produto').innerHTML = '<div style="padding:20px;text-align:center;">Não foi possível carregar o catálogo no momento.</div>';
           allProdutos = [];
           catalogLoaded = true; catalogResolve && catalogResolve();
           return;
         }
-        allProdutos = data.produtos || [];
+        // apps script pode devolver {status:'success',produtos:[]} ou um array diretamente
+        if(data.status === 'success' && Array.isArray(data.produtos)) allProdutos = data.produtos;
+        else if(Array.isArray(data)) allProdutos = data;
+        else if(data.produtos && Array.isArray(data.produtos)) allProdutos = data.produtos;
+        else allProdutos = [];
+
         catalogLoaded = true; catalogResolve && catalogResolve();
 
         if(paramProduto){
@@ -725,7 +714,7 @@
     });
 
     // debug reload
-    window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[]; renderProdutosGrid(allProdutos); } }); };
+    window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[]; renderProdutosGrid(allProdutos); } else if(Array.isArray(d)){ allProdutos = d; renderProdutosGrid(allProdutos); } }); };
 
   </script>
 </body>
