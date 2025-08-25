@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Produto - Divas</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
@@ -56,10 +56,39 @@
     .header-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
     .header-row .title{font-weight:700;font-size:20px;text-transform:uppercase}
     .header-row .count{font-size:14px;color:#555}
-    #overlayMenu{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;transform:translateX(-100%);transition:transform .3s ease;z-index:2000;padding:60px 20px;display:flex;flex-direction:column}
+    /* ---------- OVERLAY (hambúrguer) - formatado espaçado como antes ---------- */
+    #overlayMenu{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:#fff;
+      transform:translateX(-100%);
+      transition:transform .3s ease;
+      z-index:2000;
+      padding:60px 28px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+    }
     #overlayMenu.open{transform:translateX(0)}
-    #overlayMenu .close-btn{position:absolute;top:16px;right:16px;font-size:32px;cursor:pointer}
-    #overlayMenu nav a{font-size:20px;color:#000;text-decoration:none;text-transform:uppercase;padding:8px 0}
+    #overlayMenu .close-btn{position:absolute;top:18px;right:20px;font-size:36px;cursor:pointer;line-height:1}
+    #overlayMenu nav{display:flex;flex-direction:column;gap:14px;margin-top:8px;width:100%}
+    #overlayMenu nav a{
+      font-size:20px;
+      color:#000;
+      text-decoration:none;
+      text-transform:uppercase;
+      padding:12px 6px;
+      display:block;
+      width:100%;
+      border-radius:6px;
+      letter-spacing:0.6px;
+      font-weight:600;
+    }
+    #overlayMenu nav a:hover{background:rgba(0,0,0,0.03)}
+    /* ------------------------------------------------------------------------ */
     .site-footer{background:#ff69b4;color:#fff;padding:16px;margin-top:auto}
     .site-footer a{color:inherit;text-decoration:none}
     .flying-image{position:fixed;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s ease;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
@@ -344,9 +373,7 @@
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
-        // <-- Alteração importante:
-        // Em vez de abrir em single-page via pushState/show, NAVEGAMOS para a mesma URL com params.
-        // Isso força o recarregamento (a página produto irá abrir usando os params).
+        // Navega para a mesma página com params (força reload pra garantir detalhe visível)
         d.addEventListener('click', (ev)=>{
           ev.stopPropagation();
           const params = new URLSearchParams();
@@ -358,7 +385,6 @@
           if(p.preco) params.set('preco', encodeURIComponent(p.preco));
           if(p.mensagem) params.set('mensagem', encodeURIComponent(p.mensagem));
           if(p.parcelamento) params.set('parcelamento', encodeURIComponent(p.parcelamento));
-          // força navegação/reload:
           window.location.href = window.location.pathname + '?' + params.toString();
         });
         g.appendChild(d);
