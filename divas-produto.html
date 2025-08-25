@@ -6,7 +6,7 @@
   <title>Produto</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
-    /* --- Seu CSS original preservado (ajustado: categorias sem negrito) --- */
+    /* --- Seu CSS original preservado (apenas override para .category) --- */
     html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
@@ -20,8 +20,8 @@
     .search-button { background-color: #ff69b4; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
     .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
-    /* aqui removi qualquer negrito: font-weight normal */
-    .category { cursor: pointer; white-space: nowrap; padding: 8px 0; font-weight: normal; color: #333; }
+    /* FORÇAR sem negrito (override de regras externas) */
+    .category { cursor: pointer; white-space: nowrap; padding: 8px 0; font-weight: normal !important; color: #333; }
 
     .main-content { flex: 1; display: flex; flex-direction: column; }
     .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 16px; min-height: 300px; }
@@ -80,7 +80,6 @@
     .site-footer .footer-item a { color: inherit; text-decoration: none; }
     .site-footer .footer-item:last-child { margin-bottom: 0; }
 
-    /* Flying image animation (cloned element) */
     .flying-image {
       position: fixed;
       z-index: 9999;
@@ -174,10 +173,10 @@
   
   <script>
     /* ============================
-       LÓGICA (merge do segundo código)
+       LÓGICA: fetch + JSONP fallback + UI
        ============================ */
 
-    // CONFIG: Apps Script URL (do código abaixo, conforme você pediu)
+    // COLOQUE AQUI A URL CERTA DO seu Apps Script (SEM ESPAÇOS)
     const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMEY0_WEeZaFcRBaGqXM29Z5JlP0VnWyP_eW7upDKF-9EAXmtmpvt7lArtkuu87xZl/exec";
 
     // CART helpers
@@ -375,27 +374,54 @@
       });
     }
 
-    // fetch catalog with fallback
+    // fetch catalog with fallback (sem cabeçalhos que disparam preflight)
     function fetchCatalogWithFallback(){
       const url = APPSCRIPT_URL + '?_=' + Date.now();
-      return fetch(url, {method:'GET',cache:'no-store',headers:{'Pragma':'no-cache'}})
-        .then(r=> r.json())
-        .catch(()=> fetchCatalogJSONP());
+      // tentativa fetch GET simples (sem headers customizados)
+      return fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors' })
+        .then(r => {
+          // se não OK, cai para JSONP
+          if (!r.ok) throw new Error('Fetch não retornou ok: ' + r.status);
+          return r.json().catch(()=> { throw new Error('JSON inválido no fetch'); });
+        })
+        .catch((err) => {
+          // tenta JSONP como fallback
+          console.warn('fetch direto falhou, tentando JSONP fallback:', err);
+          return fetchCatalogJSONP();
+        });
     }
+
     function fetchCatalogJSONP(){
-      return new Promise((resolve,reject)=>{
+      return new Promise((resolve, reject) => {
         const cb = '__divasProdCB' + Date.now() + Math.floor(Math.random()*1000);
-        window[cb] = function(data){ try{ delete window[cb]; script.remove(); }catch{} resolve(data); };
-        const url = APPSCRIPT_URL + (APPSCRIPT_URL.indexOf('?')===-1 ? '?' : '&') + 'callback=' + cb + '&_=' + Date.now();
         const script = document.createElement('script');
+        // build URL com callback
+        const url = APPSCRIPT_URL + (APPSCRIPT_URL.indexOf('?')===-1 ? '?' : '&') + 'callback=' + cb + '&_=' + Date.now();
+        // define callback
+        window[cb] = function(data) {
+          try { delete window[cb]; } catch(e){}
+          if(script.parentNode) script.parentNode.removeChild(script);
+          resolve(data);
+        };
         script.src = url;
-        script.onerror = function(){ try{ delete window[cb]; script.remove(); }catch{} reject(new Error('JSONP load error')); };
+        script.onerror = function(){
+          try { delete window[cb]; } catch(e){}
+          if(script.parentNode) script.parentNode.removeChild(script);
+          reject(new Error('JSONP load error'));
+        };
         document.head.appendChild(script);
-        setTimeout(()=>{ if(window[cb]){ try{ delete window[cb]; script.remove(); }catch{} reject(new Error('JSONP timeout')); } }, 8000);
+        // timeout
+        setTimeout(()=> {
+          if(window[cb]) {
+            try { delete window[cb]; } catch(e){}
+            if(script.parentNode) script.parentNode.removeChild(script);
+            reject(new Error('JSONP timeout'));
+          }
+        }, 9000);
       });
     }
 
-    // render produtos grid (abre produto na mesma página via params)
+    // render produtos grid (abre produto na mesma página via pushState)
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
@@ -444,7 +470,7 @@
       });
     }
 
-    // category mapping & filter (robusto)
+    // category mapping & filter
     const categoryMap = {
       'BRINCOS':['brinco','brincos'],
       'ANÉIS':['anel','aneis','anéis'],
@@ -585,7 +611,7 @@
           parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : ''
         };
         showProdutoFromData(produtoObj);
-        // still fetch catalog for filters
+        // still fetch catalog for filters (non-blocking)
         fetchCatalogWithFallback().then(data=>{
           if(data && data.status === 'success'){ allProdutos = data.produtos || []; catalogLoaded = true; catalogResolve && catalogResolve(); }
           else { catalogLoaded = true; catalogResolve && catalogResolve(); }
@@ -615,7 +641,7 @@
           return;
         }
 
-        // default: render all products grid (or lançamentos if you prefer)
+        // default: render all products grid
         renderProdutosGrid(allProdutos);
       }catch(err){
         console.error('Erro ao buscar catálogo', err);
@@ -625,7 +651,7 @@
       }
     })();
 
-    // utility: debug reload
+    // debug reload
     window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[] } }); };
 
   </script>
