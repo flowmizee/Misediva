@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Miss</title>
   <link rel="icon" type="image/png" href="miss.png">
   <style>
-    /* ---------- LAYOUT / VISUAL (mantido) ---------- */
-    html, body { margin:0; padding:0; height:100%; }
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background:#fff; display:flex; flex-direction:column; min-height:100vh; }
-    .nav-wrapper{ position:fixed; top:0; left:0; right:0; background:#fff; z-index:1000; box-shadow:0 2px 4px rgba(0,0,0,.1); }
+    /* ---------- Visual / layout (mantido) ---------- */
+    html, body { margin: 0; padding: 0; height: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #fff; display:flex; flex-direction:column; min-height:100vh; }
+    .nav-wrapper { position: fixed; top:0; left:0; right:0; background:#fff; z-index:1000; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
     .header{ display:flex; justify-content:space-between; align-items:center; padding:8px 16px; }
     .menu-icon,.bag-icon{ font-size:28px; cursor:pointer; position:relative; }
     .bag-icon .cart-count{ position:absolute; top:-4px; right:-8px; background:#72202f; color:#fff; font-size:12px; padding:2px 6px; border-radius:12px; display:none; }
@@ -18,11 +18,14 @@
     .search-container{ display:flex; width:100%; padding:0 16px 16px; }
     .search-input{ flex:1; padding:12px; border:1px solid #ccc; border-radius:8px 0 0 8px; outline:none; font-size:16px; background:#f2f2f2; }
     .search-button{ background:#72202f; border:none; padding:0 16px; border-radius:0 8px 8px 0; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .search-button img{ height:36px; width:auto; }
     .categories-container{ display:flex; gap:16px; overflow-x:auto; scroll-behavior:smooth; padding:8px 16px 16px; }
     .category{ cursor:pointer; white-space:nowrap; padding:8px 0; }
 
     #breadcrumb{ display:none; background:#fff; border-bottom:1px solid #eee; padding:8px 16px; }
     #breadcrumb .path{ font-size:14px; color:#007bff; cursor:pointer; text-decoration:underline; }
+    #breadcrumb .separator{ font-size:14px; color:#555; margin:0 8px; }
+    #breadcrumb .crumbName{ font-size:14px; text-transform:capitalize; }
     .header-row{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
     .header-row .title{ font-weight:bold; font-size:20px; text-transform:uppercase; }
     .header-row .count{ font-size:14px; color:#555; }
@@ -30,16 +33,19 @@
     .photo-scroll-wrapper{ background:#f2f2f2; padding:16px; }
     .photo-scroll{ display:flex; gap:24px; overflow-x:auto; scroll-behavior:smooth; }
     .photo-img{ width:100px; height:100px; background:#f2f2f2; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    .label{ font-size:16px; font-weight:bold; margin-top:8px; text-transform:capitalize; }
+    .photo-img img{ max-width:100%; max-height:100%; }
+    .photo-item .label{ font-size:16px; font-weight:bold; text-transform:capitalize; margin-top:8px; }
 
     .image-scroll-wrapper{ background:#f2f2f2; padding:16px; }
+    .image-scroll{ display:flex; gap:24px; overflow-x:auto; scroll-behavior:smooth; }
+
     .banner-scroll-wrapper{ background:#f2f2f2; padding:8px 0 24px; overflow:hidden; position:relative; }
-    .banner-scroll{ display:flex; gap:16px; width:max-content; padding:0; }
+    .banner-scroll{ display:flex; gap:16px; padding:0; width:max-content; }
     .banner-scroll.single-banner{ width:100%; padding:0; }
     .banner-scroll.scrolling{ animation:scrollBanners 15s linear infinite; padding:0 16px; }
     .banner-scroll img{ height:500px; width:calc(100vw - 100px); object-fit:cover; border-radius:12px; flex-shrink:0; }
     .banner-scroll.single-banner img{ width:100%; border-radius:0; }
-    @keyframes scrollBanners { 0%{ transform:translateX(0);} 100%{ transform:translateX(calc(-50% - 8px)); } }
+    @keyframes scrollBanners { 0%{ transform:translateX(0); } 100%{ transform:translateX(calc(-50% - 8px)); } }
 
     .main-content{ margin-top:220px; flex:1; display:flex; flex-direction:column; }
     .produtos-wrapper{ background:#f2f2f2; padding:16px; flex:1; min-height:300px; }
@@ -49,19 +55,20 @@
     .produto img{ width:100%; height:240px; object-fit:cover; border-radius:8px; margin-bottom:12px; }
     .produto .nome{ font-size:14px; font-weight:bold; margin-bottom:8px; }
     .produto .preco{ font-size:20px; font-weight:bold; margin-bottom:8px; }
-    .produto .parcelamento, .produto .extra{ font-size:13px; margin-bottom:8px; }
+    .produto .parcelamento,.produto .extra{ font-size:13px; margin-bottom:8px; }
     .produto .extra{ color:#007bff; }
+
+    #overlayMenu{ position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; transform:translateX(-100%); transition:transform .3s ease; z-index:2000; padding:60px 20px; display:flex; flex-direction:column;}
+    #overlayMenu.open{ transform:translateX(0); }
+    #overlayMenu .close-btn{ position:absolute; top:16px; right:16px; font-size:32px; cursor:pointer; }
+    #overlayMenu nav{ display:flex; flex-direction:column; gap:0; margin-top:20px; }
+    #overlayMenu nav a{ font-size:20px; color:#000; text-decoration:none; text-transform:uppercase; padding:8px 0; }
+
+    @media (max-width:480px){ .produtos-grid{ grid-template-columns:1fr 1fr; } .produto img{ height:220px; } .banner-scroll img{ height:300px; } .banner-scroll.single-banner img{ height:300px; } }
 
     .site-footer{ background:#72202f; color:#fff; padding:16px; margin-top:auto; }
     .site-footer .footer-item{ margin-bottom:12px; font-size:14px; }
     .site-footer .footer-item.instagram img{ width:20px; display:block; }
-
-    @media (max-width:480px){
-      .produtos-grid{ grid-template-columns:1fr 1fr; }
-      .produto img{ height:220px; }
-      .banner-scroll img{ height:300px; }
-      .banner-scroll.single-banner img{ height:300px; }
-    }
 
     /* ---------- SKELETON / SHIMMER ---------- */
     .skeleton{ background:linear-gradient(90deg,#eeeeee 0%,#f7f7f7 50%,#eeeeee 100%); background-size:200% 100%; animation:shimmer 1.2s linear infinite; border-radius:8px; }
@@ -131,9 +138,7 @@
 
     <div class="image-scroll-wrapper"><div class="image-scroll"></div></div>
 
-    <div class="banner-scroll-wrapper">
-      <div id="banner-scroll" class="banner-scroll"></div>
-    </div>
+    <div class="banner-scroll-wrapper"><div id="banner-scroll" class="banner-scroll"></div></div>
 
     <div class="produtos-wrapper">
       <div class="launch-title">Lançamentos</div>
@@ -154,16 +159,14 @@
   </footer>
 
   <script>
-    /* ---------- CONFIG: troque pelo URL do seu Web App caso necessário ---------- */
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxH7lZUMS-ldRT0pjaENZx4OTuCHUQAxhes1NrPH-Mz8BC3T99RXFCmIqQM3cp-OYSN/exec';
+    /* ---------- CONFIG ---------- */
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzrb4dLHp2tmSEnHNbc8A0YGDdbCMe6mk9yoqmVjBKxXfz0UT-eNwz2kVO_4nO8ZIPh/exec';
     const POLL_INTERVAL_MS = 10000;
 
     /* ---------- STATE ---------- */
     let allBanners = [], allProdutos = [], launchProdutos = [];
     let lastETag = '';
     let lastTimestamp = Date.now();
-
-    /* dataReady promise */
     let _resolveDataReady;
     const dataReady = new Promise(resolve => { _resolveDataReady = resolve; });
 
@@ -179,18 +182,20 @@
     const searchInput = document.querySelector('.search-input');
     const searchButton = document.querySelector('.search-button');
 
-    /* ---------- HELPERS ---------- */
+    /* ---------- helpers ---------- */
     function getCartItems(){ try { return JSON.parse(localStorage.getItem('cartItems')) || []; } catch { return []; } }
     function renderCartCount(){ const total = getCartItems().reduce((s,i)=> s + (parseInt(i.quantidade||0,10)||0), 0); if(total>0){ cartCountEl.textContent = total; cartCountEl.style.display = 'inline-block'; } else cartCountEl.style.display = 'none'; }
     document.addEventListener('DOMContentLoaded', renderCartCount);
-    document.addEventListener('visibilitychange', () => { if(!document.hidden) renderCartCount(); });
+    document.addEventListener('visibilitychange', ()=> { if(!document.hidden) renderCartCount(); });
 
     document.querySelector('.menu-icon').addEventListener('click', ()=> overlay.classList.add('open'));
     overlay.querySelector('.close-btn').addEventListener('click', ()=> overlay.classList.remove('open'));
     document.getElementById('home-link').addEventListener('click', e => { e.preventDefault(); resetToHomePage(); overlay.classList.remove('open'); });
     document.querySelector('.logo').addEventListener('click', e => { e.preventDefault(); window.location.href = 'miss-index.html'; });
 
-    function normalizeText(text=''){ try{ return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); } catch { return String(text).toLowerCase().trim(); } }
+    function normalizeText(text = '') {
+      try { return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); } catch { return String(text).toLowerCase().trim(); }
+    }
 
     const categoryMap = {
       'BIQUÍNIS': ['biquíni','biquinis','biquini','bikini'],
@@ -205,10 +210,10 @@
       'MODA CASUAL PRAIA': ['praia','vestido','short','saia']
     };
     function containsAnyTerm(text, terms){ const n = normalizeText(text||''); return terms.some(t => n.includes(t)); }
-    function filterByCategory(category){ const terms = categoryMap[category] || [normalizeText(category)]; return allProdutos.filter(p => containsAnyTerm(p.nome||'', terms)); }
+    function filterByCategory(category){ const t = categoryMap[category] || [normalizeText(category)]; return allProdutos.filter(p => containsAnyTerm(p.nome||'', t)); }
     function appendCacheBuster(url){ if(!url) return url; try{ const sep = url.indexOf('?') !== -1 ? '&' : '?'; return url + sep + 'v=' + lastTimestamp; } catch { return url; } }
 
-    /* ---------- SKELETON helpers ---------- */
+    /* ---------- SKELETON ---------- */
     let loadingShown = false;
     function showLoadingArea(){
       if(loadingShown) return;
@@ -225,13 +230,13 @@
     }
     function hideLoadingArea(){ loadingShown = false; }
 
-    /* ---------- FETCH (JSON + JSONP fallback) ---------- */
+    /* ---------- Fetch with JSONP fallback + ETag support ---------- */
     function fetchCatalogFetchMode(force=false){
       const params = new URLSearchParams();
       if(lastETag && !force) params.set('etag', lastETag);
       if(force) params.set('_', Date.now());
       const url = WEB_APP_URL + (params.toString() ? ('?' + params.toString()) : '');
-      return fetch(url, { method:'GET', cache:'no-store', headers: { 'Pragma':'no-cache' } }).then(r => r.json());
+      return fetch(url, { method:'GET', cache:'no-store', headers:{ 'Pragma':'no-cache' } }).then(r => r.json());
     }
     function fetchCatalogJSONP(force=false){
       return new Promise((resolve,reject) => {
@@ -242,31 +247,32 @@
         params.set('callback', cb);
         if(force) params.set('_', Date.now());
         const url = WEB_APP_URL + (params.toString() ? ('?' + params.toString()) : '');
-        const script = document.createElement('script'); script.src = url; script.onerror = function(){ try{ delete window[cb]; script.remove(); }catch(e){} reject(new Error('JSONP load error')); };
+        const script = document.createElement('script');
+        script.src = url;
+        script.onerror = function(){ try{ delete window[cb]; script.remove(); }catch(e){} reject(new Error('JSONP load error')); };
         document.head.appendChild(script);
         setTimeout(()=>{ if(window[cb]){ try{ delete window[cb]; script.remove(); }catch(e){} reject(new Error('JSONP timeout')); } }, 8000);
       });
     }
 
     function setupBannerScroll(banners){
-      const container = document.getElementById('banner-scroll');
-      container.innerHTML = '';
-      const valid = (banners || []).filter(b => b && b.trim() !== '');
+      const c = document.getElementById('banner-scroll'); c.innerHTML = '';
+      const valid = (banners||[]).filter(b=>b && b.trim() !== '');
       if(valid.length === 0){ document.querySelector('.banner-scroll-wrapper').style.display = 'none'; return; }
       if(valid.length === 1){
-        container.className = 'banner-scroll single-banner';
+        c.className = 'banner-scroll single-banner';
         const img = document.createElement('img'); img.src = appendCacheBuster(valid[0]); img.alt = 'Banner'; img.onerror = function(){ this.style.display='none'; };
-        container.appendChild(img);
+        c.appendChild(img);
       } else {
-        container.className = 'banner-scroll scrolling';
-        valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt='Banner'; img.onerror=function(){this.style.display='none';}; container.appendChild(img); });
-        valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt='Banner'; img.onerror=function(){this.style.display='none';}; container.appendChild(img); });
+        c.className = 'banner-scroll scrolling';
+        valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt = 'Banner'; img.onerror = function(){ this.style.display='none'; }; c.appendChild(img); });
+        valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt = 'Banner'; img.onerror = function(){ this.style.display='none'; }; c.appendChild(img); });
       }
     }
 
     function renderProdutos(list){
       const cont = document.getElementById('produtos');
-      const valid = (list || []).filter(p => p && p.nome && p.imagens && p.imagens.length > 0);
+      const valid = (list||[]).filter(p=> p && p.nome && p.imagens && p.imagens.length>0);
       if(valid.length === 0){ cont.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">Nenhum produto encontrado</div>'; return; }
       cont.innerHTML = '';
       valid.forEach(p => {
@@ -284,13 +290,16 @@
           location.href = `miss-produto.html?${params.toString()}`;
         });
         const imgSrc = appendCacheBuster((p.imagens && p.imagens[0]) || '');
-        div.innerHTML = `<img src="${imgSrc}" alt="${p.nome}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+Nao+Encontrada'"><div class="nome">${p.nome}</div><div class="preco">${p.preco||''}</div><div class="parcelamento">${p.parcelamento||''}</div><div class="extra">${p.mensagem||''}</div>`;
+        div.innerHTML = `<img src="${imgSrc}" alt="${p.nome}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+Nao+Encontrada'">
+          <div class="nome">${p.nome}</div>
+          <div class="preco">${p.preco||''}</div>
+          <div class="parcelamento">${p.parcelamento||''}</div>
+          <div class="extra">${p.mensagem||''}</div>`;
         cont.appendChild(div);
       });
       renderCartCount();
     }
 
-    /* ---------- CENTRAL: checkForUpdates ---------- */
     function checkForUpdates(force=false){
       if(force) showLoadingArea();
       return fetchCatalogFetchMode(force).catch(()=> fetchCatalogJSONP(force))
@@ -306,8 +315,8 @@
             lastTimestamp = data.timestamp || lastTimestamp;
             allBanners = data.banners || [];
             allProdutos = data.produtos || [];
-            const isLaunchTag = t => normalizeText(t||'').includes('lanc') || normalizeText(t||'').includes('lançamento');
-            launchProdutos = allProdutos.filter(p => isLaunchTag(p.tag));
+            const isLaunch = t => normalizeText(t||'').includes('lanc') || normalizeText(t||'').includes('lançamento');
+            launchProdutos = allProdutos.filter(p => isLaunch(p.tag));
             setupBannerScroll(allBanners);
             renderProdutos(launchProdutos);
             hideLoadingArea();
@@ -331,11 +340,11 @@
       setInterval(()=>checkForUpdates(false), POLL_INTERVAL_MS);
     }
 
-    /* ---------- BREADCRUMB / UI ---------- */
+    /* ---------- UI interactions ---------- */
     function showBreadcrumb(name,list){
       pathEl.textContent = 'Início';
-      crumbNameEl.textContent = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-      headerTitleEl.textContent = name.toUpperCase();
+      crumbNameEl.textContent = name ? (name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()) : '';
+      headerTitleEl.textContent = name ? name.toUpperCase() : '';
       const valid = (list||[]).filter(p=> p && p.nome && p.imagens && p.imagens.length>0);
       headerCountEl.textContent = `${valid.length} produto${valid.length!==1?'s':''}`;
       breadcrumbEl.style.display = 'block';
@@ -350,7 +359,6 @@
     }
     pathEl.addEventListener('click', resetToHomePage);
 
-    // categories & photo-items wait for dataReady
     document.querySelectorAll('.category').forEach(el => {
       el.addEventListener('click', async () => {
         await dataReady;
@@ -364,6 +372,7 @@
         showBreadcrumb(name, filtered);
       });
     });
+
     document.querySelectorAll('.photo-item').forEach(el => {
       el.addEventListener('click', async () => {
         await dataReady;
@@ -388,7 +397,6 @@
       showBreadcrumb('Lançamentos', launchProdutos);
     });
 
-    // search
     searchInput.addEventListener('input', async () => {
       await dataReady;
       const term = searchInput.value.trim();
@@ -417,10 +425,10 @@
       showBreadcrumb('Todos os Produtos', sorted);
     });
 
-    // debug: forçar recarga
+    // debug helper
     window.forceReloadFromServer = function(){ showLoadingArea(); checkForUpdates(true); };
 
-    // inicializa
+    // start
     renderCartCount();
     start();
   </script>
