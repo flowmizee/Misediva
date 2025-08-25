@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="divas.png">
   <style>
     /* ----------------
-       CSS completo (produto) — estilo consistente com Divas
+       CSS (preservado / organizado)
        ---------------- */
     html,body{margin:0;padding:0;height:100%}
     *{box-sizing:border-box}
@@ -56,17 +56,50 @@
     .header-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
     .header-row .title{font-weight:700;font-size:20px;text-transform:uppercase}
     .header-row .count{font-size:14px;color:#555}
-
-    /* ---------- Overlay (menu hambúrguer sem linhas separadoras) ---------- */
-    #overlayMenu{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;transform:translateX(-100%);transition:transform .3s ease;z-index:2000;padding:60px 20px;display:flex;flex-direction:column}
-    #overlayMenu.open{transform:translateX(0)}
-    #overlayMenu .close-btn{position:absolute;top:16px;right:16px;font-size:32px;cursor:pointer}
-    /* container e estilo de links - empilhado, sem linhas separadoras */
-    #overlayMenu nav{display:flex;flex-direction:column;margin-top:20px;max-width:420px;width:100%;background:transparent;border-radius:8px;overflow:hidden}
-    #overlayMenu nav a{display:block;padding:16px 14px;font-size:18px;font-weight:400;color:#111;text-decoration:none;text-transform:uppercase;line-height:1.0;background:transparent;border-bottom:none}
-    #overlayMenu nav a:hover{background:rgba(0,0,0,0.03)}
-    /* --------------------------------------------------------------- */
-
+    
+    /* --- Menu Overlay (CORRIGIDO) --- */
+    #overlayMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 2000;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    #overlayMenu.open {
+      transform: translateX(0);
+    }
+    #overlayMenu .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 32px;
+      cursor: pointer;
+    }
+    #overlayMenu nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px; /* Espaçamento entre os itens */
+      margin-top: 20px;
+    }
+    #overlayMenu nav a {
+      font-size: 20px;
+      color: #000;
+      text-decoration: none;
+      text-transform: uppercase;
+      padding: 12px 0;
+      transition: color 0.2s;
+    }
+    #overlayMenu nav a:hover {
+      color: #ff69b4;
+    }
+    
     .site-footer{background:#ff69b4;color:#fff;padding:16px;margin-top:auto}
     .site-footer a{color:inherit;text-decoration:none}
     .flying-image{position:fixed;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s ease;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
@@ -137,7 +170,7 @@
   </footer>
 
   <script>
-    /***** CONFIG: coloque aqui a URL do Apps Script do catálogo *****/
+    /***** CONFIG - cole sua URL do Apps Script aqui *****/
     const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMEY0_WEeZaFcRBaGqXM29Z5JlP0VnWyP_eW7upDKF-9EAXmtmpvt7lArtkuu87xZl/exec";
 
     /***** Carrinho helpers *****/
@@ -163,7 +196,7 @@
     let catalogResolve;
     const catalogReady = new Promise(resolve => { catalogResolve = resolve; });
 
-    /***** URL params (se vier produto via link da grade) *****/
+    /***** Params URL *****/
     const urlParams = new URLSearchParams(window.location.search);
     const paramProduto = urlParams.get('produto') ? decodeURIComponent(urlParams.get('produto')) : '';
     const paramImagensRaw = urlParams.get('imagens') || null;
@@ -171,7 +204,7 @@
     const providedImagens = safeJSONparseMaybeEncoded(paramImagensRaw);
     const providedOpcoes = safeJSONparseMaybeEncoded(paramOpcoesRaw);
 
-    /***** Show product (UI) *****/
+    /***** show product UI *****/
     function showProdutoFromData(prod){
       if(!prod) return;
       currentProduct = prod;
@@ -189,8 +222,9 @@
       const extra = prod.mensagem || '';
       const parc = prod.parcelamento || '';
 
-      // format price (mínimo)
-      preco = (preco||'').toString().trim(); preco = preco.replace(/[^\d.,]/g,'');
+      // format price minimally
+      preco = (preco||'').toString().trim();
+      preco = preco.replace(/[^\d.,]/g,'');
       if(preco && !preco.includes(',')){ if(preco.indexOf('.')!==-1) preco = preco.replace('.',','); else preco = preco + ',00'; }
 
       let html = `<div class="breadcrumb-list"><a href="divas-index.html">Início</a> &gt; ${nome}</div>`;
@@ -326,7 +360,7 @@
       });
     }
 
-    /***** Render produtos grid (quando aplicável) - ao clicar navega com reload para forçar exibição do produto *****/
+    /***** Render grid + click agora NAVIGA e recarrega a página *****/
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
@@ -350,7 +384,9 @@
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
-        // Navegar para a mesma página com params (força reload)
+        // <-- Alteração importante:
+        // Em vez de abrir em single-page via pushState/show, NAVEGAMOS para a mesma URL with params.
+        // Isso força o recarregamento (a página produto irá abrir usando os params).
         d.addEventListener('click', (ev)=>{
           ev.stopPropagation();
           const params = new URLSearchParams();
@@ -362,13 +398,14 @@
           if(p.preco) params.set('preco', encodeURIComponent(p.preco));
           if(p.mensagem) params.set('mensagem', encodeURIComponent(p.mensagem));
           if(p.parcelamento) params.set('parcelamento', encodeURIComponent(p.parcelamento));
+          // força navegação/reload:
           window.location.href = window.location.pathname + '?' + params.toString();
         });
         g.appendChild(d);
       });
     }
 
-    /***** Category mapping & filter (simples e robusto) *****/
+    /***** Category mapping & filter (robusto) *****/
     const categoryMap = {
       'BRINCOS':['brinco','brincos'],
       'ANÉIS':['anel','aneis','anéis'],
@@ -396,9 +433,9 @@
       });
     }
 
-    /***** UI handlers (categorias, menu, busca, breadcrumb) *****/
+    /***** UI handlers *****/
     function setupUIHandlers(){
-      // categories click
+      // categorias
       document.querySelectorAll('.category').forEach(el=>{
         el.addEventListener('click', async ()=>{
           await catalogReady;
@@ -416,7 +453,7 @@
         });
       });
 
-      // all products (menu)
+      // all products menu
       document.getElementById('all-products-link').addEventListener('click', async (e)=>{
         e.preventDefault();
         await catalogReady;
@@ -431,7 +468,7 @@
         document.body.style.overflow = '';
       });
 
-      // breadcrumb back
+      // breadcrumb voltar
       document.querySelector('#breadcrumb .path').addEventListener('click', ()=>{
         document.getElementById('produtos').style.display = 'none';
         document.getElementById('produto').style.display = '';
@@ -462,7 +499,7 @@
       });
       sb.addEventListener('click', ()=> si.dispatchEvent(new Event('input')));
 
-      // overlay open/close
+      // menu open/close
       const overlay = document.getElementById('overlayMenu');
       const menuBtn = document.getElementById('menuBtn');
       const closeBtn = overlay.querySelector('.close-btn');
@@ -475,15 +512,12 @@
       if(homeLink) homeLink.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('produtos').style.display = 'none'; document.getElementById('produto').style.display = ''; document.getElementById('breadcrumb').style.display = 'none'; overlay.classList.remove('open'); document.body.style.overflow = ''; window.history.pushState({}, '', window.location.pathname); });
     }
 
-    /***** popstate handler (back/forward) *****/
+    /***** popstate handler: back/forward funciona corretamente *****/
     window.addEventListener('popstate', () => {
       const params = new URLSearchParams(window.location.search);
       const prod = params.get('produto');
       if(prod){
-        (async ()=>{
-          await catalogReady;
-          const found = allProdutos.find(p => p.nome === prod) || allProdutos.find(p => normalizeText(p.nome||'') === normalizeText(prod)) || null;
-          if(found){ showProdutoFromData(found); return; }
+        (async ()=>{ await catalogReady; const found = allProdutos.find(p => p.nome === prod) || allProdutos.find(p => normalizeText(p.nome||'') === normalizeText(prod)) || null; if(found) showProdutoFromData(found); else {
           const imagensRaw = params.get('imagens') || null;
           const opcoesRaw = params.get('opcoes') || null;
           const imgs = safeJSONparseMaybeEncoded(imagensRaw);
@@ -503,7 +537,7 @@
             return;
           }
           document.getElementById('produto').innerHTML = `<div style="padding:20px;text-align:center;">Produto "${prod}" não encontrado.</div>`;
-        })();
+        } })();
       } else {
         if(allProdutos && allProdutos.length>0) renderProdutosGrid(allProdutos);
         document.getElementById('produto').style.display = 'none';
@@ -512,36 +546,24 @@
       }
     });
 
-    /***** Inicialização: configura UI e carrega catálogo *****/
+    /***** inicial: setup UI + carregar catálogo e decidir exibição inicial *****/
     (async function init(){
       setupUIHandlers();
 
-      // se o produto vier com imagens/opcoes codificadas via URL (vindo da grade), mostramos direto
+      // se o produto vier com imagens/opcoes codificadas via URL (vindo da página Divas), mostramos direto
       if(paramProduto && (providedImagens || providedOpcoes)){
-        const produtoObj = {
-          nome: paramProduto,
-          imagens: providedImagens || [],
-          opcoes: providedOpcoes || [],
-          status: urlParams.get('status') ? decodeURIComponent(urlParams.get('status')) : '',
-          descricao: urlParams.get('descricao') ? decodeURIComponent(urlParams.get('descricao')) : '',
-          preco: urlParams.get('preco') ? decodeURIComponent(urlParams.get('preco')) : '',
-          mensagem: urlParams.get('mensagem') ? decodeURIComponent(urlParams.get('mensagem')) : '',
-          parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : ''
-        };
+        const produtoObj = { nome: paramProduto, imagens: providedImagens || [], opcoes: providedOpcoes || [], status: urlParams.get('status') ? decodeURIComponent(urlParams.get('status')) : '', descricao: urlParams.get('descricao') ? decodeURIComponent(urlParams.get('descricao')) : '', preco: urlParams.get('preco') ? decodeURIComponent(urlParams.get('preco')) : '', mensagem: urlParams.get('mensagem') ? decodeURIComponent(urlParams.get('mensagem')) : '', parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : '' };
         showProdutoFromData(produtoObj);
-        // carregar catálogo em background (para filtros funcionarem)
-        fetchCatalogWithFallback().then(data=>{
-          if(data && data.status === 'success'){ allProdutos = data.produtos || []; catalogLoaded = true; catalogResolve && catalogResolve(); }
-          else if(Array.isArray(data)){ allProdutos = data; catalogLoaded = true; catalogResolve && catalogResolve(); }
-          else { catalogLoaded = true; catalogResolve && catalogResolve(); }
-        }).catch(()=>{ catalogLoaded = true; catalogResolve && catalogResolve(); });
+        // carregar catálogo em background (para filtros funcionarem depois)
+        fetchCatalogWithFallback().then(data=>{ if(data && data.status === 'success'){ allProdutos = data.produtos || []; catalogLoaded = true; catalogResolve && catalogResolve(); } else if(Array.isArray(data)){ allProdutos = data; catalogLoaded = true; catalogResolve && catalogResolve(); } else { catalogLoaded = true; catalogResolve && catalogResolve(); } }).catch(()=>{ catalogLoaded = true; catalogResolve && catalogResolve(); });
         return;
       }
 
-      // fetch catálogo (decide se abre produto por ?produto)
+      // fetch catálogo (bloqueante para decidir se abre o produto indicado por ?produto=)
       try{
         const data = await fetchCatalogWithFallback();
         if(!data || data.status === 'error'){
+          // se o endpoint retornar array direto, aceitamos
           if(Array.isArray(data)) { allProdutos = data; }
           else {
             document.getElementById('produto').innerHTML = '<div style="padding:20px;text-align:center;">Não foi possível carregar o catálogo no momento.</div>';
@@ -550,6 +572,7 @@
             return;
           }
         } else {
+          // apps script pode devolver {status:'success',produtos: [...]}
           if(data.status === 'success' && Array.isArray(data.produtos)) allProdutos = data.produtos;
           else if(Array.isArray(data)) allProdutos = data;
           else if(data.produtos && Array.isArray(data.produtos)) allProdutos = data.produtos;
@@ -570,7 +593,7 @@
           return;
         }
 
-        // por padrão mostra grade com todos os produtos
+        // por padrão mostra grade com todos os produtos obtidos
         renderProdutosGrid(allProdutos);
       }catch(err){
         console.error('Erro ao buscar catálogo', err);
@@ -580,8 +603,9 @@
       }
     })();
 
-    // debug helper
+    // expose debug reload
     window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[]; renderProdutosGrid(allProdutos); } else if(Array.isArray(d)){ allProdutos = d; renderProdutosGrid(allProdutos); } }); };
+
   </script>
 </body>
 </html>
