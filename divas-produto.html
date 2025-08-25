@@ -215,7 +215,7 @@
     // estado
     let allProdutos = [];
     let currentProduct = null;
-    let lastRenderedList = []; // <-- lista exibida atualmente na grid (para delegação)
+    let lastRenderedList = []; // guarda lista atual exibida (cópia)
     let catalogLoaded = false;
     let catalogResolve;
     const catalogReady = new Promise(resolve => { catalogResolve = resolve; });
@@ -232,6 +232,7 @@
     function showProdutoFromData(prod){
       if(!prod) return;
       currentProduct = prod;
+      window.scrollTo({top:0,behavior:'smooth'});
       const container = document.getElementById('produto');
       document.getElementById('produtos').style.display = 'none';
       document.getElementById('breadcrumb').style.display = 'none';
@@ -423,24 +424,23 @@
     }
 
     // render produtos grid (abre produto na mesma página via pushState)
-    // -> Modificado: agora grava lastRenderedList e NÃO anexa onclick por item.
-    // A abertura do produto é feita por delegação (veja listener mais abaixo).
+    // grava lastRenderedList e popula data-nome (lookup por nome)
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
       g.style.display = 'grid';
       g.innerHTML = '';
-      lastRenderedList = list || [];
+      lastRenderedList = (list || []).slice(); // cópia por segurança
 
       if(!list || list.length===0){
         g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px">Nenhum produto encontrado</div>';
         return;
       }
-      list.forEach((p, idx)=>{
+      list.forEach((p)=>{
         if(!p || !p.nome) return;
         const d = document.createElement('div'); d.className='produto';
-        // armazenamos o índice do item renderizado para usar na delegação
-        d.setAttribute('data-idx', idx);
+        // colocamos o nome no atributo para lookup estável
+        d.setAttribute('data-nome', p.nome);
         const img = (p.imagens && p.imagens[0]) ? p.imagens[0] : '';
         d.innerHTML = `
           <img src="${img}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
@@ -453,13 +453,35 @@
       });
     }
 
-    // Delegação de clique na grid: abre produto sem reload (resolve problema de "só após recarregar")
+    // Delegação de clique na grid: abre produto sem reload,
+    // fazendo lookup por data-nome -> lastRenderedList / allProdutos
     document.getElementById('produtos').addEventListener('click', (ev) => {
       const card = ev.target.closest('.produto');
       if(!card) return;
-      const idx = parseInt(card.getAttribute('data-idx'), 10);
-      const prod = (lastRenderedList && lastRenderedList[idx]) || null;
-      if(!prod) return;
+      const name = card.getAttribute('data-nome');
+      if(!name) return;
+      // Primeiro tenta buscar na lista exibida para garantir consistência
+      let prod = (lastRenderedList || []).find(x => x && x.nome === name) || null;
+      // fallback para catálogo completo
+      if(!prod) prod = (allProdutos || []).find(x => x && x.nome === name) || null;
+      if(!prod){
+        // tente match por nome normalizado (caso acentos/maiúsculas)
+        const norm = normalizeText(name);
+        prod = (lastRenderedList || []).find(x => normalizeText(x.nome||'') === norm) || (allProdutos || []).find(x => normalizeText(x.nome||'') === norm) || null;
+      }
+      if(!prod) {
+        // última tentativa: se o card contém nome no DOM, use esse nome como string
+        const productName = name;
+        const params = new URLSearchParams();
+        params.set('produto', productName);
+        const newUrl = window.location.pathname + '?' + params.toString();
+        window.history.pushState({}, '', newUrl);
+        // mostrar mensagem temporária
+        document.getElementById('produto').innerHTML = `<div style="padding:20px;text-align:center;">Abrindo "${productName}"... (detalhes não disponíveis localmente)</div>`;
+        document.getElementById('produtos').style.display = 'none';
+        return;
+      }
+
       // atualiza URL e abre o produto nesta página
       const params = new URLSearchParams();
       params.set('produto', prod.nome || '');
@@ -703,7 +725,7 @@
     });
 
     // debug reload
-    window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[] } }); };
+    window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[]; renderProdutosGrid(allProdutos); } }); };
 
   </script>
 </body>
