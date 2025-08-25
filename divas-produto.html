@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Produto - Divas</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
@@ -56,11 +56,39 @@
     .header-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
     .header-row .title{font-weight:700;font-size:20px;text-transform:uppercase}
     .header-row .count{font-size:14px;color:#555}
-    /* overlay/hambúrguer: estilo espaçado como antes */
-    #overlayMenu{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;transform:translateX(-100%);transition:transform .3s ease;z-index:2000;padding:60px 20px;display:flex;flex-direction:column}
+    /* ---------- OVERLAY (hambúrguer) - formatado espaçado como antes ---------- */
+    #overlayMenu{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:#fff;
+      transform:translateX(-100%);
+      transition:transform .3s ease;
+      z-index:2000;
+      padding:60px 28px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+    }
     #overlayMenu.open{transform:translateX(0)}
-    #overlayMenu .close-btn{position:absolute;top:16px;right:16px;font-size:32px;cursor:pointer}
-    #overlayMenu nav a{font-size:20px;color:#000;text-decoration:none;text-transform:uppercase;padding:8px 0}
+    #overlayMenu .close-btn{position:absolute;top:18px;right:20px;font-size:36px;cursor:pointer;line-height:1}
+    #overlayMenu nav{display:flex;flex-direction:column;gap:14px;margin-top:8px;width:100%}
+    #overlayMenu nav a{
+      font-size:20px;
+      color:#000;
+      text-decoration:none;
+      text-transform:uppercase;
+      padding:12px 6px;
+      display:block;
+      width:100%;
+      border-radius:6px;
+      letter-spacing:0.6px;
+      font-weight:600;
+    }
+    #overlayMenu nav a:hover{background:rgba(0,0,0,0.03)}
+    /* ------------------------------------------------------------------------ */
     .site-footer{background:#ff69b4;color:#fff;padding:16px;margin-top:auto}
     .site-footer a{color:inherit;text-decoration:none}
     .flying-image{position:fixed;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s ease;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
@@ -321,7 +349,7 @@
       });
     }
 
-    /***** Render grid + open logic *****/
+    /***** Render grid + click agora NAVIGA e recarrega a página *****/
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
@@ -336,9 +364,7 @@
       list.forEach(p=>{
         if(!p.nome) return;
         const d = document.createElement('div'); d.className='produto';
-        // data attribute útil
         d.setAttribute('data-nome', p.nome);
-        // card markup
         const img = (p.imagens && p.imagens[0]) ? p.imagens[0] : '';
         d.innerHTML = `
           <img src="${img}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
@@ -347,38 +373,21 @@
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
-        // click direto -> abre produto sem reload (pushState)
+        // Navega para a mesma página com params (força reload pra garantir detalhe visível)
         d.addEventListener('click', (ev)=>{
           ev.stopPropagation();
-          openProduct(p);
+          const params = new URLSearchParams();
+          params.set('produto', p.nome || '');
+          if(p.imagens) params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));
+          if(p.opcoes) params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));
+          if(p.status) params.set('status', encodeURIComponent(p.status));
+          if(p.descricao) params.set('descricao', encodeURIComponent(p.descricao));
+          if(p.preco) params.set('preco', encodeURIComponent(p.preco));
+          if(p.mensagem) params.set('mensagem', encodeURIComponent(p.mensagem));
+          if(p.parcelamento) params.set('parcelamento', encodeURIComponent(p.parcelamento));
+          window.location.href = window.location.pathname + '?' + params.toString();
         });
         g.appendChild(d);
-      });
-    }
-
-    // abre produto (pushState + show)
-    function openProduct(prod){
-      if(!prod || !prod.nome) return;
-      const params = new URLSearchParams();
-      params.set('produto', prod.nome || '');
-      if(prod.imagens) params.set('imagens', encodeURIComponent(JSON.stringify(prod.imagens)));
-      if(prod.opcoes) params.set('opcoes', encodeURIComponent(JSON.stringify(prod.opcoes)));
-      if(prod.status) params.set('status', encodeURIComponent(prod.status));
-      if(prod.descricao) params.set('descricao', encodeURIComponent(prod.descricao));
-      if(prod.preco) params.set('preco', encodeURIComponent(prod.preco));
-      if(prod.mensagem) params.set('mensagem', encodeURIComponent(prod.mensagem));
-      if(prod.parcelamento) params.set('parcelamento', encodeURIComponent(prod.parcelamento));
-      const newUrl = window.location.pathname + '?' + params.toString();
-      window.history.pushState({}, '', newUrl);
-      showProdutoFromData({
-        nome: prod.nome,
-        imagens: prod.imagens || [],
-        opcoes: prod.opcoes || [],
-        status: prod.status || '',
-        descricao: prod.descricao || '',
-        preco: prod.preco || '',
-        mensagem: prod.mensagem || '',
-        parcelamento: prod.parcelamento || ''
       });
     }
 
