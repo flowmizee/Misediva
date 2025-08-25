@@ -320,7 +320,7 @@
       });
     }
 
-    /***** Render grid + open logic *****/
+    /***** Render grid + click agora NAVIGA e recarrega a página *****/
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
@@ -335,9 +335,7 @@
       list.forEach(p=>{
         if(!p.nome) return;
         const d = document.createElement('div'); d.className='produto';
-        // data attribute útil
         d.setAttribute('data-nome', p.nome);
-        // card markup
         const img = (p.imagens && p.imagens[0]) ? p.imagens[0] : '';
         d.innerHTML = `
           <img src="${img}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
@@ -346,38 +344,24 @@
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
-        // click direto -> abre produto sem reload
+        // <-- Alteração importante:
+        // Em vez de abrir em single-page via pushState/show, NAVEGAMOS para a mesma URL com params.
+        // Isso força o recarregamento (a página produto irá abrir usando os params).
         d.addEventListener('click', (ev)=>{
           ev.stopPropagation();
-          openProduct(p);
+          const params = new URLSearchParams();
+          params.set('produto', p.nome || '');
+          if(p.imagens) params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));
+          if(p.opcoes) params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));
+          if(p.status) params.set('status', encodeURIComponent(p.status));
+          if(p.descricao) params.set('descricao', encodeURIComponent(p.descricao));
+          if(p.preco) params.set('preco', encodeURIComponent(p.preco));
+          if(p.mensagem) params.set('mensagem', encodeURIComponent(p.mensagem));
+          if(p.parcelamento) params.set('parcelamento', encodeURIComponent(p.parcelamento));
+          // força navegação/reload:
+          window.location.href = window.location.pathname + '?' + params.toString();
         });
         g.appendChild(d);
-      });
-    }
-
-    // abre produto (pushState + show)
-    function openProduct(prod){
-      if(!prod || !prod.nome) return;
-      const params = new URLSearchParams();
-      params.set('produto', prod.nome || '');
-      if(prod.imagens) params.set('imagens', encodeURIComponent(JSON.stringify(prod.imagens)));
-      if(prod.opcoes) params.set('opcoes', encodeURIComponent(JSON.stringify(prod.opcoes)));
-      if(prod.status) params.set('status', encodeURIComponent(prod.status));
-      if(prod.descricao) params.set('descricao', encodeURIComponent(prod.descricao));
-      if(prod.preco) params.set('preco', encodeURIComponent(prod.preco));
-      if(prod.mensagem) params.set('mensagem', encodeURIComponent(prod.mensagem));
-      if(prod.parcelamento) params.set('parcelamento', encodeURIComponent(prod.parcelamento));
-      const newUrl = window.location.pathname + '?' + params.toString();
-      window.history.pushState({}, '', newUrl);
-      showProdutoFromData({
-        nome: prod.nome,
-        imagens: prod.imagens || [],
-        opcoes: prod.opcoes || [],
-        status: prod.status || '',
-        descricao: prod.descricao || '',
-        preco: prod.preco || '',
-        mensagem: prod.mensagem || '',
-        parcelamento: prod.parcelamento || ''
       });
     }
 
