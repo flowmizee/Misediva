@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="divas.png">
   <style>
     /* ----------------
-       CSS (preservado / organizado)
+       CSS completo (produto) — estilo consistente com Divas
        ---------------- */
     html,body{margin:0;padding:0;height:100%}
     *{box-sizing:border-box}
@@ -56,50 +56,16 @@
     .header-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
     .header-row .title{font-weight:700;font-size:20px;text-transform:uppercase}
     .header-row .count{font-size:14px;color:#555}
-    
-    /* --- Menu Overlay (CORRIGIDO) --- */
-    #overlayMenu {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 2000;
-      padding: 60px 20px;
-      display: flex;
-      flex-direction: column;
-    }
-    #overlayMenu.open {
-      transform: translateX(0);
-    }
-    #overlayMenu .close-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 32px;
-      cursor: pointer;
-    }
-    #overlayMenu nav {
-      display: flex;
-      flex-direction: column;
-      gap: 16px; /* Espaçamento entre os itens */
-      margin-top: 20px;
-    }
-    #overlayMenu nav a {
-      font-size: 20px;
-      color: #000;
-      text-decoration: none;
-      text-transform: uppercase;
-      padding: 12px 0;
-      transition: color 0.2s;
-    }
-    #overlayMenu nav a:hover {
-      color: #ff69b4;
-    }
-    
+
+    /* Overlay (menu hambúrguer sem linhas separadoras) */
+    #overlayMenu{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;transform:translateX(-100%);transition:transform .3s ease;z-index:2000;padding:60px 20px;display:flex;flex-direction:column}
+    #overlayMenu.open{transform:translateX(0)}
+    #overlayMenu .close-btn{position:absolute;top:16px;right:16px;font-size:32px;cursor:pointer}
+    #overlayMenu nav{display:flex;flex-direction:column;margin-top:20px;max-width:420px;width:100%;background:transparent;border-radius:8px;overflow:hidden}
+    #overlayMenu nav a{display:block;padding:16px 14px;font-size:18px;font-weight:400;color:#111;text-decoration:none;text-transform:uppercase;line-height:1.0;background:transparent;border-bottom:none}
+    #overlayMenu nav a:hover{background:rgba(0,0,0,0.03)}
+    /* --------------------------------------------------------------- */
+
     .site-footer{background:#ff69b4;color:#fff;padding:16px;margin-top:auto}
     .site-footer a{color:inherit;text-decoration:none}
     .flying-image{position:fixed;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s ease;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
@@ -245,11 +211,8 @@
           </div>
           <button class="buy-btn" id="buy-btn">ADICIONAR AO CARRINHO</button>
         </div>
-        <strong>Compra protegida</strong>
-        <div class="info-section">Seus dados cuidados durante toda a compra.</div><hr>
-        <strong>Trocas e devoluções</strong>
-        <div class="info-section">Se não gostar, você pode trocar ou devolver em até 7 dias após a entrega.</div><hr>
-        <strong>Descrição</strong>
+        <div class="info-note">Compra protegida — Seus dados cuidados durante toda a compra.</div>
+        <div class="info-note">Trocas e devoluções — Se não gostar, você pode trocar ou devolver em até 7 dias após a entrega.</div>
         <div class="descricao">${desc}</div>
       `;
       container.innerHTML = html;
@@ -360,7 +323,7 @@
       });
     }
 
-    /***** Render grid + click agora NAVIGA e recarrega a página *****/
+    /***** Render grid + navigation (clique força reload com params) *****/
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
@@ -384,9 +347,7 @@
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
-        // <-- Alteração importante:
-        // Em vez de abrir em single-page via pushState/show, NAVEGAMOS para a mesma URL with params.
-        // Isso força o recarregamento (a página produto irá abrir usando os params).
+        // Navegar para a mesma página com params (força reload)
         d.addEventListener('click', (ev)=>{
           ev.stopPropagation();
           const params = new URLSearchParams();
@@ -398,7 +359,6 @@
           if(p.preco) params.set('preco', encodeURIComponent(p.preco));
           if(p.mensagem) params.set('mensagem', encodeURIComponent(p.mensagem));
           if(p.parcelamento) params.set('parcelamento', encodeURIComponent(p.parcelamento));
-          // força navegação/reload:
           window.location.href = window.location.pathname + '?' + params.toString();
         });
         g.appendChild(d);
