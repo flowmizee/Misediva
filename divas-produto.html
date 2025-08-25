@@ -124,7 +124,7 @@
     <div class="footer-item instagram"><a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank" rel="noopener"><img src="instagramicon.png" alt="Instagram" style="width:20px;vertical-align:middle"></a></div>
     <div class="footer-item"><a href="https://wa.me/5598992124926" target="_blank" rel="noopener">5598992124926</a></div>
     <div class="footer-item"><a href="tel:+5589982124926">98992124926</a></div>
-    <div class="footer-item copyright">© Flowmize – 2025. Todos os direitos reservados.</div>
+    <div class="footer-item copyright">© Flowmize – 2025. Todos os direitos reservados</div>
   </footer>
 
   <script>
@@ -142,13 +142,27 @@
     /***** utilitários *****/
     function safeJSONparseMaybeEncoded(param){
       if(!param) return null;
-      try{ const decoded = decodeURIComponent(param); return JSON.parse(decoded); }catch(e1){ try{ return JSON.parse(param); }catch(e2){ if(typeof param==='string' && param.indexOf(',')!==-1) return param.split(',').map(s=>s.trim()).filter(Boolean); return null; } }
+      // tenta várias abordagens: decodeURIComponent -> JSON.parse, then JSON.parse(param) direto
+      try {
+        // se for algo codificado (p.ex. "%5B...%5D") decodeURIComponent irá transformar
+        const decoded = decodeURIComponent(param);
+        // se decoded é igual a param and param not JSON, JSON.parse(decoded) may still fail -> try/catch
+        return JSON.parse(decoded);
+      } catch(e1){
+        try { return JSON.parse(param); } catch(e2){
+          // fallback: se for lista separada por vírgula
+          if(typeof param === 'string' && param.indexOf(',') !== -1) return param.split(',').map(s=>s.trim()).filter(Boolean);
+          // nada funcionou
+          return null;
+        }
+      }
     }
     function normalizeText(text){ if(!text) return ''; try{ return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }catch{ return String(text).toLowerCase().trim(); } }
 
     /***** estado *****/
     let allProdutos = [];
     let currentProduct = null;
+    let lastRenderedList = []; // lista mapeada atualmente mostrada na grid -> usada para delegação de clique
     let catalogLoaded = false;
     let catalogResolve;
     const catalogReady = new Promise(resolve => { catalogResolve = resolve; });
@@ -161,7 +175,7 @@
     const providedImagens = safeJSONparseMaybeEncoded(paramImagensRaw);
     const providedOpcoes = safeJSONparseMaybeEncoded(paramOpcoesRaw);
 
-    /***** Render do produto (mesma UI do Divas) *****/
+    /***** Mostrar produto (mesma UI do Divas) *****/
     function showProdutoFromData(prod){
       if(!prod) return;
       currentProduct = prod;
@@ -317,47 +331,26 @@
       });
     }
 
-    /***** render grade de produtos (clicar abre produto nesta mesma página) *****/
+    /***** render grade de produtos (delegação de clique) *****/
     function renderProdutosGrid(list){
       const g = document.getElementById('produtos');
       document.getElementById('produto').style.display = 'none';
       g.style.display = 'grid';
       g.innerHTML = '';
+      lastRenderedList = (list||[]);
+
       if(!list || list.length === 0){
         g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px">Nenhum produto encontrado</div>';
         return;
       }
-      list.forEach(p=>{
-        if(!p.nome) return;
+      list.forEach((p, idx)=>{
+        if(!p) return;
         const d = document.createElement('div'); d.className='produto';
-        d.onclick = ()=>{
-          // atualiza URL (pushState) e abre o produto nesta página com as infos completas
-          const params = new URLSearchParams();
-          params.set('produto', p.nome || '');
-          if(p.imagens) params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));
-          if(p.opcoes) params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));
-          if(p.status) params.set('status', encodeURIComponent(p.status));
-          if(p.descricao) params.set('descricao', encodeURIComponent(p.descricao));
-          if(p.preco) params.set('preco', encodeURIComponent(p.preco));
-          if(p.mensagem) params.set('mensagem', encodeURIComponent(p.mensagem));
-          if(p.parcelamento) params.set('parcelamento', encodeURIComponent(p.parcelamento));
-          const newUrl = window.location.pathname + '?' + params.toString();
-          window.history.pushState({}, '', newUrl);
-          showProdutoFromData({
-            nome: p.nome,
-            imagens: p.imagens || [],
-            opcoes: p.opcoes || [],
-            status: p.status || '',
-            descricao: p.descricao || '',
-            preco: p.preco || '',
-            mensagem: p.mensagem || '',
-            parcelamento: p.parcelamento || ''
-          });
-        };
+        d.setAttribute('data-idx', idx);
         const img = (p.imagens && p.imagens[0]) ? p.imagens[0] : '';
         d.innerHTML = `
-          <img src="${img}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
-          <div class="nome">${p.nome}</div>
+          <img src="${img}" alt="${(p.nome||'')}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
+          <div class="nome">${p.nome || ''}</div>
           <div class="preco">${p.preco || ''}</div>
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
@@ -365,6 +358,37 @@
         g.appendChild(d);
       });
     }
+
+    // delegação de clique: abre o produto imediatamente (sem reload)
+    document.getElementById('produtos').addEventListener('click', function(ev){
+      const card = ev.target.closest('.produto');
+      if(!card) return;
+      const idx = parseInt(card.getAttribute('data-idx'), 10);
+      const prod = lastRenderedList && lastRenderedList[idx];
+      if(!prod) return;
+      // atualiza URL (pushState) com parâmetros úteis (usamos JSON.stringify - URLSearchParams fará escape)
+      const params = new URLSearchParams();
+      params.set('produto', prod.nome || '');
+      if(prod.imagens) params.set('imagens', JSON.stringify(prod.imagens || []));
+      if(prod.opcoes) params.set('opcoes', JSON.stringify(prod.opcoes || []));
+      if(prod.status) params.set('status', prod.status || '');
+      if(prod.descricao) params.set('descricao', prod.descricao || '');
+      if(prod.preco) params.set('preco', prod.preco || '');
+      if(prod.mensagem) params.set('mensagem', prod.mensagem || '');
+      if(prod.parcelamento) params.set('parcelamento', prod.parcelamento || '');
+      window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
+      // mostra produto sem reload
+      showProdutoFromData({
+        nome: prod.nome,
+        imagens: prod.imagens || [],
+        opcoes: prod.opcoes || [],
+        status: prod.status || '',
+        descricao: prod.descricao || '',
+        preco: prod.preco || '',
+        mensagem: prod.mensagem || '',
+        parcelamento: prod.parcelamento || ''
+      });
+    });
 
     /***** category mapping e filtragem robusta *****/
     const categoryMap = {
@@ -429,7 +453,7 @@
         document.body.style.overflow = '';
       });
 
-      // breadcrumb voltar
+      // Breadcrumb voltar
       document.querySelector('#breadcrumb .path').addEventListener('click', ()=>{
         document.getElementById('produtos').style.display = 'none';
         document.getElementById('produto').style.display = '';
@@ -437,7 +461,7 @@
         window.history.pushState({}, '', window.location.pathname);
       });
 
-      // search
+      // Search
       const si = document.querySelector('.search-input');
       const sb = document.querySelector('.search-button');
       si.addEventListener('input', async ()=>{
@@ -478,9 +502,11 @@
       const params = new URLSearchParams(window.location.search);
       const prod = params.get('produto');
       if(prod){
-        // se catálogo já carregou, tenta procurar o produto
-        (async ()=>{ await catalogReady; const found = allProdutos.find(p => p.nome === prod) || allProdutos.find(p => normalizeText(p.nome||'') === normalizeText(prod)) || null; if(found) showProdutoFromData(found); else {
-          // se não encontrou no catálogo, tenta renderizar com params (caso venham imagens/opcoes codificadas)
+        (async ()=>{
+          await catalogReady;
+          const found = allProdutos.find(p => p.nome === prod) || allProdutos.find(p => normalizeText(p.nome||'') === normalizeText(prod)) || null;
+          if(found){ showProdutoFromData(found); return; }
+          // tenta decodificar imagens/opcoes vindos da URL
           const imagensRaw = params.get('imagens') || null;
           const opcoesRaw = params.get('opcoes') || null;
           const imgs = safeJSONparseMaybeEncoded(imagensRaw);
@@ -499,9 +525,8 @@
             showProdutoFromData(produtoObj);
             return;
           }
-          // fallback: mostra mensagem
           document.getElementById('produto').innerHTML = `<div style="padding:20px;text-align:center;">Produto "${prod}" não encontrado.</div>`;
-        } })();
+        })();
       } else {
         // sem produto no URL => voltar para grid/default
         if(allProdutos && allProdutos.length>0) renderProdutosGrid(allProdutos);
