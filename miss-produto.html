@@ -205,7 +205,21 @@
     .site-footer .footer-item:last-child {
       margin-bottom: 0;
     }
+
+    /* flying image animation */
+    .flying-image {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      will-change: transform, opacity;
+      transition: transform 700ms cubic-bezier(.2,.8,.2,1), opacity 700ms ease;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
   </style>
+
+  <!-- PapaParse para evitar que vírgulas em descrições quebrem o CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <div id="overlayMenu">
@@ -306,7 +320,7 @@
 
     function renderCartCount() {
       const cartCountEl = document.getElementById('cart-count');
-      const totalQty = getCartItems().reduce((sum, item) => sum + item.quantidade, 0);
+      const totalQty = getCartItems().reduce((sum, item) => sum + (parseInt(item.quantidade || 0, 10) || 0), 0);
       cartCountEl.textContent = totalQty;
       cartCountEl.style.display = totalQty > 0 ? 'inline-block' : 'none';
     }
@@ -330,32 +344,87 @@
     const params = new URLSearchParams(window.location.search);
     const nomeProduto = decodeURIComponent(params.get('produto') || '');
     let allProdutos = [];
+
+    // função de animação: faz a imagem "voar" até o ícone do carrinho
+    function flyImageToCart(sourceImg) {
+      return new Promise(resolve => {
+        try {
+          const rect = sourceImg.getBoundingClientRect();
+          const clone = sourceImg.cloneNode(true);
+          clone.className = 'flying-image';
+          clone.style.width = rect.width + 'px';
+          clone.style.height = rect.height + 'px';
+          clone.style.left = rect.left + 'px';
+          clone.style.top = rect.top + 'px';
+          clone.style.opacity = '1';
+          document.body.appendChild(clone);
+
+          const cartIcon = document.getElementById('cart-icon');
+          const cartRect = cartIcon.getBoundingClientRect();
+          const targetX = cartRect.left + (cartRect.width/2) - (rect.left + rect.width/2);
+          const targetY = cartRect.top + (cartRect.height/2) - (rect.top + rect.height/2);
+          const scale = 0.18;
+
+          requestAnimationFrame(() => {
+            clone.style.transform = `translate(${targetX}px, ${targetY}px) scale(${scale})`;
+            clone.style.opacity = '0.15';
+          });
+
+          function cleanup() {
+            if (clone && clone.parentNode) clone.parentNode.removeChild(clone);
+            resolve();
+          }
+
+          clone.addEventListener('transitionend', function handler() {
+            clone.removeEventListener('transitionend', handler);
+            cleanup();
+          });
+
+          // fallback em caso de transição não disparar
+          setTimeout(() => { if (document.body.contains(clone)) cleanup(); }, 1200);
+        } catch (e) {
+          console.warn('fly failed', e);
+          resolve();
+        }
+      });
+    }
     
+    // fetch CSV usando PapaParse (evita que vírgulas dentro de campos quebrem as colunas)
     fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv')
-      .then(r => r.text())
-      .then(csv => {
-        const lines = csv.split('\n').slice(1);
+      .then(res => res.text())
+      .then(csvText => {
+        // usar PapaParse para parsear corretamente
+        const parsed = Papa.parse(csvText, { skipEmptyLines: true });
+        const rows = parsed.data || [];
+        // remove cabeçalho
+        const lines = rows.slice(1).map(r => r.map(c => (c === undefined ? '' : String(c))));
     
         // popula allProdutos
-        lines.forEach(line => {
-          const c = line.split(',');
-          if (!c[2]?.trim()) return;
+        allProdutos = [];
+        lines.forEach(cells => {
+          if (!cells || !cells[2] || !cells[2].toString().trim()) return;
           allProdutos.push({
-            nome: c[2].trim(),
-            imagens: [c[3],c[4],c[5]].map(u=>u?.trim()).filter(u=>u),
-            opcoes: [c[6],c[7],c[8]].map(o=>o?.trim()).filter(o=>o),
-            status: c[9]?.trim() || '',
-            descricao: c[10]?.trim() || '',
-            preco: c[11]?.trim() || '',
-            mensagem: c[12]?.trim() || '',
-            parcelamento: c[13]?.trim() || ''
+            nome: cells[2].toString().trim(),
+            imagens: [cells[3],cells[4],cells[5]].map(u=>u?.toString().trim()).filter(u=>u),
+            opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.toString().trim()).filter(o=>o),
+            status: (cells[9] || '').toString().trim() || '',
+            descricao: (cells[10] || '').toString().trim() || '',
+            preco: (cells[11] || '').toString().trim() || '',
+            mensagem: (cells[12] || '').toString().trim() || '',
+            parcelamento: (cells[13] || '').toString().trim() || ''
           });
         });
     
         // se vier nomeProduto, exibe produto único
         if (nomeProduto) {
           showProduto(nomeProduto, lines);
+        } else {
+          // se nenhum produto solicitado via URL, esconde #produto e mostra grid com tudo
+          renderProdutos(allProdutos);
         }
+      })
+      .catch(error => {
+        console.error('Error loading data:', error);
       });
     
     // renderiza produto único
@@ -363,17 +432,18 @@
       const container = document.getElementById('produto');
       breadcrumbEl.style.display = 'none';
       
-      for (const line of lines) {
-        const c = line.split(',');
-        if ((c[2]||'').trim() !== nome) continue;
+      for (const lineArr of lines) {
+        // lineArr é um array de células (já parseado com Papa)
+        const c = lineArr;
+        if ((c[2]||'').toString().trim() !== nome) continue;
     
-        const images = [c[3]?.trim(),c[4]?.trim(),c[5]?.trim()].filter(u=>u);
-        const options = [c[6]?.trim(),c[7]?.trim(),c[8]?.trim()].filter(o=>o);
-        const status = c[9]?.trim() || '';
-        const desc = c[10]?.trim() || '';
-        const preco = (c[11]||'').replace(/[^\d.,]/g,'').replace('.', ',');
-        const extra = c[12]?.trim() || '';
-        const parc = c[13]?.trim() || '';
+        const images = [c[3]?.toString().trim(),c[4]?.toString().trim(),c[5]?.toString().trim()].filter(u=>u);
+        const options = [c[6]?.toString().trim(),c[7]?.toString().trim(),c[8]?.toString().trim()].filter(o=>o);
+        const status = (c[9]||'').toString().trim() || '';
+        const desc = (c[10]||'').toString().trim() || '';
+        const preco = ((c[11]||'').toString()).replace(/[^\d.,]/g,'').replace('.', ',');
+        const extra = (c[12]||'').toString().trim() || '';
+        const parc = (c[13]||'').toString().trim() || '';
     
         let html = `<div class="breadcrumb-list"><a href="miss-index.html">Início</a> &gt; ${nome}</div>`;
         html += `
@@ -434,8 +504,15 @@
           };
           thumbsEl.appendChild(t);
         });
-        showImage(0);
-        thumbsEl.querySelector('img').classList.add('active');
+        if (images.length>0) {
+          showImage(0);
+          const firstThumb = thumbsEl.querySelector('img');
+          if(firstThumb) firstThumb.classList.add('active');
+        } else {
+          // se não houver imagens, esconder elementos relacionados
+          if (imgEl) imgEl.style.display = 'none';
+          if (countEl) countEl.style.display = 'none';
+        }
     
         // variantes
         if (options.length) {
@@ -447,7 +524,8 @@
             sw.onclick = () => {
               document.querySelectorAll('.option-swatch').forEach(x=>x.classList.remove('selected'));
               sw.classList.add('selected');
-              showImage(i);
+              // se desejar, trocar imagem ao selecionar opção (se existir imagem correspondente)
+              if (images[i]) showImage(i);
             };
             list.appendChild(sw);
           });
@@ -464,29 +542,49 @@
           document.getElementById('quantity').textContent = qty; 
         };
     
+        // BUY: agora com animação de voar (se houver imagem)
         document.querySelector('.buy-btn').onclick = () => {
           // 1. Captura dados do produto
-          const nome = nomeProduto || document.querySelector('.produto-nome').textContent;
+          const nomeFinal = nomeProduto || document.querySelector('.produto-nome').textContent;
           const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
           const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
           const opcaoEl = document.querySelector('.option-swatch.selected');
           const opcao = opcaoEl ? opcaoEl.textContent : null;
 
-          // 2. Adiciona/atualiza item no carrinho
-          const items = getCartItems();
-          const existente = items.find(i => i.nome === nome && i.opcao === opcao);
-          if (existente) {
-            existente.quantidade += quantidade;
-          } else {
-            items.push({ 
-              nome, 
-              preco: precoText, 
-              quantidade, 
-              opcao,
-              imagens: images // Adiciona as imagens do produto ao item do carrinho
+          // 2. Prepara item
+          const item = {
+            nome: nomeFinal,
+            preco: precoText,
+            quantidade,
+            opcao,
+            imagens: images
+          };
+
+          // 3. Anima (se imagem disponível) e persiste no carrinho
+          const sourceImg = document.getElementById('carousel-image');
+          if (sourceImg && sourceImg.src) {
+            flyImageToCart(sourceImg).then(() => {
+              // adiciona ao carrinho
+              const items = getCartItems();
+              const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
+              if (existente) {
+                existente.quantidade = (parseInt(existente.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
+              } else {
+                items.push(item);
+              }
+              setCartItems(items);
             });
+          } else {
+            // sem imagem: só adiciona
+            const items = getCartItems();
+            const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
+            if (existente) {
+              existente.quantidade = (parseInt(existente.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
+            } else {
+              items.push(item);
+            }
+            setCartItems(items);
           }
-          setCartItems(items);
         };
         
         break;
@@ -515,7 +613,7 @@
       g.style.display = 'grid';
       g.innerHTML = '';
       
-      if (list.length === 0) {
+      if (!list || list.length === 0) {
         g.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Nenhum produto encontrado</div>';
         return;
       }
