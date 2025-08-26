@@ -57,7 +57,6 @@
       display: flex; gap: 16px; overflow-x: auto;
       scroll-behavior: smooth; padding: 8px 16px 16px;
     }
-    .categories-container.hidden::-webkit-scrollbar-thumb { background-color: rgba(204,204,204,0); }
     .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
     #breadcrumb { display: none; background: #fff; border-bottom: 1px solid #eee; padding: 8px 16px; }
     #breadcrumb .path { font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
@@ -79,149 +78,43 @@
     .image-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
     .image-scroll::-webkit-scrollbar { display: none; }
 
-    .banner-scroll-wrapper {
-      background-color: #f2f2f2;
-      padding: 8px 0 24px;
-      overflow: hidden;
-      position: relative;
-    }
-    .banner-scroll {
-      display: flex;
-      gap: 16px;
-      padding: 0;
-      width: max-content;
-    }
-    .banner-scroll.single-banner {
-      width: 100%;
-      padding: 0;
-    }
-    .banner-scroll.scrolling {
-      animation: scrollBanners 15s linear infinite;
-      padding: 0 16px;
-    }
-    .banner-scroll img {
-      height: 500px;
-      width: calc(100vw - 100px);
-      object-fit: cover;
-      border-radius: 12px;
-      flex-shrink: 0;
-    }
-    .banner-scroll.single-banner img {
-      width: 100%;
-      border-radius: 0;
-    }
-    @keyframes scrollBanners {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-50% - 8px)); }
-    }
+    .banner-scroll-wrapper { background-color: #f2f2f2; padding: 8px 0 24px; overflow: hidden; position: relative; }
+    .banner-scroll { display: flex; gap: 16px; padding: 0; width: max-content; }
+    .banner-scroll.single-banner { width: 100%; padding: 0; }
+    .banner-scroll.scrolling { animation: scrollBanners 15s linear infinite; padding: 0 16px; }
+    .banner-scroll img { height: 500px; width: calc(100vw - 100px); object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+    .banner-scroll.single-banner img { width: 100%; border-radius: 0; }
+    @keyframes scrollBanners { 0% { transform: translateX(0);} 100% { transform: translateX(calc(-50% - 8px)); } }
 
-    .main-content {
-      margin-top: 220px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .produtos-wrapper {
-      background-color: #f2f2f2;
-      padding: 16px;
-      flex: 1;
-      min-height: 300px;
-    }
+    .main-content { margin-top: 220px; flex: 1; display: flex; flex-direction: column; }
+    .produtos-wrapper { background-color: #f2f2f2; padding: 16px; flex: 1; min-height: 300px; }
     .launch-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; cursor: pointer; }
     .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    .produto { cursor: pointer; }
+    .produto-wrapper { cursor: pointer; }
     .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
     .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
     .produto .extra { color: #007bff; }
 
-    /* MENU OVERLAY */
-    #overlayMenu {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 2000;
-      padding: 60px 20px;
-      display: flex;
-      flex-direction: column;
-    }
+    #overlayMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 2000; padding: 60px 20px; display: flex; flex-direction: column; }
     #overlayMenu.open { transform: translateX(0); }
-    #overlayMenu .close-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 32px;
-      cursor: pointer;
-    }
-    #overlayMenu nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin-top: 20px;
-    }
-    #overlayMenu nav a {
-      font-size: 20px;
-      color: #000;
-      text-decoration: none;
-      text-transform: uppercase;
-      padding: 8px 0;
-    }
+    #overlayMenu .close-btn { position: absolute; top: 16px; right: 16px; font-size: 32px; cursor: pointer; }
+    #overlayMenu nav { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+    #overlayMenu nav a { font-size: 20px; color: #000; text-decoration: none; text-transform: uppercase; padding: 8px 0; }
 
-    @media (max-width: 480px) {
-      .produtos-grid { grid-template-columns: 1fr 1fr; }
-      .produto img { height: 220px; }
-      .banner-scroll img {
-        height: 300px;
-      }
-      .banner-scroll.single-banner img {
-        height: 300px;
-      }
-    }
+    @media (max-width: 480px) { .produtos-grid { grid-template-columns: 1fr 1fr; } .produto img { height: 220px; } .banner-scroll, .banner-scroll.single-banner { height: 300px; } .banner-scroll img { width: calc(100vw - 32px); } }
 
-    /* FOOTER */
-    .site-footer {
-      background-color: #72202f;
-      color: #fff;
-      padding: 16px;
-      margin-top: auto;
-    }
-    .site-footer .footer-item {
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-    .site-footer .footer-item.instagram {
-      margin-bottom: 32px;
-    }
-    .site-footer .footer-item.instagram img {
-      width: 20px;
-      height: auto;
-      display: block;
-    }
-    .site-footer .footer-item a {
-      color: inherit;
-      text-decoration: none;
-    }
-    .site-footer .footer-item:last-child {
-      margin-bottom: 0;
-    }
+    .site-footer { background-color: #72202f; color: #fff; padding: 16px; margin-top: auto; }
+    .site-footer .footer-item { margin-bottom: 12px; font-size: 14px; }
+    .site-footer .footer-item.instagram { margin-bottom: 32px; }
+    .site-footer .footer-item.instagram img { width: 20px; height: auto; display: block; }
+    .site-footer .footer-item a { color: inherit; text-decoration: none; }
+    .site-footer .footer-item:last-child { margin-bottom: 0; }
 
     /* ---------- SKELETON / SHIMMER ---------- */
-    .skeleton {
-      background: linear-gradient(90deg, #eeeeee 0%, #f7f7f7 50%, #eeeeee 100%);
-      background-size: 200% 100%;
-      animation: shimmer 1.2s linear infinite;
-      border-radius: 8px;
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
+    .skeleton { background: linear-gradient(90deg, #eeeeee 0%, #f7f7f7 50%, #eeeeee 100%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     .skeleton-card { padding: 0; background: transparent; border-radius: 0; }
     .skeleton-img { width: 100%; height: 240px; border-radius: 8px; }
     .skeleton-text { width: 100%; height: 18px; margin-top: 12px; border-radius: 6px; }
@@ -308,7 +201,25 @@
     <div class="produtos-wrapper">
       <div class="launch-title">Lançamentos</div>
       <div id="produtos" class="produtos-grid">
-        <!-- Inicialmente vazio; será preenchido por JS (skeletons mostrados via showLoadingArea) -->
+        <!-- skeletons iniciais (visíveis até os produtos reais chegarem) -->
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -319,39 +230,28 @@
         <img src="instagramicon.png" alt="Instagram">
       </a>
     </div>
-    <div class="footer-item">
-      <a href="https://wa.me/5598992124926" target="_blank" rel="noopener">
-        5598992124926
-      </a>
-    </div>
-    <div class="footer-item">
-      <a href="tel:+5589982124926">
-        98992124926
-      </a>
-    </div>
-    <div class="footer-item copyright">
-      © Flowmize – 2025. Todos os direitos reservados.
-    </div>
+    <div class="footer-item"><a href="https://wa.me/5598992124926" target="_blank" rel="noopener">5598992124926</a></div>
+    <div class="footer-item"><a href="tel:+5589982124926">98992124926</a></div>
+    <div class="footer-item copyright">© Flowmize – 2025. Todos os direitos reservados.</div>
   </footer>
 
   <script>
     /***********************************************************************
      * Configurações e estado
+     *
+     * Se você publicou o Apps Script em outra URL, substitua WEB_APP_URL.
      ***********************************************************************/
-    // CONFIG: URL do seu Apps Script (atualize se necessário)
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJ3lG3w1fMAOFeVeUjir_CLPxv1coazhYkeDPuSgoEfVx4zeb_Zf3-UzAWYHSSa1T1/exec';
 
-    // POLL interval
     const POLL_INTERVAL_MS = 10 * 1000;
 
-    // Estado global
     let allProdutos = [];
     let launchProdutos = [];
     let allBanners = [];
     let lastETag = '';
     let lastTimestamp = Date.now();
+    let loadingShown = false;
 
-    // Promise para evitar race condition entre carregamento e eventos de UI
     let _resolveDataReady;
     const dataReady = new Promise(resolve => { _resolveDataReady = resolve; });
 
@@ -361,13 +261,12 @@
     const produtosContainer = document.getElementById('produtos');
 
     /***********************************************************************
-     * UI: overlay menu e cart
+     * Overlay menu & cart
      ***********************************************************************/
     document.querySelector('.menu-icon').addEventListener('click', () => overlay.classList.add('open'));
     overlay.querySelector('.close-btn').addEventListener('click', () => overlay.classList.remove('open'));
     document.getElementById('home-link').addEventListener('click', (e) => { e.preventDefault(); resetToHomePage(); overlay.classList.remove('open'); });
 
-    // Cart helpers (localStorage)
     const CART_KEY = 'cartItems';
     function getCartItems() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; } }
     function setCartItems(items) { localStorage.setItem(CART_KEY, JSON.stringify(items)); renderCartCount(); }
@@ -386,7 +285,6 @@
       try { return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); } catch { return String(text).toLowerCase().trim(); }
     }
 
-    // category map (mantido similar ao exemplo)
     const categoryMap = {
       'BIQUÍNIS': ['biquini','biquínis','biquinis'],
       'CONJUNTOS': ['conjunto','conjuntos','kit','kits'],
@@ -408,7 +306,6 @@
       return allProdutos.filter(p => containsAnyTerm(p.nome || '', terms));
     }
 
-    // cache-buster para imagens
     function appendCacheBuster(url) {
       if (!url) return url;
       try { const sep = url.indexOf('?') !== -1 ? '&' : '?'; return url + sep + 'v=' + lastTimestamp; } catch { return url; }
@@ -423,10 +320,7 @@
       if (force) params.set('_', Date.now());
       const url = WEB_APP_URL + (params.toString() ? ('?' + params.toString()) : '');
       return fetch(url, { method: 'GET', cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
-        .then(r => {
-          // tenta parsear JSON mesmo que haja headers
-          return r.json();
-        });
+        .then(r => r.json());
     }
     function fetchCatalogJSONP(force=false) {
       return new Promise((resolve, reject) => {
@@ -449,11 +343,9 @@
     }
 
     // show/hide skeletons
-    let loadingShown = false;
     function showLoadingArea() {
       if (loadingShown) return;
       loadingShown = true;
-      // produtos skeleton
       const prod = document.getElementById('produtos');
       prod.innerHTML = '';
       for (let i = 0; i < 6; i++) {
@@ -467,22 +359,18 @@
         `;
         prod.appendChild(div);
       }
-      // banner skeleton
       const bannerContainer = document.getElementById('banner-scroll');
       bannerContainer.innerHTML = '';
       bannerContainer.className = 'banner-scroll single-banner';
       const b = document.createElement('div');
       b.className = 'skeleton-banner skeleton';
       bannerContainer.appendChild(b);
-      // ensure wrappers visible
       document.querySelector('.banner-scroll-wrapper').style.display = '';
     }
     function hideLoadingArea() {
       loadingShown = false;
-      // actual content render functions will replace skeletons
     }
 
-    // checkForUpdates: tenta fetch, se falhar usa JSONP
     function checkForUpdates(force=false) {
       if (force) showLoadingArea();
       return fetchCatalogFetchMode(force)
@@ -499,7 +387,6 @@
             lastTimestamp = data.timestamp || lastTimestamp;
             allBanners = data.banners || [];
             allProdutos = data.produtos || [];
-            // detecta lançamentos (por tag)
             function isLaunchTag(tag) {
               const n = normalizeText(tag || '');
               return n.includes('lancamento') || n.includes('lançamento') || n.includes('lanc');
@@ -521,17 +408,9 @@
         });
     }
 
-    /***********************************************************************
-     * Inicialização e polling
-     ***********************************************************************/
     function start() {
-      // primeiro carregamento forçado -> mostra skeletons
       showLoadingArea();
-      checkForUpdates(true).then(()=> {
-        // sinaliza que os dados foram carregados (evita race com cliques)
-        if (_resolveDataReady) _resolveDataReady();
-      });
-      // polling
+      checkForUpdates(true).then(()=> { if (_resolveDataReady) _resolveDataReady(); });
       setInterval(()=>checkForUpdates(false), POLL_INTERVAL_MS);
     }
 
@@ -550,13 +429,12 @@
       } else {
         container.className = 'banner-scroll scrolling';
         valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt='Banner'; img.onerror=function(){this.style.display='none';}; container.appendChild(img); });
-        // duplicate to create infinite scroll effect
         valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt='Banner'; img.onerror=function(){this.style.display='none';}; container.appendChild(img); });
       }
     }
 
     /***********************************************************************
-     * Render dos produtos
+     * Render produtos
      ***********************************************************************/
     function renderProdutos(list) {
       const cont = document.getElementById('produtos');
@@ -571,7 +449,6 @@
         div.addEventListener('click', ()=> {
           const params = new URLSearchParams();
           params.set('produto', p.nome || '');
-          // encodeURIComponent + JSON.stringify -> o produto será lido corretamente em divas-produto.html
           params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens || [])));
           params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes || [])));
           params.set('status', encodeURIComponent(p.status || ''));
@@ -579,8 +456,8 @@
           params.set('preco', encodeURIComponent(p.preco || ''));
           params.set('mensagem', encodeURIComponent(p.mensagem || ''));
           params.set('parcelamento', encodeURIComponent(p.parcelamento || ''));
-          // redireciona para página de produto (mantive a mesma rota usada no exemplo original)
-          location.href = `divas-produto.html?${params.toString()}`;
+          // redireciona para página de produto da MISS
+          location.href = `miss-produto.html?${params.toString()}`;
         });
         const imgSrc = appendCacheBuster((p.imagens && p.imagens[0]) || '');
         div.innerHTML = `
@@ -625,7 +502,6 @@
     /***********************************************************************
      * HANDLERS: categorias, photo-items, lançamentos, busca
      ***********************************************************************/
-    // categories (aguardam dataReady)
     document.querySelectorAll('.category').forEach(el => {
       el.addEventListener('click', async () => {
         await dataReady;
@@ -640,7 +516,6 @@
       });
     });
 
-    // photo items
     document.querySelectorAll('.photo-item').forEach(el => {
       el.addEventListener('click', async () => {
         await dataReady;
@@ -655,7 +530,6 @@
       });
     });
 
-    // launch title
     document.querySelector('.launch-title').addEventListener('click', async () => {
       await dataReady;
       document.querySelector('.photo-scroll-wrapper').style.display = 'none';
@@ -684,7 +558,6 @@
     });
     searchButton.addEventListener('click', () => searchInput.dispatchEvent(new Event('input')));
 
-    // menu link "Todos os produtos"
     document.getElementById('all-products-link').addEventListener('click', async (e) => {
       e.preventDefault();
       await dataReady;
@@ -706,11 +579,10 @@
       imgs.forEach(s => { const i = new Image(); i.src = s; });
     })();
 
-    // expor debug
     window.forceReloadFromServer = function() { showLoadingArea(); checkForUpdates(true); };
 
     /***********************************************************************
-     * Inicializa contadores e inicia processo
+     * Inicializa
      ***********************************************************************/
     renderCartCount();
     start();
