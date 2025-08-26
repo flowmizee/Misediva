@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Miss</title>
-  <link rel="icon" type="image/png" href="miss.png">
+  <title>Divas</title>
+  <link rel="icon" type="image/png" href="divas.png">
   <style>
-    /* --- CSS (mantido do seu design Miss) --- */
+    /* --- seu CSS (mantido/adaptado) --- */
     html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
     .nav-wrapper { position: fixed; top: 0; left: 0; right: 0; background: #fff; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
     .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
-    .bag-icon .cart-count { position: absolute; top: -4px; right: -8px; background: #72202f; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 12px; display: none; }
+    .bag-icon .cart-count { position: absolute; top: -4px; right: -8px; background: #ff0000; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 12px; display: none; }
     .logo img { max-height: 80px; width: auto; cursor: pointer; }
     .search-container { display: flex; width: 100%; padding: 0 16px 16px; }
     .search-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px 0 0 8px; outline: none; font-size: 16px; background-color: #f2f2f2; }
-    .search-button { background-color: #72202f; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .search-button { background-color: #ff69b4; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
     .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
     .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
@@ -28,7 +28,6 @@
     .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
     .header-row .title { font-weight: bold; font-size: 20px; text-transform: uppercase; }
     .header-row .count { font-size: 14px; color: #555; }
-
     .photo-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
     .photo-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
     .photo-scroll::-webkit-scrollbar { display: none; }
@@ -36,142 +35,39 @@
     .photo-img { width: 100px; height: 100px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .photo-img img { max-width: 100%; max-height: 100%; }
     .photo-item .label { font-size: 16px; font-weight: bold; text-transform: capitalize; margin-top: 8px; }
-
     .image-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
     .image-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
     .image-scroll::-webkit-scrollbar { display: none; }
-
-    .banner-scroll-wrapper {
-      background-color: #f2f2f2;
-      padding: 8px 0 24px;
-      overflow: hidden;
-      position: relative;
-    }
-    .banner-scroll {
-      display: flex;
-      gap: 16px;
-      padding: 0;
-      width: max-content;
-    }
-    .banner-scroll.single-banner {
-      width: 100%;
-      padding: 0;
-    }
-    .banner-scroll.scrolling {
-      animation: scrollBanners 15s linear infinite;
-      padding: 0 16px;
-    }
-    .banner-scroll img {
-      height: 500px;
-      width: calc(100vw - 100px);
-      object-fit: cover;
-      border-radius: 12px;
-      flex-shrink: 0;
-    }
-    .banner-scroll.single-banner img {
-      width: 100%;
-      border-radius: 0;
-    }
-    @keyframes scrollBanners {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-50% - 8px)); }
-    }
-
-    .main-content {
-      margin-top: 220px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .produtos-wrapper {
-      background-color: #f2f2f2;
-      padding: 16px;
-      flex: 1;
-      min-height: 300px;
-    }
+    .banner-scroll-wrapper { background-color: #f2f2f2; padding: 8px 0 24px; overflow: hidden; position: relative; }
+    .banner-scroll { display: flex; gap: 16px; width: 100%; height: 500px; }
+    .banner-scroll.single-banner { justify-content: center; }
+    .banner-scroll.multiple-banners { animation: scrollBanners 15s linear infinite; width: max-content; }
+    .banner-scroll img { height: 100%; width: calc(100vw - 32px); object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+    .banner-scroll.single-banner img { width: 100%; max-width: 1200px; border-radius: 0; }
+    @keyframes scrollBanners { 0% { transform: translateX(0);} 100% { transform: translateX(calc(-50% - 8px)); } }
+    .main-content { margin-top: 220px; flex: 1; display: flex; flex-direction: column; }
+    .produtos-wrapper { background-color: #f2f2f2; padding: 16px; flex: 1; min-height: 300px; }
     .launch-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; cursor: pointer; }
     .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    .produto { cursor: pointer; }
+    .produto-wrapper { cursor: pointer; }
     .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
     .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
     .produto .extra { color: #007bff; }
-
-    /* MENU OVERLAY */
-    #overlayMenu {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 2000;
-      padding: 60px 20px;
-      display: flex;
-      flex-direction: column;
-    }
+    #overlayMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 2000; padding: 60px 20px; display: flex; flex-direction: column; }
     #overlayMenu.open { transform: translateX(0); }
-    #overlayMenu .close-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 32px;
-      cursor: pointer;
-    }
-    #overlayMenu nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin-top: 20px;
-    }
-    #overlayMenu nav a {
-      font-size: 20px;
-      color: #000;
-      text-decoration: none;
-      text-transform: uppercase;
-      padding: 8px 0;
-    }
-
-    @media (max-width: 480px) {
-      .produtos-grid { grid-template-columns: 1fr 1fr; }
-      .produto img { height: 220px; }
-      .banner-scroll img {
-        height: 300px;
-      }
-      .banner-scroll.single-banner img {
-        height: 300px;
-      }
-    }
-
-    /* FOOTER */
-    .site-footer {
-      background-color: #72202f;
-      color: #fff;
-      padding: 16px;
-      margin-top: auto;
-    }
-    .site-footer .footer-item {
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-    .site-footer .footer-item.instagram {
-      margin-bottom: 32px;
-    }
-    .site-footer .footer-item.instagram img {
-      width: 20px;
-      height: auto;
-      display: block;
-    }
-    .site-footer .footer-item a {
-      color: inherit;
-      text-decoration: none;
-    }
-    .site-footer .footer-item:last-child {
-      margin-bottom: 0;
-    }
+    #overlayMenu .close-btn { position: absolute; top: 16px; right: 16px; font-size: 32px; cursor: pointer; }
+    #overlayMenu nav { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+    #overlayMenu nav a { font-size: 20px; color: #000; text-decoration: none; text-transform: uppercase; padding: 8px 0; }
+    @media (max-width: 480px) { .produtos-grid { grid-template-columns: 1fr 1fr; } .produto img { height: 220px; } .banner-scroll, .banner-scroll.single-banner { height: 300px; } .banner-scroll img { width: calc(100vw - 32px); } }
+    .site-footer { background-color: #ff69b4; color: #fff; padding: 16px; margin-top: auto; }
+    .site-footer .footer-item { margin-bottom: 12px; font-size: 14px; }
+    .site-footer .footer-item.instagram { margin-bottom: 32px; }
+    .site-footer .footer-item.instagram img { width: 20px; height: auto; display: block; }
+    .site-footer .footer-item a { color: inherit; text-decoration: none; }
+    .site-footer .footer-item:last-child { margin-bottom: 0; }
+    .loading { display: none; } /* placeholder caso use depois */
 
     /* ---------- SKELETON / SHIMMER ---------- */
     .skeleton {
@@ -184,12 +80,17 @@
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
+    /* Product skeleton pieces */
     .skeleton-card { padding: 0; background: transparent; border-radius: 0; }
     .skeleton-img { width: 100%; height: 240px; border-radius: 8px; }
     .skeleton-text { width: 100%; height: 18px; margin-top: 12px; border-radius: 6px; }
     .skeleton-text.short { width: 60%; height: 16px; margin-top: 8px; }
+    /* banner skeleton */
     .skeleton-banner { width: calc(100vw - 32px); max-width: 1200px; height: 100%; border-radius: 12px; }
+    /* slight visual spacing for skeleton cards */
     .produto.skeleton-card { padding: 4px; }
+    /* when content replaced we keep normal spacing */
+    /* ensure banner wrapper visible while skeleton present */
     .banner-scroll-wrapper { transition: opacity .25s ease; }
   </style>
 </head>
@@ -197,18 +98,18 @@
   <div id="overlayMenu">
     <div class="close-btn">&times;</div>
     <nav>
-      <a href="index.html" id="home-link">Início</a>
+      <a href="divas-index.html" id="home-link">Início</a>
       <a href="#" id="all-products-link">Produtos</a>
-      <a href="divas-index.html">DIVAS BIJOUXSHOES</a>
-      <a href="miss-contato.html">Contato</a>
+      <a href="miss-index.html">MISS FIT BEACHWEAR</a>
+      <a href="divas-contato.html">Contato</a>
     </nav>
   </div>
 
   <div class="nav-wrapper">
     <header class="header">
       <div class="menu-icon">&#9776;</div>
-      <a href="index.html" class="logo">
-        <img src="logomiss.webp" alt="Logo">
+      <a href="divas-index.html" class="logo">
+        <img src="logodivas.webp" alt="Logo">
       </a>
       <a href="carrinho.html" class="bag-icon" id="cart-icon">
         &#128717;
@@ -220,32 +121,31 @@
       <button class="search-button"><img src="lupa.webp" alt="Buscar"></button>
     </div>
     <div id="cats" class="categories-container">
-      <div class="category">BIQUÍNIS</div>
+      <div class="category">BRINCOS</div>
+      <div class="category">ANÉIS</div>
+      <div class="category">BRACELETES</div>
+      <div class="category">COLARES</div>
       <div class="category">CONJUNTOS</div>
-      <div class="category">SAÍDAS</div>
-      <div class="category">ROUPAS FITNESS</div>
+      <div class="category">PULSEIRAS</div>
+      <div class="category">PERFUMES</div>
       <div class="category">BOLSAS</div>
-      <div class="category">MOCHILAS</div>
-      <div class="category">MAIÔS</div>
-      <div class="category">CROCHÊS</div>
-      <div class="category">ACESSÓRIOS</div>
-      <div class="category">MODA CASUAL PRAIA</div>
+      <div class="category">CINTOS</div>
+      <div class="category">ÓCULOS</div>
     </div>
   </div>
 
   <div class="main-content">
     <div class="photo-scroll-wrapper">
       <div class="photo-scroll">
-        <div class="photo-item" data-category="BIQUÍNIS"><div class="photo-img"><img src="biquinis1.webp" alt="Biquínis"></div><div class="label">Biquínis</div></div>
-        <div class="photo-item" data-category="CONJUNTOS"><div class="photo-img"><img src="conjuntos2.webp" alt="Conjuntos"></div><div class="label">Conjuntos</div></div>
-        <div class="photo-item" data-category="SAÍDAS"><div class="photo-img"><img src="saidas3.webp" alt="Saídas"></div><div class="label">Saídas</div></div>
-        <div class="photo-item" data-category="ROUPAS FITNESS"><div class="photo-img"><img src="fitness4.webp" alt="Roupas Fitness"></div><div class="label">Roupas Fitness</div></div>
-        <div class="photo-item" data-category="BOLSAS"><div class="photo-img"><img src="bolsas5.webp" alt="Bolsas"></div><div class="label">Bolsas</div></div>
-        <div class="photo-item" data-category="MOCHILAS"><div class="photo-img"><img src="mochilas6.webp" alt="Mochilas"></div><div class="label">Mochilas</div></div>
-        <div class="photo-item" data-category="MAIÔS"><div class="photo-img"><img src="maios7.webp" alt="Maiôs"></div><div class="label">Maiôs</div></div>
-        <div class="photo-item" data-category="CROCHÊS"><div class="photo-img"><img src="croches8.webp" alt="Crochês"></div><div class="label">Crochês</div></div>
-        <div class="photo-item" data-category="ACESSÓRIOS"><div class="photo-img"><img src="acessorios9.webp" alt="Acessórios"></div><div class="label">Acessórios</div></div>
-        <div class="photo-item" data-category="MODA CASUAL PRAIA"><div class="photo-img"><img src="modapraia10.webp" alt="Moda Casual Praia"></div><div class="label">Moda Casual Praia</div></div>
+        <div class="photo-item" data-category="COLARES"><div class="photo-img"><img src="colares.webp" alt="Colares"></div><div class="label">Colares</div></div>
+        <div class="photo-item" data-category="BRINCOS"><div class="photo-img"><img src="brincos.webp" alt="Brincos"></div><div class="label">Brincos</div></div>
+        <div class="photo-item" data-category="ANÉIS"><div class="photo-img"><img src="aneis.webp" alt="Anéis"></div><div class="label">Anéis</div></div>
+        <div class="photo-item" data-category="PULSEIRAS"><div class="photo-img"><img src="pulseiras.webp" alt="Pulseiras"></div><div class="label">Pulseiras</div></div>
+        <div class="photo-item" data-category="CONJUNTOS"><div class="photo-img"><img src="conjuntos.webp" alt="Conjuntos"></div><div class="label">Conjuntos</div></div>
+        <div class="photo-item" data-category="BRACELETES"><div class="photo-img"><img src="braceletes.webp" alt="Braceletes"></div><div class="label">Braceletes</div></div>
+        <div class="photo-item" data-category="PERFUMES"><div class="photo-img"><img src="perfumes.webp" alt="Perfumes"></div><div class="label">Perfumes</div></div>
+        <div class="photo-item" data-category="BOLSAS"><div class="photo-img"><img src="bolsas.webp" alt="Bolsas"></div><div class="label">Bolsas</div></div>
+        <div class="photo-item" data-category="ÓCULOS"><div class="photo-img"><img src="oculos.webp" alt="Óculos"></div><div class="label">Óculos</div></div>
       </div>
     </div>
 
@@ -264,46 +164,53 @@
     </div>
 
     <div class="banner-scroll-wrapper">
-      <div id="banner-scroll" class="banner-scroll"></div>
+      <div id="banner-scroll" class="banner-scroll">
+        <!-- skeleton banner inicial será inserido via JS -->
+      </div>
     </div>
 
     <div class="produtos-wrapper">
       <div class="launch-title">Lançamentos</div>
       <div id="produtos" class="produtos-grid">
-        <!-- Inicialmente vazio; será preenchido por JS (skeletons mostrados via showLoadingArea) -->
+        <!-- skeletons iniciais (visíveis até os produtos reais chegarem) -->
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="produto skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <footer class="site-footer">
     <div class="footer-item instagram">
-      <a href="https://www.instagram.com/usemissfit_beachwear/" target="_blank" rel="noopener">
+      <a href="https://www.instagram.com/divasbijouxshoes?igsh=MW55M2QzbTJnaGF4bg==" target="_blank" rel="noopener">
         <img src="instagramicon.png" alt="Instagram">
       </a>
     </div>
-    <div class="footer-item">
-      <a href="https://wa.me/5598992124926" target="_blank" rel="noopener">
-        5598992124926
-      </a>
-    </div>
-    <div class="footer-item">
-      <a href="tel:+5589982124926">
-        98992124926
-      </a>
-    </div>
-    <div class="footer-item copyright">
-      © Flowmize – 2025. Todos os direitos reservados.
-    </div>
+    <div class="footer-item"><a href="https://wa.me/5598992124926" target="_blank" rel="noopener">5598992124926</a></div>
+    <div class="footer-item"><a href="tel:+5589982124926">98992124926</a></div>
+    <div class="footer-item copyright">© Flowmize – 2025. Todos os direitos reservados.</div>
   </footer>
 
   <script>
-    /***********************************************************************
-     * Configurações e estado
-     ***********************************************************************/
-    // ATENÇÃO: atualize este URL se o seu Web App estiver em outro deployment
+    // CONFIG: URL do seu Apps Script (atualize se necessário)
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwqWcPa9KnpqCnE1M2YLFLfEv6y3wbmIl698Rqg6Ay-MowUGOFhxeWJLTuDZ0IpIkVz/exec';
 
-    // POLL interval (10s)
+    // POLL
     const POLL_INTERVAL_MS = 10 * 1000;
 
     // Estado global
@@ -313,26 +220,15 @@
     let lastETag = '';
     let lastTimestamp = Date.now();
 
-    // Promise para evitar race condition entre carregamento e eventos de UI
+    // Data ready promise para evitar race condition
     let _resolveDataReady;
     const dataReady = new Promise(resolve => { _resolveDataReady = resolve; });
 
-    // UI refs
+    // UI refs e eventos básicos
     const overlay = document.getElementById('overlayMenu');
-    const cartCountEl = document.getElementById('cart-count');
-    const produtosContainer = document.getElementById('produtos');
-
-    /***********************************************************************
-     * UI: overlay menu e cart
-     ***********************************************************************/
     document.querySelector('.menu-icon').addEventListener('click', () => overlay.classList.add('open'));
     overlay.querySelector('.close-btn').addEventListener('click', () => overlay.classList.remove('open'));
-
-    document.getElementById('home-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      resetToHomePage();
-      overlay.classList.remove('open');
-    });
+    const cartCountEl = document.getElementById('cart-count');
 
     // Cart helpers (localStorage)
     const CART_KEY = 'cartItems';
@@ -345,30 +241,28 @@
     }
     document.addEventListener('visibilitychange', () => { if (!document.hidden) renderCartCount(); });
 
-    /***********************************************************************
-     * Utilitários
-     ***********************************************************************/
+    // normalize helper
     function normalizeText(text) {
       if (!text) return '';
       try { return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); } catch { return String(text).toLowerCase().trim(); }
     }
 
-    // category map (adaptado para Miss)
+    // category map
     const categoryMap = {
-      'BIQUÍNIS': ['biquini','biquínis','biquinis'],
+      'BRINCOS': ['brinco','brincos'],
+      'ANÉIS': ['anel','aneis','aneis'],
+      'BRACELETES': ['bracelete','braceletes'],
+      'COLARES': ['colar','colares'],
       'CONJUNTOS': ['conjunto','conjuntos','kit','kits'],
-      'SAÍDAS': ['saida','saidas','saída','saídas'],
-      'ROUPAS FITNESS': ['fitness','roupa fitness','legging','top'],
+      'PULSEIRAS': ['pulseira','pulseiras'],
+      'PERFUMES': ['perfume','perfumes'],
       'BOLSAS': ['bolsa','bolsas'],
-      'MOCHILAS': ['mochila','mochilas'],
-      'MAIÔS': ['maio','maiô','maios'],
-      'CROCHÊS': ['croche','crochê','croches','crochês'],
-      'ACESSÓRIOS': ['acessorio','acessório','acessorios','acessórios'],
-      'MODA CASUAL PRAIA': ['moda','casual','praia']
+      'CINTOS': ['cinto','cintos'],
+      'ÓCULOS': ['óculos','oculos']
     };
     function containsAnyTerm(text, terms) {
       const n = normalizeText(text||'');
-      return terms.some(t => n.includes(normalizeText(t)));
+      return terms.some(t => n.includes(t));
     }
     function filterByCategory(category) {
       const terms = categoryMap[category] || [normalizeText(category)];
@@ -381,9 +275,7 @@
       try { const sep = url.indexOf('?') !== -1 ? '&' : '?'; return url + sep + 'v=' + lastTimestamp; } catch { return url; }
     }
 
-    /***********************************************************************
-     * FETCH + JSONP fallback (Apps Script)
-     ***********************************************************************/
+    // FETCH + JSONP fallback
     function fetchCatalogFetchMode(force=false) {
       const params = new URLSearchParams();
       if (lastETag && !force) params.set('etag', lastETag);
@@ -394,8 +286,11 @@
     }
     function fetchCatalogJSONP(force=false) {
       return new Promise((resolve, reject) => {
-        const cbName = '__missCB' + Date.now() + Math.floor(Math.random()*1000);
-        // create script element first so we can remove it later
+        const cbName = '__divasCB' + Date.now() + Math.floor(Math.random()*1000);
+        window[cbName] = function(data) {
+          try { delete window[cbName]; script.remove(); } catch(e) {}
+          resolve(data);
+        };
         const params = new URLSearchParams();
         if (lastETag && !force) params.set('etag', lastETag);
         params.set('callback', cbName);
@@ -403,22 +298,18 @@
         const url = WEB_APP_URL + (params.toString() ? ('?' + params.toString()) : '');
         const script = document.createElement('script');
         script.src = url;
-        window[cbName] = function(data) {
-          try { delete window[cbName]; script.remove(); } catch(e) {}
-          resolve(data);
-        };
         script.onerror = function(){ try{ delete window[cbName]; script.remove(); }catch{}; reject(new Error('JSONP load error')); };
         document.head.appendChild(script);
-        // timeout fallback
         setTimeout(()=>{ if (window[cbName]) { try{ delete window[cbName]; script.remove(); }catch{}; reject(new Error('JSONP timeout')); } }, 8000);
       });
     }
 
-    // show/hide skeletons
+    // checkForUpdates: tenta fetch, se falhar usa JSONP
     let loadingShown = false;
     function showLoadingArea() {
       if (loadingShown) return;
       loadingShown = true;
+      // produtos skeleton
       const prod = document.getElementById('produtos');
       prod.innerHTML = '';
       for (let i = 0; i < 6; i++) {
@@ -432,19 +323,21 @@
         `;
         prod.appendChild(div);
       }
+      // banner skeleton
       const bannerContainer = document.getElementById('banner-scroll');
       bannerContainer.innerHTML = '';
       bannerContainer.className = 'banner-scroll single-banner';
       const b = document.createElement('div');
       b.className = 'skeleton-banner skeleton';
       bannerContainer.appendChild(b);
+      // ensure wrappers visible
       document.querySelector('.banner-scroll-wrapper').style.display = '';
     }
     function hideLoadingArea() {
       loadingShown = false;
+      // actual content render functions will replace skeletons
     }
 
-    // checkForUpdates: tenta fetch, se falhar usa JSONP
     function checkForUpdates(force=false) {
       if (force) showLoadingArea();
       return fetchCatalogFetchMode(force)
@@ -483,20 +376,19 @@
         });
     }
 
-    /***********************************************************************
-     * Inicialização e polling
-     ***********************************************************************/
+    // start
     function start() {
+      // primeiro carregamento forçado -> mostra skeletons
       showLoadingArea();
       checkForUpdates(true).then(()=> {
+        // sinaliza que os dados foram carregados (evita race com cliques)
         if (_resolveDataReady) _resolveDataReady();
       });
+      // polling
       setInterval(()=>checkForUpdates(false), POLL_INTERVAL_MS);
     }
 
-    /***********************************************************************
-     * Banners
-     ***********************************************************************/
+    // banner render
     function setupBannerScroll(banners) {
       const container = document.getElementById('banner-scroll');
       container.innerHTML = '';
@@ -507,16 +399,13 @@
         const img = document.createElement('img'); img.src = appendCacheBuster(valid[0]); img.alt = 'Banner'; img.onerror = function(){ this.style.display='none'; };
         container.appendChild(img);
       } else {
-        container.className = 'banner-scroll scrolling';
+        container.className = 'banner-scroll multiple-banners';
         valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt='Banner'; img.onerror=function(){this.style.display='none';}; container.appendChild(img); });
-        // duplicate for infinite scroll effect
         valid.forEach(url => { const img = document.createElement('img'); img.src = appendCacheBuster(url); img.alt='Banner'; img.onerror=function(){this.style.display='none';}; container.appendChild(img); });
       }
     }
 
-    /***********************************************************************
-     * Render dos produtos
-     ***********************************************************************/
+    // render produtos grid
     function renderProdutos(list) {
       const cont = document.getElementById('produtos');
       const valid = (list || []).filter(p => p.nome && p.imagens && p.imagens.length > 0);
@@ -530,6 +419,7 @@
         div.addEventListener('click', ()=> {
           const params = new URLSearchParams();
           params.set('produto', p.nome || '');
+          // encodeURIComponent + JSON.stringify -> o produto será lido corretamente em divas-produto.html
           params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens || [])));
           params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes || [])));
           params.set('status', encodeURIComponent(p.status || ''));
@@ -537,8 +427,7 @@
           params.set('preco', encodeURIComponent(p.preco || ''));
           params.set('mensagem', encodeURIComponent(p.mensagem || ''));
           params.set('parcelamento', encodeURIComponent(p.parcelamento || ''));
-          // redireciona para a página de produto (ajuste de rota conforme seu projeto)
-          location.href = `miss-produto.html?${params.toString()}`;
+          location.href = `divas-produto.html?${params.toString()}`;
         });
         const imgSrc = appendCacheBuster((p.imagens && p.imagens[0]) || '');
         div.innerHTML = `
@@ -553,9 +442,7 @@
       renderCartCount();
     }
 
-    /***********************************************************************
-     * Breadcrumb helpers e navegação
-     ***********************************************************************/
+    // Breadcrumb helpers
     const breadcrumbEl = document.getElementById('breadcrumb');
     const pathEl = breadcrumbEl.querySelector('.path');
     const crumbNameEl = breadcrumbEl.querySelector('.crumbName');
@@ -580,10 +467,7 @@
       renderProdutos(launchProdutos);
     }
 
-    /***********************************************************************
-     * HANDLERS: categorias, photo-items, lançamentos, busca
-     ***********************************************************************/
-    // categories (aguardam dataReady)
+    // CATEGORY HANDLERS (aguardam dataReady)
     document.querySelectorAll('.category').forEach(el => {
       el.addEventListener('click', async () => {
         await dataReady;
@@ -598,7 +482,6 @@
       });
     });
 
-    // photo items
     document.querySelectorAll('.photo-item').forEach(el => {
       el.addEventListener('click', async () => {
         await dataReady;
@@ -613,7 +496,6 @@
       });
     });
 
-    // launch title
     document.querySelector('.launch-title').addEventListener('click', async () => {
       await dataReady;
       document.querySelector('.photo-scroll-wrapper').style.display = 'none';
@@ -656,20 +538,23 @@
       showBreadcrumb('Todos os Produtos', sortedList);
     });
 
-    /***********************************************************************
-     * Preload de imagens pequenas / debug hook
-     ***********************************************************************/
+    // home link
+    document.getElementById('home-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetToHomePage();
+      overlay.classList.remove('open');
+    });
+
+    // Pré-carrega imagens pequenas
     (function preload() {
-      const imgs = ['logomiss.webp','lupa.webp','biquinis1.webp','conjuntos2.webp','saidas3.webp','fitness4.webp','bolsas5.webp','mochilas6.webp','maios7.webp','croches8.webp','acessorios9.webp','modapraia10.webp','instagramicon.png'];
+      const imgs = ['logodivas.webp','lupa.webp','colares.webp','brincos.webp','aneis.webp','pulseiras.webp','conjuntos.webp','braceletes.webp','perfumes.webp','bolsas.webp','oculos.webp','instagramicon.png'];
       imgs.forEach(s => { const i = new Image(); i.src = s; });
     })();
 
     // expor debug
     window.forceReloadFromServer = function() { showLoadingArea(); checkForUpdates(true); };
 
-    /***********************************************************************
-     * Inicializa contadores e inicia processo
-     ***********************************************************************/
+    // inicial
     renderCartCount();
     start();
 
