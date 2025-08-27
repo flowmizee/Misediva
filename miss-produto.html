@@ -216,6 +216,32 @@
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.25);
     }
+
+    /* SKELETON / LOADER */
+    .skeleton {
+      width: 100%;
+      display: grid;
+      gap: 12px;
+    }
+    .skeleton .s-img {
+      width: 100%;
+      height: 350px;
+      background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+      background-size: 200% 100%;
+      animation: shine 1.2s infinite;
+      border-radius: 8px;
+    }
+    .skeleton .s-line {
+      height: 18px;
+      background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+      background-size: 200% 100%;
+      animation: shine 1.2s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shine {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   </style>
 
   <!-- PapaParse para evitar que vírgulas em descrições quebrem o CSV -->
@@ -301,10 +327,15 @@
   </footer>
   
   <script>
-    // ––––––––––––––––––––––––––––––––––
-    // Gerenciamento de carrinho no localStorage
+    // ============================
+    // CONFIG
+    // ============================
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv';
     const CART_KEY = 'cartItems';
 
+    // ============================
+    // CARRINHO (igual ao seu)
+    // ============================
     function getCartItems() {
       try {
         return JSON.parse(localStorage.getItem(CART_KEY)) || [];
@@ -312,40 +343,50 @@
         return [];
       }
     }
-
     function setCartItems(items) {
       localStorage.setItem(CART_KEY, JSON.stringify(items));
       renderCartCount();
     }
-
     function renderCartCount() {
       const cartCountEl = document.getElementById('cart-count');
       const totalQty = getCartItems().reduce((sum, item) => sum + (parseInt(item.quantidade || 0, 10) || 0), 0);
       cartCountEl.textContent = totalQty;
       cartCountEl.style.display = totalQty > 0 ? 'inline-block' : 'none';
     }
-
     document.addEventListener('DOMContentLoaded', renderCartCount);
-    // ––––––––––––––––––––––––––––––––––
-    
-    // OVERLAY MENU
+
+    // ============================
+    // UI helpers e overlay
+    // ============================
     const overlay = document.getElementById('overlayMenu');
     document.querySelector('.menu-icon').onclick = () => overlay.classList.add('open');
     overlay.querySelector('.close-btn').onclick = () => overlay.classList.remove('open');
-    
-    // Elementos do breadcrumb
+
     const breadcrumbEl = document.getElementById('breadcrumb');
     const pathEl = breadcrumbEl.querySelector('.path');
     const crumbNameEl = breadcrumbEl.querySelector('.crumbName');
     const headerTitleEl = breadcrumbEl.querySelector('.header-row .title');
     const headerCountEl = breadcrumbEl.querySelector('.header-row .count');
-    
-    // capturar produto específico se vier pela URL
+
+    // ============================
+    // UTIL
+    // ============================
+    function singularize(t) {
+      if (t.endsWith('es')) return t.slice(0,-2);
+      if (t.endsWith('s')) return t.slice(0,-1);
+      return t;
+    }
+
+    // ============================
+    // Leitura do parâmetro produto
+    // ============================
     const params = new URLSearchParams(window.location.search);
-    const nomeProduto = decodeURIComponent(params.get('produto') || '');
+    const nomeProduto = decodeURIComponent(params.get('produto') || '').trim();
     let allProdutos = [];
 
-    // função de animação: faz a imagem "voar" até o ícone do carrinho
+    // ============================
+    // FUNÇÃO DE ANIMAÇÃO QUE VC JÁ TINHA
+    // ============================
     function flyImageToCart(sourceImg) {
       return new Promise(resolve => {
         try {
@@ -388,194 +429,159 @@
         }
       });
     }
-    
-    // fetch CSV usando PapaParse (evita que vírgulas dentro de campos quebrem as colunas)
-    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv')
-      .then(res => res.text())
-      .then(csvText => {
-        // usar PapaParse para parsear corretamente
-        const parsed = Papa.parse(csvText, { skipEmptyLines: true });
-        const rows = parsed.data || [];
-        // remove cabeçalho
-        const lines = rows.slice(1).map(r => r.map(c => (c === undefined ? '' : String(c))));
-    
-        // popula allProdutos
-        allProdutos = [];
-        lines.forEach(cells => {
-          if (!cells || !cells[2] || !cells[2].toString().trim()) return;
-          allProdutos.push({
-            nome: cells[2].toString().trim(),
-            imagens: [cells[3],cells[4],cells[5]].map(u=>u?.toString().trim()).filter(u=>u),
-            opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.toString().trim()).filter(o=>o),
-            status: (cells[9] || '').toString().trim() || '',
-            descricao: (cells[10] || '').toString().trim() || '',
-            preco: (cells[11] || '').toString().trim() || '',
-            mensagem: (cells[12] || '').toString().trim() || '',
-            parcelamento: (cells[13] || '').toString().trim() || ''
-          });
-        });
-    
-        // se vier nomeProduto, exibe produto único
-        if (nomeProduto) {
-          showProduto(nomeProduto, lines);
-        } else {
-          // se nenhum produto solicitado via URL, esconde #produto e mostra grid com tudo
-          renderProdutos(allProdutos);
-        }
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-      });
-    
-    // renderiza produto único
-    function showProduto(nome, lines) {
+
+    // ============================
+    // SKELETON RÁPIDO (quando tem produto na URL)
+    // ============================
+    function showSkeleton() {
       const container = document.getElementById('produto');
-      breadcrumbEl.style.display = 'none';
-      
-      for (const lineArr of lines) {
-        // lineArr é um array de células (já parseado com Papa)
-        const c = lineArr;
-        if ((c[2]||'').toString().trim() !== nome) continue;
-    
-        const images = [c[3]?.toString().trim(),c[4]?.toString().trim(),c[5]?.toString().trim()].filter(u=>u);
-        const options = [c[6]?.toString().trim(),c[7]?.toString().trim(),c[8]?.toString().trim()].filter(o=>o);
-        const status = (c[9]||'').toString().trim() || '';
-        const desc = (c[10]||'').toString().trim() || '';
-        const preco = ((c[11]||'').toString()).replace(/[^\d.,]/g,'').replace('.', ',');
-        const extra = (c[12]||'').toString().trim() || '';
-        const parc = (c[13]||'').toString().trim() || '';
-    
-        let html = `<div class="breadcrumb-list"><a href="miss-index.html">Início</a> &gt; ${nome}</div>`;
-        html += `
-          <div class="carousel">
-            ${status?`<div class="badge">${status}</div>`:``}
-            <img id="carousel-image" src="" alt="${nome}">
-            <div class="counter" id="image-counter"></div>
+      container.style.display = '';
+      container.innerHTML = `
+        <div class="skeleton">
+          <div class="s-img"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="s-line" style="width:70%"></div>
+            <div class="s-line" style="width:40%"></div>
+            <div class="s-line" style="width:30%"></div>
+            <div class="s-line" style="width:100%;height:80px"></div>
           </div>
-          <div class="thumbnails" id="thumbnails"></div>
-          <div class="produto-nome">${nome}</div>
-          <div class="produto-preco">R$ ${preco}</div>
-          <div class="produto-parcelamento">${parc}</div>
-          <div class="produto-extra">${extra}</div>
-        `;
-        if (options.length) {
-          html += `
-            <div class="options">
-              <div class="options-label">Opções:</div>
-              <div id="option-list"></div>
-            </div>
-          `;
-        }
+        </div>
+      `;
+    }
+
+    // ============================
+    // Função que constrói UI do produto a partir de um array de células (c)
+    // ============================
+    function buildProductFromCells(c) {
+      const nome = (c[2]||'').toString().trim();
+      const images = [c[3]?.toString().trim(),c[4]?.toString().trim(),c[5]?.toString().trim()].filter(u=>u);
+      const options = [c[6]?.toString().trim(),c[7]?.toString().trim(),c[8]?.toString().trim()].filter(o=>o);
+      const status = (c[9]||'').toString().trim() || '';
+      const desc = (c[10]||'').toString().trim() || '';
+      const preco = ((c[11]||'').toString()).replace(/[^\d.,]/g,'').replace('.', ',');
+      const extra = (c[12]||'').toString().trim() || '';
+      const parc = (c[13]||'').toString().trim() || '';
+
+      const container = document.getElementById('produto');
+      container.style.display = '';
+      const thumbnailHtml = `<div class="thumbnails" id="thumbnails"></div>`;
+      let html = `<div class="breadcrumb-list"><a href="miss-index.html">Início</a> &gt; ${nome}</div>`;
+      html += `
+        <div class="carousel" style="position:relative;">
+          ${status?`<div class="badge">${status}</div>`:``}
+          <img id="carousel-image" src="" alt="${nome}">
+          <div class="counter" id="image-counter"></div>
+        </div>
+        ${thumbnailHtml}
+        <div class="produto-nome">${nome}</div>
+        <div class="produto-preco">R$ ${preco}</div>
+        <div class="produto-parcelamento">${parc}</div>
+        <div class="produto-extra">${extra}</div>
+      `;
+      if (options.length) {
         html += `
-          <div class="purchase-controls">
-            <div class="qty-controls">
-              <button id="decrease">-</button>
-              <div class="qty" id="quantity">1</div>
-              <button id="increase">+</button>
-            </div>
-            <button class="buy-btn">COMPRAR</button>
+          <div class="options">
+            <div class="options-label">Opções:</div>
+            <div id="option-list"></div>
           </div>
-          <strong>Compra protegida</strong>
-          <div class="info-section">Seus dados cuidados durante toda a compra.</div><hr>
-          <strong>Trocas e devoluções</strong>
-          <div class="info-section">Se não gostar, você pode trocar ou devolver em até 7 dias após a entrega.</div><hr>
-          <strong>Descrição</strong>
-          <div class="descricao">${desc}</div>
         `;
-        container.innerHTML = html;
-    
-        // carrossel...
-        let idx = 0;
-        const imgEl = document.getElementById('carousel-image');
-        const countEl = document.getElementById('image-counter');
-        const thumbsEl = document.getElementById('thumbnails');
-        function showImage(i) {
-          idx = i;
-          imgEl.src = images[i];
-          countEl.textContent = `${i+1}/${images.length}`;
-        }
-        images.forEach((u,i) => {
-          const t = document.createElement('img');
-          t.src = u;
-          t.onclick = () => {
-            showImage(i);
-            thumbsEl.querySelectorAll('img').forEach(x=>x.classList.remove('active'));
-            t.classList.add('active');
+      }
+      html += `
+        <div class="purchase-controls">
+          <div class="qty-controls">
+            <button id="decrease">-</button>
+            <div class="qty" id="quantity">1</div>
+            <button id="increase">+</button>
+          </div>
+          <button class="buy-btn">COMPRAR</button>
+        </div>
+        <strong>Compra protegida</strong>
+        <div class="info-section">Seus dados cuidados durante toda a compra.</div><hr>
+        <strong>Trocas e devoluções</strong>
+        <div class="info-section">Se não gostar, você pode trocar ou devolver em até 7 dias após a entrega.</div><hr>
+        <strong>Descrição</strong>
+        <div class="descricao">${desc}</div>
+      `;
+      container.innerHTML = html;
+
+      // carrossel
+      let idx = 0;
+      const imgEl = document.getElementById('carousel-image');
+      const countEl = document.getElementById('image-counter');
+      const thumbsEl = document.getElementById('thumbnails');
+
+      function showImage(i) {
+        idx = i;
+        imgEl.src = images[i] || '';
+        countEl.textContent = `${i+1}/${images.length}`;
+      }
+
+      images.forEach((u,i) => {
+        const t = document.createElement('img');
+        t.src = u;
+        t.onclick = () => {
+          showImage(i);
+          thumbsEl.querySelectorAll('img').forEach(x=>x.classList.remove('active'));
+          t.classList.add('active');
+        };
+        thumbsEl.appendChild(t);
+      });
+
+      if (images.length>0) {
+        showImage(0);
+        const firstThumb = thumbsEl.querySelector('img');
+        if(firstThumb) firstThumb.classList.add('active');
+      } else {
+        if (imgEl) imgEl.style.display = 'none';
+        if (countEl) countEl.style.display = 'none';
+      }
+
+      // variantes
+      if (options.length) {
+        const list = document.getElementById('option-list');
+        options.forEach((o,i) => {
+          const sw = document.createElement('div');
+          sw.className = 'option-swatch';
+          sw.textContent = o;
+          sw.onclick = () => {
+            document.querySelectorAll('.option-swatch').forEach(x=>x.classList.remove('selected'));
+            sw.classList.add('selected');
+            if (images[i]) showImage(i);
           };
-          thumbsEl.appendChild(t);
+          list.appendChild(sw);
         });
-        if (images.length>0) {
-          showImage(0);
-          const firstThumb = thumbsEl.querySelector('img');
-          if(firstThumb) firstThumb.classList.add('active');
-        } else {
-          // se não houver imagens, esconder elementos relacionados
-          if (imgEl) imgEl.style.display = 'none';
-          if (countEl) countEl.style.display = 'none';
-        }
-    
-        // variantes
-        if (options.length) {
-          const list = document.getElementById('option-list');
-          options.forEach((o,i) => {
-            const sw = document.createElement('div');
-            sw.className = 'option-swatch';
-            sw.textContent = o;
-            sw.onclick = () => {
-              document.querySelectorAll('.option-swatch').forEach(x=>x.classList.remove('selected'));
-              sw.classList.add('selected');
-              // se desejar, trocar imagem ao selecionar opção (se existir imagem correspondente)
-              if (images[i]) showImage(i);
-            };
-            list.appendChild(sw);
-          });
-        }
-    
-        // qtd
-        let qty = 1;
-        document.getElementById('decrease').onclick = () => { 
-          if(qty>1) qty--; 
-          document.getElementById('quantity').textContent = qty; 
-        };
-        document.getElementById('increase').onclick = () => { 
-          qty++; 
-          document.getElementById('quantity').textContent = qty; 
-        };
-    
-        // BUY: agora com animação de voar (se houver imagem)
-        document.querySelector('.buy-btn').onclick = () => {
-          // 1. Captura dados do produto
-          const nomeFinal = nomeProduto || document.querySelector('.produto-nome').textContent;
-          const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
-          const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
-          const opcaoEl = document.querySelector('.option-swatch.selected');
-          const opcao = opcaoEl ? opcaoEl.textContent : null;
+      }
 
-          // 2. Prepara item
-          const item = {
-            nome: nomeFinal,
-            preco: precoText,
-            quantidade,
-            opcao,
-            imagens: images
-          };
+      // qtd
+      let qty = 1;
+      document.getElementById('decrease').onclick = () => { 
+        if(qty>1) qty--; 
+        document.getElementById('quantity').textContent = qty; 
+      };
+      document.getElementById('increase').onclick = () => { 
+        qty++; 
+        document.getElementById('quantity').textContent = qty; 
+      };
 
-          // 3. Anima (se imagem disponível) e persiste no carrinho
-          const sourceImg = document.getElementById('carousel-image');
-          if (sourceImg && sourceImg.src) {
-            flyImageToCart(sourceImg).then(() => {
-              // adiciona ao carrinho
-              const items = getCartItems();
-              const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
-              if (existente) {
-                existente.quantidade = (parseInt(existente.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
-              } else {
-                items.push(item);
-              }
-              setCartItems(items);
-            });
-          } else {
-            // sem imagem: só adiciona
+      // BUY
+      document.querySelector('.buy-btn').onclick = () => {
+        const nomeFinal = nome;
+        const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
+        const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
+        const opcaoEl = document.querySelector('.option-swatch.selected');
+        const opcao = opcaoEl ? opcaoEl.textContent : null;
+
+        const item = {
+          nome: nomeFinal,
+          preco: precoText,
+          quantidade,
+          opcao,
+          imagens: images
+        };
+
+        const sourceImg = document.getElementById('carousel-image');
+        if (sourceImg && sourceImg.src) {
+          flyImageToCart(sourceImg).then(() => {
             const items = getCartItems();
             const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
             if (existente) {
@@ -584,20 +590,107 @@
               items.push(item);
             }
             setCartItems(items);
+          });
+        } else {
+          const items = getCartItems();
+          const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
+          if (existente) {
+            existente.quantidade = (parseInt(existente.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
+          } else {
+            items.push(item);
           }
-        };
-        
-        break;
-      }
+          setCartItems(items);
+        }
+      };
     }
-    
-    // helpers de filtro
-    function singularize(t) {
-      if (t.endsWith('es')) return t.slice(0,-2);
-      if (t.endsWith('s')) return t.slice(0,-1);
-      return t;
+
+    // ============================
+    // PARSE RÁPIDO: procura produto linha a linha e mostra imediatamente
+    // ============================
+    function parseAndShowProductFast(productName) {
+      return new Promise((resolve) => {
+        let rowIndex = -1;
+        let found = false;
+        // mostra skeleton imediatamente
+        showSkeleton();
+
+        Papa.parse(CSV_URL, {
+          download: true,
+          skipEmptyLines: true,
+          step: function(results, parser) {
+            rowIndex++;
+            const row = results.data;
+            // pula cabeçalho (pressupõe que o cabeçalho está na primeira linha)
+            if (rowIndex === 0) return;
+            if (!row || !row[2]) return;
+            const nomeCell = (row[2]||'').toString().trim();
+            if (nomeCell === productName) {
+              found = true;
+              // mostra produto imediatamente usando as células da linha
+              buildProductFromCells(row);
+              // aborta parsing para liberar CPU / rede
+              parser.abort();
+              resolve(true);
+            }
+          },
+          error: function(err) {
+            console.error('Erro no parse fast:', err);
+            resolve(false);
+          },
+          complete: function() {
+            if (!found) {
+              // caso não encontrado, mostra mensagem amigável
+              const container = document.getElementById('produto');
+              container.style.display = '';
+              container.innerHTML = `<div style="padding:20px;">Produto "<strong>${productName}</strong>" não encontrado.</div>`;
+              resolve(false);
+            }
+          }
+        });
+      });
     }
-    
+
+    // ============================
+    // PARSE COMPLETO em background para popular allProdutos
+    // ============================
+    function parseAllProductsBackground() {
+      // se já carregou não executa de novo
+      if (allProdutos && allProdutos.length > 0) return Promise.resolve(allProdutos);
+
+      return new Promise((resolve) => {
+        Papa.parse(CSV_URL, {
+          download: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            const rows = results.data || [];
+            const lines = rows.slice(1).map(r => r.map(c => (c === undefined ? '' : String(c))));
+            allProdutos = [];
+            lines.forEach(cells => {
+              if (!cells || !cells[2] || !cells[2].toString().trim()) return;
+              allProdutos.push({
+                nome: cells[2].toString().trim(),
+                imagens: [cells[3],cells[4],cells[5]].map(u=>u?.toString().trim()).filter(u=>u),
+                opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.toString().trim()).filter(o=>o),
+                status: (cells[9] || '').toString().trim() || '',
+                descricao: (cells[10] || '').toString().trim() || '',
+                preco: (cells[11] || '').toString().trim() || '',
+                mensagem: (cells[12] || '').toString().trim() || '',
+                parcelamento: (cells[13] || '').toString().trim() || ''
+              });
+            });
+            resolve(allProdutos);
+          },
+          error: function(err) {
+            console.error('Erro no parse completo:', err);
+            resolve([]);
+          }
+        });
+      });
+    }
+
+    // ============================
+    // filter / grid (igual ao seu mas usando allProdutos depois que for populado)
+    // ============================
     function filterByTerm(term) {
       const low = term.toLowerCase(), sin = singularize(low);
       return allProdutos.filter(p => {
@@ -605,8 +698,7 @@
         return nm.includes(low) || nm.includes(sin);
       });
     }
-    
-    // render grid igual Web App
+
     function renderProdutos(list) {
       document.getElementById('produto').style.display = 'none';
       const g = document.getElementById('produtos');
@@ -622,7 +714,6 @@
         const d = document.createElement('div');
         d.className = 'produto';
         d.onclick = () => {
-          // Redireciona para miss-produto.html com o produto como parâmetro
           window.location.href = `miss-produto.html?produto=${encodeURIComponent(p.nome)}`;
         };
         d.innerHTML = `
@@ -635,15 +726,18 @@
         g.appendChild(d);
       });
     }
-    
-    // ao clicar em categoria
+
+    // ============================
+    // Interações de categoria e busca (mantive sua lógica)
+    // ============================
     document.querySelectorAll('.category').forEach(el => {
-      el.onclick = () => {
+      el.onclick = async () => {
         const nome = el.textContent.trim();
+        // garante que allProdutos está populado
+        await parseAllProductsBackground();
         const filtered = filterByTerm(nome);
         renderProdutos(filtered);
         
-        // Atualiza o breadcrumb
         pathEl.textContent = 'Início';
         crumbNameEl.textContent = nome.toLowerCase();
         headerTitleEl.textContent = nome.toUpperCase();
@@ -651,41 +745,38 @@
         breadcrumbEl.style.display = 'block';
       };
     });
-    
-    // busca input
+
     const si = document.querySelector('.search-input'),
           sb = document.querySelector('.search-button');
-    si.oninput = () => {
+    si.oninput = async () => {
       const t = si.value.trim();
       if (t === '') {
-        // volta ao produto único
         document.getElementById('produtos').style.display = 'none';
         document.getElementById('produto').style.display = '';
         breadcrumbEl.style.display = 'none';
         return;
       }
+      await parseAllProductsBackground();
       const filtered = filterByTerm(t);
       renderProdutos(filtered);
       
-      // Atualiza o breadcrumb
       pathEl.textContent = 'Início';
       crumbNameEl.textContent = t.toLowerCase();
       headerTitleEl.textContent = t.toUpperCase();
       headerCountEl.textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
       breadcrumbEl.style.display = 'block';
     };
-    
-    sb.onclick = () => {
+    sb.onclick = async () => {
       const t = si.value.trim();
       if (t === '') {
         document.getElementById('produtos').style.display = 'none';
         document.getElementById('produto').style.display = '';
         breadcrumbEl.style.display = 'none';
       } else {
+        await parseAllProductsBackground();
         const filtered = filterByTerm(t);
         renderProdutos(filtered);
         
-        // Atualiza o breadcrumb
         pathEl.textContent = 'Início';
         crumbNameEl.textContent = t.toLowerCase();
         headerTitleEl.textContent = t.toUpperCase();
@@ -693,49 +784,53 @@
         breadcrumbEl.style.display = 'block';
       }
     };
-    
+
     // Link "Produtos" no menu hamburguer
-    document.getElementById('all-products-link').addEventListener('click', function(e) {
+    document.getElementById('all-products-link').addEventListener('click', async function(e) {
       e.preventDefault();
-      
-      // Fecha o menu
       overlay.classList.remove('open');
-      
-      // Ordena todos os produtos alfabeticamente
+      await parseAllProductsBackground();
       const sortedList = [...allProdutos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' }));
-      
-      // Esconde o produto único e mostra o grid
       document.getElementById('produto').style.display = 'none';
       const grid = document.getElementById('produtos');
       grid.style.display = 'grid';
-      
-      // Renderiza os itens
       renderProdutos(sortedList);
-      
-      // Atualiza o breadcrumb
       pathEl.textContent = 'Início';
       crumbNameEl.textContent = 'Todos os Produtos';
       headerTitleEl.textContent = 'TODOS OS PRODUTOS';
       headerCountEl.textContent = `${sortedList.length} produto${sortedList.length !== 1 ? 's' : ''}`;
       breadcrumbEl.style.display = 'block';
     });
-    
-    // Volta para a página inicial ao clicar no path "Início" no breadcrumb
+
     pathEl.addEventListener('click', function() {
       document.getElementById('produtos').style.display = 'none';
       document.getElementById('produto').style.display = '';
       breadcrumbEl.style.display = 'none';
-      
-      // Se estiver na página de produto único, recarrega a página
       if (nomeProduto) {
         window.location.href = 'miss-index.html';
       }
     });
-    
-    // atualiza carrinho ao voltar de outra aba
+
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) renderCartCount();
     });
+
+    // ============================
+    // FLUXO PRINCIPAL: se houver nomeProduto, tenta achar rápido
+    // ============================
+    (async function init() {
+      if (nomeProduto) {
+        // 1) procura e mostra rápido
+        await parseAndShowProductFast(nomeProduto);
+        // 2) inicia parsing completo em background para popular allProdutos (sem bloquear a UI)
+        parseAllProductsBackground().catch(()=>{});
+      } else {
+        // se não tiver produto na URL, já popula tudo (para ser rápido quando o usuário buscar)
+        await parseAllProductsBackground();
+        // e renderiza grid com todos (jeito igual ao seu: pode ajustar se quiser)
+        renderProdutos(allProdutos);
+      }
+    })();
   </script>
 </body>
 </html>
