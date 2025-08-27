@@ -1,628 +1,664 @@
-<!DOCTYPE html>  <html lang="pt-br">    <head>    
-  <meta charset="UTF-8" />    
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />    
-  <title>Miss</title>    
-  <link rel="icon" type="image/png" href="miss.png">    
-  <style>    
-    html, body {    
-      margin: 0;    
-      padding: 0;    
-      height: 100%;    
-    }    
-    * { margin: 0; padding: 0; box-sizing: border-box; }    
-    body {     
-      font-family: Arial, sans-serif;     
-      background-color: #fff;     
-      display: flex;    
-      flex-direction: column;    
-      min-height: 100vh;    
-    }    
-    .nav-wrapper {    
-      position: fixed;    
-      top: 0;    
-      left: 0;    
-      right: 0;    
-      background: #fff;    
-      z-index: 1000;    
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);    
-    }    
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }    
-    .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }    
-    .bag-icon .cart-count {    
-      position: absolute;    
-      top: -4px; right: -8px;    
-      background: #72202f;    
-      color: #fff;    
-      font-size: 12px;    
-      padding: 2px 6px;    
-      border-radius: 12px;    
-      display: none;    
-    }    
-    .logo img { max-height: 80px; width: auto; cursor: pointer; }    
-    .search-container { display: flex; width: 100%; padding: 0 16px 16px; }    
-    .search-input {    
-      flex: 1; padding: 12px;    
-      border: 1px solid #ccc; border-radius: 8px 0 0 8px;    
-      outline: none; font-size: 16px; background-color: #f2f2f2;    
-    }    
-    .search-button {    
-      background-color: #72202f; border: none;    
-      padding: 0 16px; border-radius: 0 8px 8px 0;    
-      cursor: pointer; display: flex; align-items: center; justify-content: center;    
-    }    
-    .search-button img { height: 36px; width: auto; }    
-    .categories-container {    
-      display: flex; gap: 16px; overflow-x: auto;    
-      scroll-behavior: smooth; padding: 8px 16px 16px;    
-    }    
-    .categories-container.hidden::-webkit-scrollbar-thumb { background-color: rgba(204,204,204,0); }    
-    .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }  #breadcrumb { display: none; background: #fff; border-bottom: 1px solid #eee; padding: 8px 16px; }    
-#breadcrumb .path { font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }    
-#breadcrumb .separator { font-size: 14px; color: #555; margin: 0 8px; }    
-#breadcrumb .crumbName { font-size: 14px; text-transform: capitalize; }    
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }    
-.header-row .title { font-weight: bold; font-size: 20px; text-transform: uppercase; }    
-.header-row .count { font-size: 14px; color: #555; }    .photo-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
-.photo-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
-.photo-scroll::-webkit-scrollbar { display: none; }
-.photo-item { flex: 0 0 auto; text-align: center; cursor: pointer; }
-.photo-img { width: 100px; height: 100px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.photo-img img { max-width: 100%; max-height: 100%; }
-.photo-item .label { font-size: 16px; font-weight: bold; text-transform: capitalize; margin-top: 8px; }
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Miss</title>
+  <link rel="icon" type="image/png" href="miss.png">
+  <style>
+    :root{
+      /* --- CONTROLE PRINCIPAL DOS BANNERS ---
+         Altere aqui para ajustar o comportamento global dos banners.
+         --banner-height: altura do banner (ex: 500px, 320px, 40vh)
+         --banner-horizontal-offset: valor subtraído de 100vw ao calcular a largura dos banners em scroll (ex: 100px).
+            Usado para deixar um padding/offset lateral (como no seu exemplo original).
+         --banner-single-width: largura do banner quando houver apenas 1 (ex: 100% ou 90vw).
+         --banner-animation-duration: tempo do loop de animação em segundos.
+      */
+      --banner-height: 500px;
+      --banner-horizontal-offset: 100px;
+      --banner-single-width: 100%;
+      --banner-animation-duration: 15s;
+    }
 
-.image-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
-.image-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
-.image-scroll::-webkit-scrollbar { display: none; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-.banner-scroll-wrapper {
-background-color: #f2f2f2;
-padding: 8px 0 24px;
-overflow: hidden;
-position: relative;
-}
-.banner-scroll {
-display: flex;
-gap: 16px;
-padding: 0;
-width: max-content;
-}
-.banner-scroll.single-banner {
-width: 100%;
-padding: 0;
-}
-.banner-scroll.scrolling {
-animation: scrollBanners 15s linear infinite;
-padding: 0 16px;
-}
-.banner-scroll img {
-height: 500px;
-width: calc(100vw - 100px);
-object-fit: cover;
-border-radius: 12px;
-flex-shrink: 0;
-}
-.banner-scroll.single-banner img {
-width: 100%;
-border-radius: 0;
-}
-@keyframes scrollBanners {
-0% { transform: translateX(0); }
-100% { transform: translateX(calc(-50% - 8px)); }
-}
+    .nav-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
+    .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
+    .bag-icon .cart-count {
+      position: absolute;
+      top: -4px; right: -8px;
+      background: #72202f;
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      display: none;
+    }
+    .logo img { max-height: 80px; width: auto; cursor: pointer; }
+    .search-container { display: flex; width: 100%; padding: 0 16px 16px; }
+    .search-input {
+      flex: 1; padding: 12px;
+      border: 1px solid #ccc; border-radius: 8px 0 0 8px;
+      outline: none; font-size: 16px; background-color: #f2f2f2;
+    }
+    .search-button {
+      background-color: #72202f; border: none;
+      padding: 0 16px; border-radius: 0 8px 8px 0;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .search-button img { height: 36px; width: auto; }
+    .categories-container {
+      display: flex; gap: 16px; overflow-x: auto;
+      scroll-behavior: smooth; padding: 8px 16px 16px;
+    }
+    .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
 
-.main-content {
-margin-top: 220px;
-flex: 1;
-display: flex;
-flex-direction: column;
-}
-.produtos-wrapper {
-background-color: #f2f2f2;
-padding: 16px;
-flex: 1;
-min-height: 300px;
-}
-.launch-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; cursor: pointer; }
-.produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-.produto { cursor: pointer; }
-.produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
-.produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
-.produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
-.produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
-.produto .extra { color: #007bff; }
+    #breadcrumb { display: none; background: #fff; border-bottom: 1px solid #eee; padding: 8px 16px; }
+    #breadcrumb .path { font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
+    #breadcrumb .separator { font-size: 14px; color: #555; margin: 0 8px; }
+    #breadcrumb .crumbName { font-size: 14px; text-transform: capitalize; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .header-row .title { font-weight: bold; font-size: 20px; text-transform: uppercase; }
+    .header-row .count { font-size: 14px; color: #555; }
 
-/* MENU OVERLAY */
-#overlayMenu {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: #fff;
-transform: translateX(-100%);
-transition: transform 0.3s ease;
-z-index: 2000;
-padding: 60px 20px;
-display: flex;
-flex-direction: column;
-}
-#overlayMenu.open { transform: translateX(0); }
-#overlayMenu .close-btn {
-position: absolute;
-top: 16px;
-right: 16px;
-font-size: 32px;
-cursor: pointer;
-}
-#overlayMenu nav {
-display: flex;
-flex-direction: column;
-gap: 0;
-margin-top: 20px;
-}
-#overlayMenu nav a {
-font-size: 20px;
-color: #000;
-text-decoration: none;
-text-transform: uppercase;
-padding: 8px 0;
-}
+    .photo-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
+    .photo-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
+    .photo-scroll::-webkit-scrollbar { display: none; }
+    .photo-item { flex: 0 0 auto; text-align: center; cursor: pointer; }
+    .photo-img { width: 100px; height: 100px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .photo-img img { max-width: 100%; max-height: 100%; }
+    .photo-item .label { font-size: 16px; font-weight: bold; text-transform: capitalize; margin-top: 8px; }
 
-@media (max-width: 480px) {
-.produtos-grid { grid-template-columns: 1fr 1fr; }
-.produto img { height: 220px; }
-.banner-scroll img {
-height: 300px;
-}
-.banner-scroll.single-banner img {
-height: 300px;
-}
-}
+    .image-scroll-wrapper { background-color: #f2f2f2; padding: 16px; }
+    .image-scroll { display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth; }
+    .image-scroll::-webkit-scrollbar { display: none; }
 
-/* FOOTER */
-.site-footer {
-background-color: #72202f;
-color: #fff;
-padding: 16px;
-margin-top: auto;
-}
-.site-footer .footer-item {
-margin-bottom: 12px;
-font-size: 14px;
-}
-.site-footer .footer-item.instagram {
-margin-bottom: 32px;
-}
-.site-footer .footer-item.instagram img {
-width: 20px;
-height: auto;
-display: block;
-}
-.site-footer .footer-item a {
-color: inherit;
-text-decoration: none;
-}
-.site-footer .footer-item:last-child {
-margin-bottom: 0;
-}
+    .banner-scroll-wrapper {
+      background-color: #f2f2f2;
+      padding: 8px 0 24px;
+      overflow: hidden;
+      position: relative;
+    }
+    .banner-scroll {
+      display: flex;
+      gap: 16px;
+      padding: 0;
+      width: max-content;
+      align-items: center;
+    }
+    .banner-scroll.single-banner {
+      width: 100%;
+      padding: 0 16px;
+      justify-content: center;
+    }
+    .banner-scroll.scrolling {
+      /* aplica animação (o JS também define inline duration) */
+    }
 
-  </style>    
-</head>    
-<body>    
-  <div id="overlayMenu">    
-    <div class="close-btn">&times;</div>    
-    <nav>    
-      <a href="index.html" id="home-link">Início</a>    
-      <a href="#" id="all-products-link">Produtos</a>    
-      <a href="divas-index.html">DIVAS BIJOUXSHOES</a>    
-      <a href="miss-contato.html">Contato</a>    
-    </nav>    
-  </div>    <div class="nav-wrapper">    
-    <header class="header">    
-      <div class="menu-icon">&#9776;</div>    
-      <a href="index.html" class="logo">    
-        <img src="logomiss.webp" alt="Logo">    
-      </a>    
-      <a href="carrinho.html" class="bag-icon" id="cart-icon">    
-        &#128717;    
-        <span class="cart-count" id="cart-count">0</span>    
-      </a>    
-    </header>    
-    <div class="search-container">    
-      <input class="search-input" type="text" placeholder="O que você está procurando?">    
-      <button class="search-button"><img src="lupa.webp" alt="Buscar"></button>    
-    </div>    
-    <div id="cats" class="categories-container">    
-      <div class="category">BIQUÍNIS</div>    
-      <div class="category">CONJUNTOS</div>    
-      <div class="category">SAÍDAS</div>    
-      <div class="category">ROUPAS FITNESS</div>    
-      <div class="category">BOLSAS</div>    
-      <div class="category">MOCHILAS</div>    
-      <div class="category">MAIÔS</div>    
-      <div class="category">CROCHÊS</div>    
-      <div class="category">ACESSÓRIOS</div>    
-      <div class="category">MODA CASUAL PRAIA</div>    
-    </div>    
-  </div>    <div class="main-content">    
-    <div class="photo-scroll-wrapper">    
-      <div class="photo-scroll">    
-        <div class="photo-item" data-category="BIQUÍNIS"><div class="photo-img"><img src="biquinis1.webp" alt="Biquínis"></div><div class="label">Biquínis</div></div>    
-        <div class="photo-item" data-category="CONJUNTOS"><div class="photo-img"><img src="conjuntos2.webp" alt="Conjuntos"></div><div class="label">Conjuntos</div></div>    
-        <div class="photo-item" data-category="SAÍDAS"><div class="photo-img"><img src="saidas3.webp" alt="Saídas"></div><div class="label">Saídas</div></div>    
-        <div class="photo-item" data-category="ROUPAS FITNESS"><div class="photo-img"><img src="fitness4.webp" alt="Roupas Fitness"></div><div class="label">Roupas Fitness</div></div>    
-        <div class="photo-item" data-category="BOLSAS"><div class="photo-img"><img src="bolsas5.webp" alt="Bolsas"></div><div class="label">Bolsas</div></div>    
-        <div class="photo-item" data-category="MOCHILAS"><div class="photo-img"><img src="mochilas6.webp" alt="Mochilas"></div><div class="label">Mochilas</div></div>    
-        <div class="photo-item" data-category="MAIÔS"><div class="photo-img"><img src="maios7.webp" alt="Maiôs"></div><div class="label">Maiôs</div></div>    
-        <div class="photo-item" data-category="CROCHÊS"><div class="photo-img"><img src="croches8.webp" alt="Crochês"></div><div class="label">Crochês</div></div>    
-        <div class="photo-item" data-category="ACESSÓRIOS"><div class="photo-img"><img src="acessorios9.webp" alt="Acessórios"></div><div class="label">Acessórios</div></div>    
-        <div class="photo-item" data-category="MODA CASUAL PRAIA"><div class="photo-img"><img src="modapraia10.webp" alt="Moda Casual Praia"></div><div class="label">Moda Casual Praia</div></div>    
-      </div>    
-    </div>  <div id="breadcrumb">    
-  <span class="path">Início</span>    
-  <span class="separator">&gt;</span>    
-  <span class="crumbName"></span>    
-  <div class="header-row">    
-    <span class="title"></span>    
-    <span class="count"></span>    
-  </div>    
-</div>    <div class="image-scroll-wrapper">    
-  <div class="image-scroll"></div>    
-</div>    <div class="banner-scroll-wrapper">    
-  <div id="banner-scroll" class="banner-scroll"></div>    
-</div>    <div class="produtos-wrapper">    
-  <div class="launch-title">Lançamentos</div>    
-  <div id="produtos" class="produtos-grid"></div>    
-</div>    </div>    <footer class="site-footer">    
-    <div class="footer-item instagram">    
-      <a href="https://www.instagram.com/usemissfit_beachwear/" target="_blank" rel="noopener">    
-        <img src="instagramicon.png" alt="Instagram">    
-      </a>    
-    </div>    
-    <div class="footer-item">    
-      <a href="https://wa.me/5598992124926" target="_blank" rel="noopener">    
-        5598992124926    
-      </a>    
-    </div>    
-    <div class="footer-item">    
-      <a href="tel:+5589982124926">    
-        98992124926    
-      </a>    
-    </div>    
-    <div class="footer-item copyright">    
-      © Flowmize – 2025. Todos os direitos reservados.    
-    </div>    
-  </footer>    <script>    
-    const CART_KEY = 'cartItems';    
-    const cartCountEl = document.getElementById('cart-count');    function getCartItems() {    
-  try {    
-    return JSON.parse(localStorage.getItem(CART_KEY)) || [];    
-  } catch {    
-    return [];    
-  }    
-}    
+    /* comportamento do banner controlado por variáveis:
+       - quando é scroll (>=2 banners) usa width calc(100vw - --banner-horizontal-offset)
+       - quando é single-banner usa --banner-single-width
+       - altura sempre --banner-height
+    */
+    .banner-scroll img {
+      height: var(--banner-height);
+      width: calc(100vw - var(--banner-horizontal-offset));
+      object-fit: cover;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .banner-scroll.single-banner img {
+      width: var(--banner-single-width);
+      border-radius: 12px;
+    }
 
-function renderCartCount() {    
-  const totalQty = getCartItems().reduce((sum, item) => sum + (item.quantidade || 0), 0);    
-  if (totalQty > 0) {    
-    cartCountEl.textContent = totalQty;    
-    cartCountEl.style.display = 'inline-block';    
-  } else {    
-    cartCountEl.style.display = 'none';    
-  }    
-}    
+    @keyframes scrollBanners {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(calc(-50% - 8px)); }
+    }
 
-document.addEventListener('DOMContentLoaded', renderCartCount);    
-document.addEventListener('visibilitychange', () => {    
-  if (!document.hidden) renderCartCount();    
-});    
+    .main-content {
+      margin-top: 220px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .produtos-wrapper {
+      background-color: #f2f2f2;
+      padding: 16px;
+      flex: 1;
+      min-height: 300px;
+    }
+    .launch-title { font-size: 24px; font-weight: bold; margin-bottom: 16px; cursor: pointer; }
+    .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .produto { cursor: pointer; }
+    .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
+    .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
+    .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
+    .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
+    .produto .extra { color: #007bff; }
 
-const overlay = document.getElementById('overlayMenu');    
-document.querySelector('.menu-icon').addEventListener('click', () => overlay.classList.add('open'));    
-overlay.querySelector('.close-btn').addEventListener('click', () => overlay.classList.remove('open'));    
+    /* MENU OVERLAY */
+    #overlayMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 2000;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    #overlayMenu.open { transform: translateX(0); }
+    #overlayMenu .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 32px;
+      cursor: pointer;
+    }
+    #overlayMenu nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 20px;
+    }
+    #overlayMenu nav a {
+      font-size: 20px;
+      color: #000;
+      text-decoration: none;
+      text-transform: uppercase;
+      padding: 8px 0;
+    }
 
-const logoImg = document.querySelector('.logo img');    
-const catsEl = document.getElementById('cats');    
-const breadcrumbEl = document.getElementById('breadcrumb');    
-const pathEl = breadcrumbEl.querySelector('.path');    
-const crumbNameEl = breadcrumbEl.querySelector('.crumbName');    
-const headerTitleEl = breadcrumbEl.querySelector('.header-row .title');    
-const headerCountEl = breadcrumbEl.querySelector('.header-row .count');    
-const launchTitleEl = document.querySelector('.launch-title');    
-const searchInput = document.querySelector('.search-input');    
-const searchButton = document.querySelector('.search-button');    
+    @media (max-width: 480px) {
+      .produtos-grid { grid-template-columns: 1fr 1fr; }
+      .produto img { height: 220px; }
+      /* adapta a largura do banner no mobile usando a mesma variável (você pode ajustar se quiser) */
+      .banner-scroll img { height: var(--banner-height); width: calc(100vw - var(--banner-horizontal-offset)); }
+      .banner-scroll.single-banner img { height: var(--banner-height); width: var(--banner-single-width); }
+    }
 
-let allBanners = [], allProdutos = [], launchProdutos = [];    
+    /* FOOTER */
+    .site-footer {
+      background-color: #72202f;
+      color: #fff;
+      padding: 16px;
+      margin-top: auto;
+    }
+    .site-footer .footer-item {
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .site-footer .footer-item.instagram {
+      margin-bottom: 32px;
+    }
+    .site-footer .footer-item.instagram img {
+      width: 20px;
+      height: auto;
+      display: block;
+    }
+    .site-footer .footer-item a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .site-footer .footer-item:last-child {
+      margin-bottom: 0;
+    }
+  </style>
 
-catsEl.addEventListener('scroll', () => {    
-  catsEl.classList.remove('hidden');    
-  clearTimeout(window._scrollTimeout);    
-  window._scrollTimeout = setTimeout(() => catsEl.classList.add('hidden'), 500);    
-});    
+  <!-- PapaParse CDN (evita quebra por vírgulas em campos CSV entre aspas) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div id="overlayMenu">
+    <div class="close-btn">&times;</div>
+    <nav>
+      <a href="index.html" id="home-link">Início</a>
+      <a href="#" id="all-products-link">Produtos</a>
+      <a href="divas-index.html">DIVAS BIJOUXSHOES</a>
+      <a href="miss-contato.html">Contato</a>
+    </nav>
+  </div>
+  <div class="nav-wrapper">
+    <header class="header">
+      <div class="menu-icon">&#9776;</div>
+      <a href="index.html" class="logo">
+        <img src="logomiss.webp" alt="Logo">
+      </a>
+      <a href="carrinho.html" class="bag-icon" id="cart-icon">
+        &#128717;
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </header>
 
-function normalizeText(text) {    
-  return text    
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')    
-    .toLowerCase()    
-    .trim();    
-}    
+    <div class="search-container">
+      <input class="search-input" type="text" placeholder="O que você está procurando?">
+      <button class="search-button"><img src="lupa.webp" alt="Buscar"></button>
+    </div>
 
-const categoryMap = {    
-  'BIQUÍNIS': ['biquíni', 'biquinis', 'biquini', 'bikini', 'biquiní', 'biquinís'],    
-  'CONJUNTOS': ['conjunto', 'conjuntos', 'kit', 'kits', 'combo', 'combos'],    
-  'SAÍDAS': ['saída', 'saidas', 'saida', 'roupão', 'roupoes', 'kafte', 'kafetan', 'kaftan', 'cover up'],    
-  'ROUPAS FITNESS': ['fitness', 'academia', 'treino', 'malhação', 'malhacao', 'legging', 'leggings', 'top', 'tops', 'regata', 'regatas'],    
-  'BOLSAS': ['bolsa', 'bolsas', 'carteira', 'carteiras', 'necessaire', 'necessaires', 'pochete', 'pochetes'],    
-  'MOCHILAS': ['mochila', 'mochilas', 'bolsa térmica', 'bolsa termica', 'mochilão', 'mochilao'],    
-  'MAIÔS': ['maiô', 'maios', 'mio', 'maiôs', 'mios', 'maio', 'maios', 'one piece', 'monokini'],    
-  'CROCHÊS': ['crochê', 'croche', 'crochês', 'croches', 'tricô', 'trico', 'tricôs', 'tricos', 'renda', 'rendas'],    
-  'ACESSÓRIOS': ['acessório', 'acessorios', 'óculos', 'oculos', 'brinco', 'brincos', 'colar', 'colares', 'pulseira', 'pulseiras', 'chapéu', 'chapeu', 'boné', 'bone'],    
-  'MODA CASUAL PRAIA': ['praia', 'casual', 'vestido', 'vestidos', 'camisa', 'camisas', 'short', 'shorts', 'saia', 'saias', 'sunga', 'sungas', 'sarongue', 'sarongues']    
-};    
+    <div id="cats" class="categories-container">
+      <div class="category">BIQUÍNIS</div>
+      <div class="category">CONJUNTOS</div>
+      <div class="category">SAÍDAS</div>
+      <div class="category">ROUPAS FITNESS</div>
+      <div class="category">BOLSAS</div>
+      <div class="category">MOCHILAS</div>
+      <div class="category">MAIÔS</div>
+      <div class="category">CROCHÊS</div>
+      <div class="category">ACESSÓRIOS</div>
+      <div class="category">MODA CASUAL PRAIA</div>
+    </div>
+  </div>
 
-function containsAnyTerm(text, terms) {    
-  const normalizedText = normalizeText(text);    
-  return terms.some(term => normalizedText.includes(term));    
-}    
+  <div class="main-content">
+    <div class="photo-scroll-wrapper">
+      <div class="photo-scroll">
+        <div class="photo-item" data-category="BIQUÍNIS"><div class="photo-img"><img src="biquinis1.webp" alt="Biquínis"></div><div class="label">Biquínis</div></div>
+        <div class="photo-item" data-category="CONJUNTOS"><div class="photo-img"><img src="conjuntos2.webp" alt="Conjuntos"></div><div class="label">Conjuntos</div></div>
+        <div class="photo-item" data-category="SAÍDAS"><div class="photo-img"><img src="saidas3.webp" alt="Saídas"></div><div class="label">Saídas</div></div>
+        <div class="photo-item" data-category="ROUPAS FITNESS"><div class="photo-img"><img src="fitness4.webp" alt="Roupas Fitness"></div><div class="label">Roupas Fitness</div></div>
+        <div class="photo-item" data-category="BOLSAS"><div class="photo-img"><img src="bolsas5.webp" alt="Bolsas"></div><div class="label">Bolsas</div></div>
+        <div class="photo-item" data-category="MOCHILAS"><div class="photo-img"><img src="mochilas6.webp" alt="Mochilas"></div><div class="label">Mochilas</div></div>
+        <div class="photo-item" data-category="MAIÔS"><div class="photo-img"><img src="maios7.webp" alt="Maiôs"></div><div class="label">Maiôs</div></div>
+        <div class="photo-item" data-category="CROCHÊS"><div class="photo-img"><img src="croches8.webp" alt="Crochês"></div><div class="label">Crochês</div></div>
+        <div class="photo-item" data-category="ACESSÓRIOS"><div class="photo-img"><img src="acessorios9.webp" alt="Acessórios"></div><div class="label">Acessórios</div></div>
+        <div class="photo-item" data-category="MODA CASUAL PRAIA"><div class="photo-img"><img src="modapraia10.webp" alt="Moda Casual Praia"></div><div class="label">Moda Casual Praia</div></div>
+      </div>
+    </div>
 
-function filterByCategory(category) {    
-  const searchTerms = categoryMap[category] || [normalizeText(category)];    
-      
-  return allProdutos.filter(p => {    
-    const nome = p.nome || '';    
-    return containsAnyTerm(nome, searchTerms);    
-  });    
-}    
+    <div id="breadcrumb">
+      <span class="path">Início</span>
+      <span class="separator">&gt;</span>
+      <span class="crumbName"></span>
+      <div class="header-row">
+        <span class="title"></span>
+        <span class="count"></span>
+      </div>
+    </div>
 
-fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv')    
-  .then(res => res.text())    
-  .then(csv => {    
-    const lines = csv.split('\n').slice(1);    
-    const bannerContainer = document.getElementById('banner-scroll');    
+    <div class="image-scroll-wrapper"><div class="image-scroll"></div></div>
 
-    // Clear old banners    
-    allBanners = [];    
-        
-    // Process only first line for banners    
-    if (lines.length > 0) {    
-      const firstLine = lines[0].split(',');    
-      if (firstLine[0]?.trim() && firstLine[0].trim() !== 'Banner 1') {    
-        allBanners.push(firstLine[0].trim());    
-      }    
-      if (firstLine[1]?.trim() && firstLine[1].trim() !== 'Banner 2') {    
-        allBanners.push(firstLine[1].trim());    
-      }    
-    }    
+    <div class="banner-scroll-wrapper"><div id="banner-scroll" class="banner-scroll"></div></div>
 
-    // Process products (all lines except header)    
-    lines.forEach((line, index) => {    
-      if (index === 0) return; // Skip header    
-          
-      const cells = line.split(',');    
-      const productTag = cells[14]?.trim();    
-          
-      if (productTag === '0') return;    
-          
-      const productName = cells[2]?.trim();    
-      const productImages = [cells[3],cells[4],cells[5]].map(u=>u?.trim()).filter(u=>u);    
-          
-      if (!productName || productImages.length === 0) return;    
-          
-      const product = {    
-        nome: productName,    
-        imagens: productImages,    
-        opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.trim()).filter(o=>o),    
-        status: cells[9]?.trim() || '',    
-        descricao: cells[10]?.trim() || '',    
-        preco: cells[11]?.trim() || '',    
-        mensagem: cells[12]?.trim() || '',    
-        parcelamento: cells[13]?.trim() || '',    
-        tag: productTag    
-      };    
+    <div class="produtos-wrapper">
+      <div class="launch-title">Lançamentos</div>
+      <div id="produtos" class="produtos-grid"></div>
+    </div>
+  </div>
 
-      allProdutos.push(product);    
-          
-      if (productTag === 'Lançamento') {    
-        launchProdutos.push(product);    
-      }    
-    });    
+  <footer class="site-footer">
+    <div class="footer-item instagram">
+      <a href="https://www.instagram.com/usemissfit_beachwear/" target="_blank" rel="noopener">
+        <img src="instagramicon.png" alt="Instagram">
+      </a>
+    </div>
+    <div class="footer-item">
+      <a href="https://wa.me/5598992124926" target="_blank" rel="noopener">5598992124926</a>
+    </div>
+    <div class="footer-item">
+      <a href="tel:+5589982124926">98992124926</a>
+    </div>
+    <div class="footer-item copyright">© Flowmize – 2025. Todos os direitos reservados.</div>
+  </footer>
 
-    bannerContainer.innerHTML = '';    
+  <script>
+    /* -------------------------
+       CONTROLE FÁCIL (Edite aqui)
+       Você pode alterar estes valores sem mexer no CSS:
+       - alturaBanner: string (ex: '500px' ou '300px' ou '40vh')
+       - offsetHorizontal: string (ex: '100px' -> usado em calc(100vw - offset))
+       - singleWidth: string (ex: '100%' ou '90vw')
+       - animationDuration: string em segundos com 's' (ex: '15s')
+    ------------------------- */
+    const alturaBanner = '--banner-height';           // nome da variável CSS — mantive como variável CSS abaixo também
+    // Se preferir ajustar por JS diretamente, altere os valores abaixo:
+    const BANNER_HEIGHT_VALUE = '400px';               // <-- altura do banner (mude aqui se quiser)
+    const BANNER_HORIZONTAL_OFFSET_VALUE = '100px';    // <-- subtrai isto de 100vw no modo scrolling
+    const BANNER_SINGLE_WIDTH_VALUE = '130%';          // <-- largura quando só 1 banner
+    const BANNER_ANIMATION_DURATION = '15s';           // <-- duração da animação (com 's')
 
-    // Render banners correctly    
-    if (allBanners.length === 1) {    
-      bannerContainer.classList.add('single-banner');    
-      const img = document.createElement('img');    
-      img.src = allBanners[0];    
-      img.style.width = '100%';    
-      img.style.height = '500px';    
-      img.style.objectFit = 'cover';    
-      bannerContainer.appendChild(img);    
-    } else if (allBanners.length === 2) {    
-      bannerContainer.classList.add('scrolling');    
-          
-      // Add only the 2 banners (without duplicating)    
-      allBanners.forEach(url => {    
-        const img = document.createElement('img');    
-        img.src = url;    
-        bannerContainer.appendChild(img);    
-      });    
-          
-      // Add copies to create continuous loop effect    
-      allBanners.forEach(url => {    
-        const img = document.createElement('img');    
-        img.src = url;    
-        bannerContainer.appendChild(img);    
-      });    
-    }    
+    // aplica no :root como variáveis CSS (assim é fácil mudar por JS ou no CSS)
+    document.documentElement.style.setProperty('--banner-height', BANNER_HEIGHT_VALUE);
+    document.documentElement.style.setProperty('--banner-horizontal-offset', BANNER_HORIZONTAL_OFFSET_VALUE);
+    document.documentElement.style.setProperty('--banner-single-width', BANNER_SINGLE_WIDTH_VALUE);
+    document.documentElement.style.setProperty('--banner-animation-duration', BANNER_ANIMATION_DURATION);
 
-    renderProdutos(launchProdutos);    
-  })    
-  .catch(error => {    
-    console.error('Error loading data:', error);    
-  });    
+    const CART_KEY = 'cartItems';
+    const cartCountEl = document.getElementById('cart-count');
 
-function renderProdutos(list) {    
-  const cont = document.getElementById('produtos');    
-  cont.innerHTML = '';    
-      
-  const validProducts = list.filter(p => p.nome && p.imagens && p.imagens.length > 0);    
-      
-  if (validProducts.length === 0) {    
-    cont.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">No products found</div>';    
-    return;    
-  }    
-      
-  validProducts.forEach(p => {    
-    const div = document.createElement('div');    
-    div.className = 'produto';    
-    div.addEventListener('click', () => {    
-      const params = new URLSearchParams();    
-      params.set('produto', p.nome);    
-      params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens)));    
-      params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes)));    
-      params.set('status', p.status);    
-      params.set('descricao', p.descricao);    
-      params.set('preco', p.preco);    
-      params.set('mensagem', p.mensagem);    
-      params.set('parcelamento', p.parcelamento);    
-      location.href = `miss-produto.html?${params.toString()}`;    
-    });    
-    div.innerHTML = `    
-      <img src="${p.imagens[0]}" alt="${p.nome}">    
-      <div class="nome">${p.nome}</div>    
-      <div class="preco">${p.preco}</div>    
-      <div class="parcelamento">${p.parcelamento}</div>    
-      <div class="extra">${p.mensagem}</div>    
-    `;    
-    cont.appendChild(div);    
-  });    
-}    
+    function getCartItems() {
+      try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
+    }
 
-function showBreadcrumb(name, list) {    
-  pathEl.textContent = 'Início';    
-  crumbNameEl.textContent = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();    
-  headerTitleEl.textContent = name.toUpperCase();    
-      
-  const validProducts = list.filter(p => p.nome && p.imagens && p.imagens.length > 0);    
-  headerCountEl.textContent = `${validProducts.length} produto${validProducts.length !== 1 ? 's' : ''}`;    
-      
-  breadcrumbEl.style.display = 'block';    
-}    
+    function renderCartCount() {
+      const totalQty = getCartItems().reduce((sum, item) => sum + (item.quantidade || 0), 0);
+      if (totalQty > 0) {
+        cartCountEl.textContent = totalQty;
+        cartCountEl.style.display = 'inline-block';
+      } else {
+        cartCountEl.style.display = 'none';
+      }
+    }
 
-function resetToHomePage() {    
-  breadcrumbEl.style.display = 'none';    
-  document.querySelector('.photo-scroll-wrapper').style.display = '';    
-  document.querySelector('.image-scroll-wrapper').style.display = '';    
-  document.querySelector('.banner-scroll-wrapper').style.display = '';    
-  launchTitleEl.style.display = '';    
-  renderProdutos(launchProdutos);    
-}    
+    document.addEventListener('DOMContentLoaded', renderCartCount);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderCartCount(); });
 
-document.getElementById('home-link').addEventListener('click', function(e) {    
-  e.preventDefault();    
-  resetToHomePage();    
-  overlay.classList.remove('open');    
-});    
+    const overlay = document.getElementById('overlayMenu');
+    document.querySelector('.menu-icon').addEventListener('click', () => overlay.classList.add('open'));
+    overlay.querySelector('.close-btn').addEventListener('click', () => overlay.classList.remove('open'));
 
-document.querySelectorAll('.category').forEach(el => {    
-  el.addEventListener('click', () => {    
-    const name = el.textContent.trim();    
-    const filtered = filterByCategory(name);    
-    document.querySelector('.photo-scroll-wrapper').style.display = 'none';    
-    document.querySelector('.image-scroll-wrapper').style.display = 'none';    
-    document.querySelector('.banner-scroll-wrapper').style.display = 'none';    
-    launchTitleEl.style.display = 'none';    
-    renderProdutos(filtered);    
-    showBreadcrumb(name, filtered);    
-  });    
-});    
+    const logoImg = document.querySelector('.logo img');
+    const catsEl = document.getElementById('cats');
+    const breadcrumbEl = document.getElementById('breadcrumb');
+    const pathEl = breadcrumbEl.querySelector('.path');
+    const crumbNameEl = breadcrumbEl.querySelector('.crumbName');
+    const headerTitleEl = breadcrumbEl.querySelector('.header-row .title');
+    const headerCountEl = breadcrumbEl.querySelector('.header-row .count');
+    const launchTitleEl = document.querySelector('.launch-title');
+    const searchInput = document.querySelector('.search-input');
+    const searchButton = document.querySelector('.search-button');
 
-document.querySelectorAll('.photo-item').forEach(el => {    
-  el.addEventListener('click', () => {    
-    const category = el.getAttribute('data-category');    
-    const filtered = filterByCategory(category);    
-    document.querySelector('.photo-scroll-wrapper').style.display = 'none';    
-    document.querySelector('.image-scroll-wrapper').style.display = 'none';    
-    document.querySelector('.banner-scroll-wrapper').style.display = 'none';    
-    launchTitleEl.style.display = 'none';    
-    renderProdutos(filtered);    
-    showBreadcrumb(category, filtered);    
-  });    
-});    
+    let allBanners = [], allProdutos = [], launchProdutos = [];
 
-launchTitleEl.addEventListener('click', () => {    
-  document.querySelector('.photo-scroll-wrapper').style.display = 'none';    
-  document.querySelector('.image-scroll-wrapper').style.display = 'none';    
-  document.querySelector('.banner-scroll-wrapper').style.display = 'none';    
-  launchTitleEl.style.display = 'none';    
-  renderProdutos(launchProdutos);    
-  showBreadcrumb('Lançamentos', launchProdutos);    
-});    
+    catsEl.addEventListener('scroll', () => {
+      catsEl.classList.remove('hidden');
+      clearTimeout(window._scrollTimeout);
+      window._scrollTimeout = setTimeout(() => catsEl.classList.add('hidden'), 500);
+    });
 
-pathEl.addEventListener('click', resetToHomePage);    
-    
-// Modified to reload page when clicking logo    
-document.querySelector('.logo').addEventListener('click', function(e) {    
-  e.preventDefault();    
-  window.location.href = 'miss-index.html';    
-});    
+    function normalizeText(text) {
+      return (text||'').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
 
-searchInput.addEventListener('input', () => {    
-  const term = searchInput.value.trim();    
-  if (!term) {    
-    renderProdutos(launchProdutos);    
-    breadcrumbEl.style.display = 'none';    
-    launchTitleEl.style.display = '';    
-    document.querySelector('.photo-scroll-wrapper').style.display = '';    
-    return;    
-  }    
-      
-  const normalizedTerm = normalizeText(term);    
-  const filtered = allProdutos.filter(p => {    
-    const nome = normalizeText(p.nome || '');    
-    return nome.includes(normalizedTerm);    
-  });    
-      
-  document.querySelector('.photo-scroll-wrapper').style.display = 'none';    
-  document.querySelector('.image-scroll-wrapper').style.display = 'none';    
-  document.querySelector('.banner-scroll-wrapper').style.display = 'none';    
-  launchTitleEl.style.display = 'none';    
-  renderProdutos(filtered);    
-  showBreadcrumb(term, filtered);    
-});    
+    const categoryMap = {
+      'BIQUÍNIS': ['biquíni', 'biquinis', 'biquini', 'bikini'],
+      'CONJUNTOS': ['conjunto', 'conjuntos', 'kit', 'kits', 'combo'],
+      'SAÍDAS': ['saída', 'saidas', 'saida', 'kaftan', 'cover up', 'saida de praia'],
+      'ROUPAS FITNESS': ['fitness', 'academia', 'treino', 'legging', 'top', 'regata'],
+      'BOLSAS': ['bolsa', 'bolsas', 'carteira', 'necessaire', 'pochete'],
+      'MOCHILAS': ['mochila', 'mochilas'],
+      'MAIÔS': ['maiô', 'maios', 'one piece', 'monokini'],
+      'CROCHÊS': ['crochê', 'croche', 'tricô', 'renda', 'rendas'],
+      'ACESSÓRIOS': ['acessório', 'acessorios', 'óculos', 'oculos', 'brinco', 'colar', 'pulseira'],
+      'MODA CASUAL PRAIA': ['praia', 'vestido', 'short', 'saia', 'camisa']
+    };
 
-searchButton.addEventListener('click', () => {    
-  const term = searchInput.value.trim();    
-  const normalizedTerm = normalizeText(term);    
-  const filtered = term ? allProdutos.filter(p => {    
-    const nome = normalizeText(p.nome || '');    
-    return nome.includes(normalizedTerm);    
-  }) : launchProdutos;    
-      
-  document.querySelector('.photo-scroll-wrapper').style.display = term ? 'none' : '';    
-  document.querySelector('.image-scroll-wrapper').style.display = term ? 'none' : '';    
-  document.querySelector('.banner-scroll-wrapper').style.display = term ? 'none' : '';    
-  launchTitleEl.style.display = 'none';    
-  renderProdutos(filtered);    
-  showBreadcrumb(term || 'Resultados', filtered);    
-});    
+    function containsAnyTerm(text, terms) {
+      const normalizedText = normalizeText(text || '');
+      return terms.some(term => normalizedText.includes(normalizeText(term)));
+    }
 
-const allProductsLink = document.getElementById('all-products-link');    
-allProductsLink.addEventListener('click', e => {    
-  e.preventDefault();    
-  overlay.classList.remove('open');    
-  const sortedList = [...allProdutos].sort((a, b) =>    
-    a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' })    
-  );    
-  document.querySelector('.photo-scroll-wrapper').style.display = 'none';    
-  document.querySelector('.image-scroll-wrapper').style.display = 'none';    
-  document.querySelector('.banner-scroll-wrapper').style.display = 'none';    
-  launchTitleEl.style.display = 'none';    
-  renderProdutos(sortedList);    
-  showBreadcrumb('Todos os Produtos', sortedList);    
-});
+    function filterByCategory(category) {
+      const searchTerms = categoryMap[category] || [normalizeText(category)];
+      return allProdutos.filter(p => containsAnyTerm(p.nome || '', searchTerms));
+    }
 
-</script>  </body>
+    // Cole aqui sua URL pública do Google Sheets exportada como CSV
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv';
 
+    // Usa fetch + PapaParse para ler CSV (mantendo campos entre aspas com vírgulas)
+    fetch(SHEET_CSV_URL)
+      .then(res => res.text())
+      .then(csvText => {
+        const parsed = Papa.parse(csvText, { skipEmptyLines: true });
+        const data = parsed.data || [];
+        // assume primeira linha do CSV é cabeçalho -> dados a partir de slice(1)
+        const rows = data.length > 0 ? data.slice(1) : [];
+
+        const bannerContainer = document.getElementById('banner-scroll');
+
+        allBanners = [];
+        allProdutos = [];
+        launchProdutos = [];
+
+        // primeira linha de dados => banners (células 0 e 1)
+        if (rows.length > 0) {
+          const firstLine = rows[0] || [];
+          const cell0 = (firstLine[0] || '').toString().trim();
+          const cell1 = (firstLine[1] || '').toString().trim();
+          if (cell0 && cell0 !== 'Banner 1') allBanners.push(cell0);
+          if (cell1 && cell1 !== 'Banner 2') allBanners.push(cell1);
+        }
+
+        // processa produtos a partir da segunda linha de dados (índice 1)
+        for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i] || [];
+
+          const productTag = (cells[14] || '').toString().trim();
+          if (productTag === '0') continue; // produto oculto
+
+          const productName = (cells[2] || '').toString().trim();
+          const productImages = [cells[3], cells[4], cells[5]].map(u => (u || '').toString().trim()).filter(u => u);
+
+          if (!productName || productImages.length === 0) continue;
+
+          const product = {
+            nome: productName,
+            imagens: productImages,
+            opcoes: [cells[6], cells[7], cells[8]].map(o => (o||'').toString().trim()).filter(o => o),
+            status: (cells[9] || '').toString().trim(),
+            descricao: (cells[10] || '').toString().trim(),
+            preco: (cells[11] || '').toString().trim(),
+            mensagem: (cells[12] || '').toString().trim(),
+            parcelamento: (cells[13] || '').toString().trim(),
+            tag: productTag
+          };
+
+          allProdutos.push(product);
+          if (productTag.toLowerCase() === 'lançamento' || productTag === 'Lançamento') {
+            launchProdutos.push(product);
+          }
+        }
+
+        // Render banners
+        bannerContainer.innerHTML = '';
+        bannerContainer.classList.remove('single-banner', 'scrolling');
+        bannerContainer.style.animation = '';
+
+        if (allBanners.length === 1) {
+          bannerContainer.classList.add('single-banner');
+          const img = document.createElement('img');
+          img.src = allBanners[0];
+          img.alt = 'Banner';
+          // aplica direto em linha caso queira forçar algo especial
+          img.style.height = getComputedStyle(document.documentElement).getPropertyValue('--banner-height') || '';
+          img.style.width = getComputedStyle(document.documentElement).getPropertyValue('--banner-single-width') || '';
+          bannerContainer.appendChild(img);
+        } else if (allBanners.length >= 2) {
+          // adiciona cada banner duas vezes para loop suave
+          allBanners.forEach(url => { const img = document.createElement('img'); img.src = url; img.alt = 'Banner'; bannerContainer.appendChild(img); });
+          allBanners.forEach(url => { const img = document.createElement('img'); img.src = url; img.alt = 'Banner'; bannerContainer.appendChild(img); });
+          bannerContainer.classList.add('scrolling');
+          // define animação com duração variável (pega da variável CSS setada no root)
+          const dur = getComputedStyle(document.documentElement).getPropertyValue('--banner-animation-duration').trim() || '15s';
+          bannerContainer.style.animation = `scrollBanners ${dur} linear infinite`;
+        }
+
+        renderProdutos(launchProdutos);
+      })
+      .catch(error => {
+        console.error('Erro ao carregar dados CSV:', error);
+        document.getElementById('produtos').innerHTML = '<div style="grid-column:1 / -1; text-align:center; padding:20px;">Erro ao carregar produtos</div>';
+      });
+
+    function renderProdutos(list) {
+      const cont = document.getElementById('produtos');
+      cont.innerHTML = '';
+
+      const validProducts = (list || []).filter(p => p && p.nome && p.imagens && p.imagens.length > 0);
+
+      if (validProducts.length === 0) {
+        cont.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Nenhum produto encontrado</div>';
+        return;
+      }
+
+      validProducts.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'produto';
+        div.addEventListener('click', () => {
+          const params = new URLSearchParams();
+          params.set('produto', p.nome || '');
+          params.set('imagens', encodeURIComponent(JSON.stringify(p.imagens || [])));
+          params.set('opcoes', encodeURIComponent(JSON.stringify(p.opcoes || [])));
+          params.set('status', encodeURIComponent(p.status || ''));
+          params.set('descricao', encodeURIComponent(p.descricao || ''));
+          params.set('preco', encodeURIComponent(p.preco || ''));
+          params.set('mensagem', encodeURIComponent(p.mensagem || ''));
+          params.set('parcelamento', encodeURIComponent(p.parcelamento || ''));
+          location.href = `miss-produto.html?${params.toString()}`;
+        });
+
+        div.innerHTML = `
+          <img src="${p.imagens[0]}" alt="${p.nome}">
+          <div class="nome">${p.nome}</div>
+          <div class="preco">${p.preco}</div>
+          <div class="parcelamento">${p.parcelamento}</div>
+          <div class="extra">${p.mensagem}</div>
+        `;
+
+        cont.appendChild(div);
+      });
+    }
+
+    function showBreadcrumb(name, list) {
+      pathEl.textContent = 'Início';
+      crumbNameEl.textContent = (name||'').charAt(0).toUpperCase() + (name||'').slice(1).toLowerCase();
+      headerTitleEl.textContent = (name||'').toUpperCase();
+      const validProducts = (list || []).filter(p => p && p.nome && p.imagens && p.imagens.length > 0);
+      headerCountEl.textContent = `${validProducts.length} produto${validProducts.length !== 1 ? 's' : ''}`;
+      breadcrumbEl.style.display = 'block';
+    }
+
+    function resetToHomePage() {
+      breadcrumbEl.style.display = 'none';
+      document.querySelector('.photo-scroll-wrapper').style.display = '';
+      document.querySelector('.image-scroll-wrapper').style.display = '';
+      document.querySelector('.banner-scroll-wrapper').style.display = '';
+      launchTitleEl.style.display = '';
+      renderProdutos(launchProdutos);
+    }
+
+    document.getElementById('home-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      resetToHomePage();
+      overlay.classList.remove('open');
+    });
+
+    document.querySelectorAll('.category').forEach(el => {
+      el.addEventListener('click', () => {
+        const name = el.textContent.trim();
+        const filtered = filterByCategory(name);
+        document.querySelector('.photo-scroll-wrapper').style.display = 'none';
+        document.querySelector('.image-scroll-wrapper').style.display = 'none';
+        document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+        launchTitleEl.style.display = 'none';
+        renderProdutos(filtered);
+        showBreadcrumb(name, filtered);
+      });
+    });
+
+    document.querySelectorAll('.photo-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const category = el.getAttribute('data-category');
+        const filtered = filterByCategory(category);
+        document.querySelector('.photo-scroll-wrapper').style.display = 'none';
+        document.querySelector('.image-scroll-wrapper').style.display = 'none';
+        document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+        launchTitleEl.style.display = 'none';
+        renderProdutos(filtered);
+        showBreadcrumb(category, filtered);
+      });
+    });
+
+    launchTitleEl.addEventListener('click', () => {
+      document.querySelector('.photo-scroll-wrapper').style.display = 'none';
+      document.querySelector('.image-scroll-wrapper').style.display = 'none';
+      document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+      launchTitleEl.style.display = 'none';
+      renderProdutos(launchProdutos);
+      showBreadcrumb('Lançamentos', launchProdutos);
+    });
+
+    pathEl.addEventListener('click', resetToHomePage);
+
+    // keep logo behavior similar to seu projeto
+    document.querySelector('.logo').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'miss-index.html';
+    });
+
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.trim();
+      if (!term) {
+        renderProdutos(launchProdutos);
+        breadcrumbEl.style.display = 'none';
+        launchTitleEl.style.display = '';
+        document.querySelector('.photo-scroll-wrapper').style.display = '';
+        return;
+      }
+      const normalizedTerm = normalizeText(term);
+      const filtered = allProdutos.filter(p => normalizeText(p.nome || '').includes(normalizedTerm));
+      document.querySelector('.photo-scroll-wrapper').style.display = 'none';
+      document.querySelector('.image-scroll-wrapper').style.display = 'none';
+      document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+      launchTitleEl.style.display = 'none';
+      renderProdutos(filtered);
+      showBreadcrumb(term, filtered);
+    });
+
+    searchButton.addEventListener('click', () => {
+      const term = searchInput.value.trim();
+      const normalizedTerm = normalizeText(term);
+      const filtered = term ? allProdutos.filter(p => normalizeText(p.nome || '').includes(normalizedTerm)) : launchProdutos;
+      document.querySelector('.photo-scroll-wrapper').style.display = term ? 'none' : '';
+      document.querySelector('.image-scroll-wrapper').style.display = term ? 'none' : '';
+      document.querySelector('.banner-scroll-wrapper').style.display = term ? 'none' : '';
+      launchTitleEl.style.display = 'none';
+      renderProdutos(filtered);
+      showBreadcrumb(term || 'Resultados', filtered);
+    });
+
+    const allProductsLink = document.getElementById('all-products-link');
+    allProductsLink.addEventListener('click', e => {
+      e.preventDefault();
+      overlay.classList.remove('open');
+      const sortedList = [...allProdutos].sort((a, b) =>
+        a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' })
+      );
+      document.querySelector('.photo-scroll-wrapper').style.display = 'none';
+      document.querySelector('.image-scroll-wrapper').style.display = 'none';
+      document.querySelector('.banner-scroll-wrapper').style.display = 'none';
+      launchTitleEl.style.display = 'none';
+      renderProdutos(sortedList);
+      showBreadcrumb('Todos os Produtos', sortedList);
+    });
+  </script>
+</body>
 </html>
