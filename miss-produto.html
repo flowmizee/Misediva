@@ -6,245 +6,88 @@
   <title>Produto</title>
   <link rel="icon" type="image/png" href="divas.png">
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+    html, body { margin: 0; padding: 0; height: 100%; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: Arial, sans-serif; 
-      background-color: #fff; 
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    body { font-family: Arial, sans-serif; background-color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
     .nav-wrapper { position: sticky; top: 0; background: #fff; z-index: 1000; }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
     .menu-icon, .bag-icon { font-size: 28px; cursor: pointer; position: relative; }
-    .bag-icon .cart-count {
-      position: absolute; top: -4px; right: -8px;
-      background: #72202f; color: #fff; font-size: 12px;
-      padding: 2px 6px; border-radius: 12px; display: none;
-    }
+    .bag-icon .cart-count { position: absolute; top: -4px; right: -8px; background: #72202f; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 12px; display: none; }
     .logo img { max-height: 80px; width: auto; cursor: pointer; }
     .search-container { display: flex; width: 100%; padding: 0 16px 16px; }
-    .search-input {
-      flex: 1; padding: 12px;
-      border: 1px solid #ccc; border-radius: 8px 0 0 8px;
-      outline: none; font-size: 16px; background-color: #f2f2f2;
-    }
-    .search-button {
-      background-color: #72202f; border: none;
-      padding: 0 16px; border-radius: 0 8px 8px 0;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-    }
+    .search-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px 0 0 8px; outline: none; font-size: 16px; background-color: #f2f2f2; }
+    .search-button { background-color: #72202f; border: none; padding: 0 16px; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-button img { height: 36px; width: auto; }
-    .categories-container {
-      display: flex; gap: 16px; overflow-x: auto;
-      scroll-behavior: smooth; padding: 8px 16px 16px;
-    }
+    .categories-container { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 16px 16px; }
     .category { cursor: pointer; white-space: nowrap; padding: 8px 0; }
-    
-    /* Main content wrapper */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    /* GRID DE PRODUTOS igual ao Web App */
-    .produtos-grid { 
-      display: grid; 
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 24px; 
-      padding: 16px; 
-      min-height: 300px;
-    }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; }
+
+    .produtos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 16px; min-height: 300px; }
     .produto { cursor: pointer; }
     .produto img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     .produto .nome { font-size: 14px; font-weight: bold; margin-bottom: 8px; text-transform: capitalize; }
     .produto .preco { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
     .produto .parcelamento, .produto .extra { font-size: 13px; margin-bottom: 8px; }
     .produto .extra { color: #007bff; }
-    
-    /* Estilos do produto único (mantidos) */ 
-    .produto-container { 
-      padding: 16px; 
-      min-height: 300px;
-    } 
-    .breadcrumb-list { font-size: 14px; color: #666; margin-bottom: 16px; } 
-    .breadcrumb-list a { color: #007bff; text-decoration: none; } 
-    .carousel img {
-      max-width: 100%;
-      height: 350px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-    .carousel img { width: 100%; border-radius: 8px; } 
-    .badge { position: absolute; top: 8px; left: 8px; background: rgba(255,0,0,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; } 
-    .counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 14px; } 
-    .thumbnails { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; } 
-    .thumbnails img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; } 
-    .thumbnails img.active { border-color: #007bff; } 
-    .produto-nome { font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px; } 
-    .produto-preco { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 8px; } 
-    .produto-parcelamento { font-size: 15px; color: #666; margin-bottom: 8px; } 
-    .produto-extra { font-size: 14px; color: #007bff; margin-bottom: 16px; } 
-    .options { margin-bottom: 16px; } 
-    .options-label { font-size: 14px; margin-bottom: 4px; } 
-    .option-swatch { display: inline-block; padding: 6px 12px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 8px; } 
-    .option-swatch.selected { border-color: #000; } 
-    .purchase-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; } 
-    .qty-controls { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; } 
-    .qty-controls button { background: none; border: none; font-size: 18px; padding: 8px 12px; cursor: pointer; } 
-    .qty-controls .qty { padding: 0 12px; font-size: 18px; min-width: 24px; text-align: center; } 
-    .buy-btn { flex: 1; background-color: #72202f; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; } 
-    .info-section { font-size: 14px; color: #555; margin-bottom: 4px; } 
-    .descricao { font-size: 14px; color: #333; margin-top: 8px; line-height: 1.5; } 
+
+    .produto-container { padding: 16px; min-height: 300px; }
+    .breadcrumb-list { font-size: 14px; color: #666; margin-bottom: 16px; }
+    .breadcrumb-list a { color: #007bff; text-decoration: none; }
+    .carousel img { max-width: 100%; height: 350px; object-fit: cover; border-radius: 8px; }
+    .carousel img { width: 100%; border-radius: 8px; }
+    .badge { position: absolute; top: 8px; left: 8px; background: rgba(255,0,0,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+    .counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 14px; }
+    .thumbnails { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+    .thumbnails img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; }
+    .thumbnails img.active { border-color: #007bff; }
+    .produto-nome { font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px; }
+    .produto-preco { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 8px; }
+    .produto-parcelamento { font-size: 15px; color: #666; margin-bottom: 8px; }
+    .produto-extra { font-size: 14px; color: #007bff; margin-bottom: 16px; }
+    .options { margin-bottom: 16px; }
+    .options-label { font-size: 14px; margin-bottom: 4px; }
+    .option-swatch { display: inline-block; padding: 6px 12px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 8px; }
+    .option-swatch.selected { border-color: #000; }
+    .purchase-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .qty-controls { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; }
+    .qty-controls button { background: none; border: none; font-size: 18px; padding: 8px 12px; cursor: pointer; }
+    .qty-controls .qty { padding: 0 12px; font-size: 18px; min-width: 24px; text-align: center; }
+    .buy-btn { flex: 1; background-color: #72202f; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    .info-section { font-size: 14px; color: #555; margin-bottom: 4px; }
+    .descricao { font-size: 14px; color: #333; margin-top: 8px; line-height: 1.5; }
     hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
-    
-    /* Breadcrumb para lista de produtos */
-    #breadcrumb { 
-      display: none; 
-      background: #fff; 
-      border-bottom: 1px solid #eee; 
-      padding: 8px 16px; 
-    }
-    #breadcrumb .path { 
-      font-size: 14px; 
-      color: #007bff; 
-      cursor: pointer; 
-      text-decoration: underline; 
-    }
-    #breadcrumb .separator { 
-      font-size: 14px; 
-      color: #555; 
-      margin: 0 8px; 
-    }
-    #breadcrumb .crumbName { 
-      font-size: 14px; 
-      text-transform: capitalize; 
-    }
-    .header-row { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-top: 8px; 
-    }
-    .header-row .title { 
-      font-weight: bold; 
-      font-size: 20px; 
-      text-transform: uppercase; 
-    }
-    .header-row .count { 
-      font-size: 14px; 
-      color: #555; 
-    }
 
-    /* overlayMenu */
-    #overlayMenu { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: #fff; 
-      transform: translateX(-100%); 
-      transition: transform 0.3s ease; 
-      z-index: 2000; 
-      padding: 60px 20px; 
-      display: flex; 
-      flex-direction: column; 
-    }
+    #breadcrumb { display: none; background: #fff; border-bottom: 1px solid #eee; padding: 8px 16px; }
+    #breadcrumb .path { font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
+    #breadcrumb .separator { font-size: 14px; color: #555; margin: 0 8px; }
+    #breadcrumb .crumbName { font-size: 14px; text-transform: capitalize; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .header-row .title { font-weight: bold; font-size: 20px; text-transform: uppercase; }
+    .header-row .count { font-size: 14px; color: #555; }
+
+    #overlayMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 2000; padding: 60px 20px; display: flex; flex-direction: column; }
     #overlayMenu.open { transform: translateX(0); }
-    #overlayMenu .close-btn { 
-      position: absolute; 
-      top: 16px; 
-      right: 16px; 
-      font-size: 32px; 
-      cursor: pointer; 
-    }
-    #overlayMenu nav { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 0; 
-      margin-top: 20px; 
-    }
-    #overlayMenu nav a { 
-      font-size: 20px; 
-      color: #000; 
-      text-decoration: none; 
-      text-transform: uppercase; 
-      padding: 8px 0; 
-    }
-    
-    /* RODAPÉ VERMELHO */
-    .site-footer { 
-      background-color: #72202f;
-      color: #fff;
-      padding: 16px;
-      margin-top: auto;
-    }
-    .site-footer .footer-item {
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-    .site-footer .footer-item.instagram {
-      margin-bottom: 32px;
-    }
-    .site-footer .footer-item.instagram img {
-      width: 20px;
-      height: auto;
-      display: block;
-    }
-    .site-footer .footer-item a {
-      color: inherit;
-      text-decoration: none;
-    }
-    .site-footer .footer-item:last-child {
-      margin-bottom: 0;
-    }
+    #overlayMenu .close-btn { position: absolute; top: 16px; right: 16px; font-size: 32px; cursor: pointer; }
+    #overlayMenu nav { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+    #overlayMenu nav a { font-size: 20px; color: #000; text-decoration: none; text-transform: uppercase; padding: 8px 0; }
 
-    /* flying image animation */
-    .flying-image {
-      position: fixed;
-      z-index: 9999;
-      pointer-events: none;
-      will-change: transform, opacity;
-      transition: transform 700ms cubic-bezier(.2,.8,.2,1), opacity 700ms ease;
-      border-radius: 8px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    }
+    .site-footer { background-color: #72202f; color: #fff; padding: 16px; margin-top: auto; }
+    .site-footer .footer-item { margin-bottom: 12px; font-size: 14px; }
+    .site-footer .footer-item.instagram { margin-bottom: 32px; }
+    .site-footer .footer-item.instagram img { width: 20px; height: auto; display: block; }
+    .site-footer .footer-item a { color: inherit; text-decoration: none; }
+    .site-footer .footer-item:last-child { margin-bottom: 0; }
 
-    /* SKELETON / LOADER */
-    .skeleton {
-      width: 100%;
-      display: grid;
-      gap: 12px;
-    }
-    .skeleton .s-img {
-      width: 100%;
-      height: 350px;
-      background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
-      background-size: 200% 100%;
-      animation: shine 1.2s infinite;
-      border-radius: 8px;
-    }
-    .skeleton .s-line {
-      height: 18px;
-      background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
-      background-size: 200% 100%;
-      animation: shine 1.2s infinite;
-      border-radius: 6px;
-    }
-    @keyframes shine {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
+    .flying-image { position: fixed; z-index: 9999; pointer-events: none; will-change: transform, opacity; transition: transform 700ms cubic-bezier(.2,.8,.2,1), opacity 700ms ease; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+
+    .skeleton { width: 100%; display: grid; gap: 12px; }
+    .skeleton .s-img { width: 100%; height: 350px; background: linear-gradient(90deg, #eee, #f5f5f5, #eee); background-size: 200% 100%; animation: shine 1.2s infinite; border-radius: 8px; }
+    .skeleton .s-line { height: 18px; background: linear-gradient(90deg, #eee, #f5f5f5, #eee); background-size: 200% 100%; animation: shine 1.2s infinite; border-radius: 6px; }
+    @keyframes shine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   </style>
 
-  <!-- PapaParse para evitar que vírgulas em descrições quebrem o CSV -->
+  <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
@@ -257,22 +100,19 @@
       <a href="miss-contato.html">Contato</a>
     </nav>
   </div>
-  
+
   <div class="nav-wrapper">
     <header class="header">
       <div class="menu-icon">&#9776;</div>
-      <a href="miss-index.html" class="logo">
-        <img src="logomiss.webp" alt="Logo">
-      </a>
-      <a href="carrinho.html" class="bag-icon" id="cart-icon">
-        &#128717;
-        <span class="cart-count" id="cart-count">0</span>
-      </a>
+      <a href="miss-index.html" class="logo"><img src="logomiss.webp" alt="Logo"></a>
+      <a href="carrinho.html" class="bag-icon" id="cart-icon">&#128717;<span class="cart-count" id="cart-count">0</span></a>
     </header>
+
     <div class="search-container">
       <input class="search-input" type="text" placeholder="O que você está procurando?" />
       <button class="search-button"><img src="lupa.webp" alt="Buscar" /></button>
     </div>
+
     <div id="cats" class="categories-container">
       <div class="category">BIQUÍNIS</div>
       <div class="category">CONJUNTOS</div>
@@ -284,69 +124,60 @@
       <div class="category">MODA CASUAL PRAIA</div>
     </div>
   </div>
-  
+
   <div class="main-content">
-    <!-- Breadcrumb para lista de produtos -->
     <div id="breadcrumb">
       <span class="path">Início</span>
       <span class="separator">&gt;</span>
       <span class="crumbName"></span>
-      <div class="header-row">
-        <span class="title"></span>
-        <span class="count"></span>
-      </div>
+      <div class="header-row"><span class="title"></span><span class="count"></span></div>
     </div>
-    
-    <!-- Aqui aparece o produto único -->
+
     <div class="produto-container" id="produto"></div>
-    
-    <!-- Aqui aparece o grid de resultados (oculto até filtrar/buscar) -->
     <div id="produtos" class="produtos-grid" style="display:none;"></div>
   </div>
-  
-  <!-- RODAPÉ VERMELHO -->
+
   <footer class="site-footer">
-    <div class="footer-item instagram">
-      <a href="https://www.instagram.com/usemissfit_beachwear/" target="_blank" rel="noopener">
-        <img src="instagramicon.png" alt="Instagram">
-      </a>
-    </div>
-    <div class="footer-item">
-      <a href="https://wa.me/5598992124926" target="_blank" rel="noopener">
-        5598992124926
-      </a>
-    </div>
-    <div class="footer-item">
-      <a href="tel:+5589982124926">
-        98992124926
-      </a>
-    </div>
-    <div class="footer-item copyright">
-      © Flowmize – 2025. Todos os direitos reservados.
-    </div>
+    <div class="footer-item instagram"><a href="https://www.instagram.com/usemissfit_beachwear/" target="_blank" rel="noopener"><img src="instagramicon.png" alt="Instagram"></a></div>
+    <div class="footer-item"><a href="https://wa.me/5598992124926" target="_blank" rel="noopener">5598992124926</a></div>
+    <div class="footer-item"><a href="tel:+5589982124926">98992124926</a></div>
+    <div class="footer-item copyright">© Flowmize – 2025. Todos os direitos reservados.</div>
   </footer>
-  
+
   <script>
     // ============================
-    // CONFIG
+    // CONFIG - troque somente a URL do CSV se quiser
     // ============================
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTpnms1jkq5n5KfiipHhMWrJIrc-PYiJy-s8D4wv8_LZ2V0a4AExSSz5yPcK36j13r9aYA5aQzxqsbF/pub?output=csv';
     const CART_KEY = 'cartItems';
+    const CATALOG_KEY = 'catalogData';
+    const CATALOG_TIMESTAMP_KEY = 'catalogTimestamp';
+    const CATALOG_CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
 
     // ============================
-    // CARRINHO (igual ao seu)
+    // Helpers cache catálogo
     // ============================
-    function getCartItems() {
+    function getCatalogFromCache() {
       try {
-        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-      } catch {
-        return [];
-      }
+        const cached = localStorage.getItem(CATALOG_KEY);
+        const ts = localStorage.getItem(CATALOG_TIMESTAMP_KEY);
+        if (!cached || !ts) return null;
+        if (Date.now() - parseInt(ts,10) > CATALOG_CACHE_DURATION) return null;
+        return JSON.parse(cached);
+      } catch { return null; }
     }
-    function setCartItems(items) {
-      localStorage.setItem(CART_KEY, JSON.stringify(items));
-      renderCartCount();
+    function setCatalogToCache(data) {
+      try {
+        localStorage.setItem(CATALOG_KEY, JSON.stringify(data));
+        localStorage.setItem(CATALOG_TIMESTAMP_KEY, Date.now().toString());
+      } catch (e) { console.warn('cache write failed', e); }
     }
+
+    // ============================
+    // Carrinho
+    // ============================
+    function getCartItems() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; } }
+    function setCartItems(items) { localStorage.setItem(CART_KEY, JSON.stringify(items)); renderCartCount(); }
     function renderCartCount() {
       const cartCountEl = document.getElementById('cart-count');
       const totalQty = getCartItems().reduce((sum, item) => sum + (parseInt(item.quantidade || 0, 10) || 0), 0);
@@ -355,9 +186,7 @@
     }
     document.addEventListener('DOMContentLoaded', renderCartCount);
 
-    // ============================
-    // UI helpers e overlay
-    // ============================
+    // UI overlay
     const overlay = document.getElementById('overlayMenu');
     document.querySelector('.menu-icon').onclick = () => overlay.classList.add('open');
     overlay.querySelector('.close-btn').onclick = () => overlay.classList.remove('open');
@@ -368,24 +197,43 @@
     const headerTitleEl = breadcrumbEl.querySelector('.header-row .title');
     const headerCountEl = breadcrumbEl.querySelector('.header-row .count');
 
-    // ============================
-    // UTIL
-    // ============================
+    // util
     function singularize(t) {
+      if (!t) return t;
       if (t.endsWith('es')) return t.slice(0,-2);
       if (t.endsWith('s')) return t.slice(0,-1);
       return t;
     }
+    function normalizeText(text){
+      if(!text) return '';
+      try { return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+      catch { return String(text).toLowerCase().trim(); }
+    }
 
-    // ============================
-    // Leitura do parâmetro produto
-    // ============================
-    const params = new URLSearchParams(window.location.search);
-    const nomeProduto = decodeURIComponent(params.get('produto') || '').trim();
+    // URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const nomeProduto = decodeURIComponent(urlParams.get('produto') || '').trim();
+    const paramImagensRaw = urlParams.get('imagens') || null;
+    const paramOpcoesRaw = urlParams.get('opcoes') || null;
+    function safeJSONparseMaybeEncoded(param){
+      if(!param) return null;
+      try {
+        const decoded = decodeURIComponent(param);
+        return JSON.parse(decoded);
+      } catch(e1){
+        try { return JSON.parse(param); } catch(e2){
+          if(typeof param === 'string' && param.indexOf(',')!==-1) return param.split(',').map(s=>s.trim()).filter(Boolean);
+          return null;
+        }
+      }
+    }
+    const providedImagens = safeJSONparseMaybeEncoded(paramImagensRaw);
+    const providedOpcoes = safeJSONparseMaybeEncoded(paramOpcoesRaw);
+
     let allProdutos = [];
 
     // ============================
-    // FUNÇÃO DE ANIMAÇÃO QUE VC JÁ TINHA
+    // fly image animation
     // ============================
     function flyImageToCart(sourceImg) {
       return new Promise(resolve => {
@@ -421,17 +269,13 @@
             cleanup();
           });
 
-          // fallback em caso de transição não disparar
           setTimeout(() => { if (document.body.contains(clone)) cleanup(); }, 1200);
-        } catch (e) {
-          console.warn('fly failed', e);
-          resolve();
-        }
+        } catch (e) { console.warn('fly failed', e); resolve(); }
       });
     }
 
     // ============================
-    // SKELETON RÁPIDO (quando tem produto na URL)
+    // skeleton
     // ============================
     function showSkeleton() {
       const container = document.getElementById('produto');
@@ -450,7 +294,7 @@
     }
 
     // ============================
-    // Função que constrói UI do produto a partir de um array de células (c)
+    // construir produto na UI a partir de células (array)
     // ============================
     function buildProductFromCells(c) {
       const nome = (c[2]||'').toString().trim();
@@ -458,7 +302,8 @@
       const options = [c[6]?.toString().trim(),c[7]?.toString().trim(),c[8]?.toString().trim()].filter(o=>o);
       const status = (c[9]||'').toString().trim() || '';
       const desc = (c[10]||'').toString().trim() || '';
-      const preco = ((c[11]||'').toString()).replace(/[^\d.,]/g,'').replace('.', ',');
+      let preco = ((c[11]||'').toString()).replace(/[^\d.,]/g,'');
+      if(preco && !preco.includes(',')) { preco = preco.replace('.',','); if(!preco.includes(',')) preco = preco + ',00'; }
       const extra = (c[12]||'').toString().trim() || '';
       const parc = (c[13]||'').toString().trim() || '';
 
@@ -475,15 +320,12 @@
         ${thumbnailHtml}
         <div class="produto-nome">${nome}</div>
         <div class="produto-preco">R$ ${preco}</div>
-        <div class="produto-parcelamento">${parc}</div>
-        <div class="produto-extra">${extra}</div>
+        ${parc ? `<div class="produto-parcelamento">${parc}</div>` : ''}
+        ${extra ? `<div class="produto-extra">${extra}</div>` : ''}
       `;
       if (options.length) {
         html += `
-          <div class="options">
-            <div class="options-label">Opções:</div>
-            <div id="option-list"></div>
-          </div>
+          <div class="options"><div class="options-label">Opções:</div><div id="option-list"></div></div>
         `;
       }
       html += `
@@ -554,64 +396,43 @@
 
       // qtd
       let qty = 1;
-      document.getElementById('decrease').onclick = () => { 
-        if(qty>1) qty--; 
-        document.getElementById('quantity').textContent = qty; 
-      };
-      document.getElementById('increase').onclick = () => { 
-        qty++; 
-        document.getElementById('quantity').textContent = qty; 
-      };
+      document.getElementById('decrease').onclick = () => { if(qty>1) qty--; document.getElementById('quantity').textContent = qty; };
+      document.getElementById('increase').onclick = () => { qty++; document.getElementById('quantity').textContent = qty; };
 
-      // BUY
+      // buy
       document.querySelector('.buy-btn').onclick = () => {
         const nomeFinal = nome;
         const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
-        const quantidade = parseInt(document.getElementById('quantity').textContent, 10);
+        const quantidade = parseInt(document.getElementById('quantity').textContent, 10) || 1;
         const opcaoEl = document.querySelector('.option-swatch.selected');
         const opcao = opcaoEl ? opcaoEl.textContent : null;
 
-        const item = {
-          nome: nomeFinal,
-          preco: precoText,
-          quantidade,
-          opcao,
-          imagens: images
-        };
+        const item = { nome: nomeFinal, preco: precoText, quantidade, opcao, imagens: images };
 
         const sourceImg = document.getElementById('carousel-image');
+        const items = getCartItems();
+        const existente = items.find(i => i.nome === item.nome && (i.opcao||'') === (item.opcao||''));
         if (sourceImg && sourceImg.src) {
           flyImageToCart(sourceImg).then(() => {
-            const items = getCartItems();
-            const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
-            if (existente) {
-              existente.quantidade = (parseInt(existente.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
-            } else {
-              items.push(item);
-            }
+            if (existente) existente.quantidade = (parseInt(existente.quantidade || 0,10)||0) + (parseInt(item.quantidade||0,10)||0);
+            else items.push(item);
             setCartItems(items);
           });
         } else {
-          const items = getCartItems();
-          const existente = items.find(i => i.nome === item.nome && i.opcao === item.opcao);
-          if (existente) {
-            existente.quantidade = (parseInt(existente.quantidade || 0, 10) || 0) + (parseInt(item.quantidade || 0, 10) || 0);
-          } else {
-            items.push(item);
-          }
+          if (existente) existente.quantidade = (parseInt(existente.quantidade || 0,10)||0) + (parseInt(item.quantidade||0,10)||0);
+          else items.push(item);
           setCartItems(items);
         }
       };
     }
 
     // ============================
-    // PARSE RÁPIDO: procura produto linha a linha e mostra imediatamente
+    // parse rápido (linha-a-linha) - exibe o produto assim que encontrar
     // ============================
     function parseAndShowProductFast(productName) {
       return new Promise((resolve) => {
         let rowIndex = -1;
         let found = false;
-        // mostra skeleton imediatamente
         showSkeleton();
 
         Papa.parse(CSV_URL, {
@@ -620,26 +441,19 @@
           step: function(results, parser) {
             rowIndex++;
             const row = results.data;
-            // pula cabeçalho (pressupõe que o cabeçalho está na primeira linha)
-            if (rowIndex === 0) return;
+            if (rowIndex === 0) return; // pula header
             if (!row || !row[2]) return;
             const nomeCell = (row[2]||'').toString().trim();
-            if (nomeCell === productName) {
+            if (normalizeText(nomeCell) === normalizeText(productName) || nomeCell === productName) {
               found = true;
-              // mostra produto imediatamente usando as células da linha
               buildProductFromCells(row);
-              // aborta parsing para liberar CPU / rede
               parser.abort();
               resolve(true);
             }
           },
-          error: function(err) {
-            console.error('Erro no parse fast:', err);
-            resolve(false);
-          },
+          error: function(err) { console.error('Erro no parse fast:', err); resolve(false); },
           complete: function() {
             if (!found) {
-              // caso não encontrado, mostra mensagem amigável
               const container = document.getElementById('produto');
               container.style.display = '';
               container.innerHTML = `<div style="padding:20px;">Produto "<strong>${productName}</strong>" não encontrado.</div>`;
@@ -651,11 +465,14 @@
     }
 
     // ============================
-    // PARSE COMPLETO em background para popular allProdutos
+    // parse completo (background) e cache
     // ============================
     function parseAllProductsBackground() {
-      // se já carregou não executa de novo
-      if (allProdutos && allProdutos.length > 0) return Promise.resolve(allProdutos);
+      const cached = getCatalogFromCache();
+      if (cached && Array.isArray(cached) && cached.length>0) {
+        allProdutos = cached;
+        return Promise.resolve(allProdutos);
+      }
 
       return new Promise((resolve) => {
         Papa.parse(CSV_URL, {
@@ -678,23 +495,37 @@
                 parcelamento: (cells[13] || '').toString().trim() || ''
               });
             });
+            // salva no cache para próxima visita
+            setCatalogToCache(allProdutos);
             resolve(allProdutos);
           },
-          error: function(err) {
-            console.error('Erro no parse completo:', err);
-            resolve([]);
-          }
+          error: function(err) { console.error('Erro no parse completo:', err); resolve([]); }
         });
       });
     }
 
     // ============================
-    // filter / grid (igual ao seu mas usando allProdutos depois que for populado)
+    // Busca no cache por nome (normalize)
+    // ============================
+    function findProductInCacheByName(name) {
+      const cached = getCatalogFromCache();
+      if (!cached || !Array.isArray(cached)) return null;
+      const norm = normalizeText(name);
+      let exact = cached.find(p => p && p.nome === name);
+      if (exact) return exact;
+      exact = cached.find(p => normalizeText(p.nome||'') === norm);
+      if (exact) return exact;
+      // fallback substring
+      return cached.find(p => normalizeText(p.nome||'').includes(norm)) || null;
+    }
+
+    // ============================
+    // Render grid / filtro
     // ============================
     function filterByTerm(term) {
-      const low = term.toLowerCase(), sin = singularize(low);
-      return allProdutos.filter(p => {
-        const nm = p.nome.toLowerCase();
+      const low = normalizeText(term), sin = normalizeText(singularize(term.toLowerCase()));
+      return (allProdutos || []).filter(p => {
+        const nm = normalizeText(p.nome||'');
         return nm.includes(low) || nm.includes(sin);
       });
     }
@@ -704,12 +535,10 @@
       const g = document.getElementById('produtos');
       g.style.display = 'grid';
       g.innerHTML = '';
-      
       if (!list || list.length === 0) {
         g.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Nenhum produto encontrado</div>';
         return;
       }
-      
       list.forEach(p => {
         const d = document.createElement('div');
         d.className = 'produto';
@@ -717,27 +546,25 @@
           window.location.href = `miss-produto.html?produto=${encodeURIComponent(p.nome)}`;
         };
         d.innerHTML = `
-          <img src="${p.imagens[0]||''}" alt="${p.nome}">
+          <img src="${p.imagens && p.imagens[0] ? p.imagens[0] : ''}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
           <div class="nome">${p.nome}</div>
           <div class="preco">${p.preco}</div>
-          <div class="parcelamento">${p.parcelamento}</div>
-          <div class="extra">${p.mensagem}</div>
+          ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
+          ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
         g.appendChild(d);
       });
     }
 
     // ============================
-    // Interações de categoria e busca (mantive sua lógica)
+    // UI handlers (categories, search, menu)
     // ============================
     document.querySelectorAll('.category').forEach(el => {
       el.onclick = async () => {
         const nome = el.textContent.trim();
-        // garante que allProdutos está populado
         await parseAllProductsBackground();
         const filtered = filterByTerm(nome);
         renderProdutos(filtered);
-        
         pathEl.textContent = 'Início';
         crumbNameEl.textContent = nome.toLowerCase();
         headerTitleEl.textContent = nome.toUpperCase();
@@ -746,8 +573,7 @@
       };
     });
 
-    const si = document.querySelector('.search-input'),
-          sb = document.querySelector('.search-button');
+    const si = document.querySelector('.search-input'), sb = document.querySelector('.search-button');
     si.oninput = async () => {
       const t = si.value.trim();
       if (t === '') {
@@ -759,41 +585,20 @@
       await parseAllProductsBackground();
       const filtered = filterByTerm(t);
       renderProdutos(filtered);
-      
       pathEl.textContent = 'Início';
       crumbNameEl.textContent = t.toLowerCase();
       headerTitleEl.textContent = t.toUpperCase();
       headerCountEl.textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
       breadcrumbEl.style.display = 'block';
     };
-    sb.onclick = async () => {
-      const t = si.value.trim();
-      if (t === '') {
-        document.getElementById('produtos').style.display = 'none';
-        document.getElementById('produto').style.display = '';
-        breadcrumbEl.style.display = 'none';
-      } else {
-        await parseAllProductsBackground();
-        const filtered = filterByTerm(t);
-        renderProdutos(filtered);
-        
-        pathEl.textContent = 'Início';
-        crumbNameEl.textContent = t.toLowerCase();
-        headerTitleEl.textContent = t.toUpperCase();
-        headerCountEl.textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;
-        breadcrumbEl.style.display = 'block';
-      }
-    };
+    sb.onclick = () => si.dispatchEvent(new Event('input'));
 
-    // Link "Produtos" no menu hamburguer
     document.getElementById('all-products-link').addEventListener('click', async function(e) {
       e.preventDefault();
       overlay.classList.remove('open');
       await parseAllProductsBackground();
       const sortedList = [...allProdutos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' }));
       document.getElementById('produto').style.display = 'none';
-      const grid = document.getElementById('produtos');
-      grid.style.display = 'grid';
       renderProdutos(sortedList);
       pathEl.textContent = 'Início';
       crumbNameEl.textContent = 'Todos os Produtos';
@@ -806,31 +611,102 @@
       document.getElementById('produtos').style.display = 'none';
       document.getElementById('produto').style.display = '';
       breadcrumbEl.style.display = 'none';
-      if (nomeProduto) {
-        window.location.href = 'miss-index.html';
-      }
+      if (nomeProduto) window.location.href = 'miss-index.html';
     });
 
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) renderCartCount();
-    });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderCartCount(); });
 
     // ============================
-    // FLUXO PRINCIPAL: se houver nomeProduto, tenta achar rápido
+    // INIT principal - lógica otimizada para exibir produto rápido
     // ============================
     (async function init() {
-      if (nomeProduto) {
-        // 1) procura e mostra rápido
-        await parseAndShowProductFast(nomeProduto);
-        // 2) inicia parsing completo em background para popular allProdutos (sem bloquear a UI)
-        parseAllProductsBackground().catch(()=>{});
-      } else {
-        // se não tiver produto na URL, já popula tudo (para ser rápido quando o usuário buscar)
-        await parseAllProductsBackground();
-        // e renderiza grid com todos (jeito igual ao seu: pode ajustar se quiser)
-        renderProdutos(allProdutos);
+      // 1) se tiver imagens/opcoes embutidos na URL, mostramos imediatamente (mais rápido)
+      if (nomeProduto && (providedImagens || providedOpcoes)) {
+        const produtoObj = {
+          nome: nomeProduto,
+          imagens: providedImagens || [],
+          opcoes: providedOpcoes || [],
+          status: urlParams.get('status') ? decodeURIComponent(urlParams.get('status')) : '',
+          descricao: urlParams.get('descricao') ? decodeURIComponent(urlParams.get('descricao')) : '',
+          preco: urlParams.get('preco') ? decodeURIComponent(urlParams.get('preco')) : '',
+          mensagem: urlParams.get('mensagem') ? decodeURIComponent(urlParams.get('mensagem')) : '',
+          parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : ''
+        };
+        // monta UI com esses dados
+        buildProductFromCells([
+          null, null,
+          produtoObj.nome,
+          ...(produtoObj.imagens[0] ? [produtoObj.imagens[0]] : ['']),
+          produtoObj.imagens[1] || '',
+          produtoObj.imagens[2] || '',
+          ...(produtoObj.opcoes || []),
+          produtoObj.status || '',
+          produtoObj.descricao || '',
+          produtoObj.preco || '',
+          produtoObj.mensagem || '',
+          produtoObj.parcelamento || ''
+        ]);
+        // populate background
+        parseAllProductsBackground().then(d => { allProdutos = d || allProdutos; }).catch(()=>{});
+        return;
       }
+
+      // 2) Se veio ?produto=... -> tentar mostrar instantaneamente via cache ou parse rápido
+      if (nomeProduto) {
+        // tentar achar no cache primeiro (instantâneo)
+        const foundCached = findProductInCacheByName(nomeProduto);
+        if (foundCached) {
+          // mostra usando objeto do cache
+          buildProductFromCells([
+            null, null,
+            foundCached.nome,
+            foundCached.imagens && foundCached.imagens[0] ? foundCached.imagens[0] : '',
+            foundCached.imagens && foundCached.imagens[1] ? foundCached.imagens[1] : '',
+            foundCached.imagens && foundCached.imagens[2] ? foundCached.imagens[2] : '',
+            foundCached.opcoes && foundCached.opcoes[0] ? foundCached.opcoes[0] : '',
+            foundCached.opcoes && foundCached.opcoes[1] ? foundCached.opcoes[1] : '',
+            foundCached.opcoes && foundCached.opcoes[2] ? foundCached.opcoes[2] : '',
+            foundCached.status || '',
+            foundCached.descricao || '',
+            foundCached.preco || '',
+            foundCached.mensagem || '',
+            foundCached.parcelamento || ''
+          ]);
+          // atualiza allProdutos em bg
+          parseAllProductsBackground().then(d => { allProdutos = d || allProdutos; }).catch(()=>{});
+          return;
+        }
+
+        // se não encontrou no cache, usa o parse rápido (linha-a-linha) mostrando skeleton de imediato
+        await parseAndShowProductFast(nomeProduto);
+        // em background popula e salva cache
+        parseAllProductsBackground().then(d => { allProdutos = d || allProdutos; setCatalogToCache(allProdutos); }).catch(()=>{});
+        return;
+      }
+
+      // 3) caso padrão (sem produto na URL): popula catálogo completo (tenta cache primeiro)
+      const cached = getCatalogFromCache();
+      if (cached && Array.isArray(cached) && cached.length>0) {
+        allProdutos = cached;
+        renderProdutos(allProdutos);
+        // atualiza em bg
+        parseAllProductsBackground().then(d => { allProdutos = d || allProdutos; setCatalogToCache(allProdutos); }).catch(()=>{});
+        return;
+      }
+
+      // sem cache: parse completo e renderiza grid
+      const data = await parseAllProductsBackground();
+      allProdutos = data || [];
+      renderProdutos(allProdutos);
     })();
+
+    // exposições dev
+    window.forceReloadFromCSV = function(){
+      localStorage.removeItem(CATALOG_KEY);
+      localStorage.removeItem(CATALOG_TIMESTAMP_KEY);
+      parseAllProductsBackground().then(d=>{ allProdutos = d || []; renderProdutos(allProdutos); });
+    };
+
   </script>
 </body>
 </html>
