@@ -107,12 +107,16 @@
       max-height: 85vh; /* Reduzido para garantir espaço no topo */
       overflow-y: auto; 
       padding: 24px;
-      transition: bottom .35s ease;
+      transition: bottom .35s ease, max-height .25s ease;
       z-index: 51; 
       width: 100%; 
       max-width: 480px; 
       margin: 0 auto;
       box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+    }
+    /* quando a entrega é selecionada, diminui a altura máxima para garantir espaço no topo */
+    .modal-sheet.with-gap {
+      max-height: 72vh; /* ajuste que cria espaço livre entre top do conteúdo do modal e a header da página */
     }
     .modal-sheet.open { 
       bottom: 0; 
@@ -359,6 +363,7 @@
       const errorEstado = document.getElementById('error-estado');
       const errorCidade = document.getElementById('error-cidade');
       const backButton = document.getElementById('back-button');
+      const tipoEntregaSelect = document.getElementById('tipoEntrega');
 
       // URL do Google AppScript - SUBSTITUA PELA SUA URL
       const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdrJiEcAPObG6c06rcoHFu6-BqsJdxAfxG-y4gKEHnDek6qzln78kUzh2f9TiT-_TU/exec";
@@ -432,8 +437,19 @@
           alert('Seu carrinho está vazio!');
           return;
         }
+        // Se o tipoEntrega já estiver selecionado como 'entrega', aplicamos a classe que diminui a altura
+        const tipoValue = tipoEntregaSelect.value;
+        if (tipoValue === 'entrega') {
+          modal.classList.add('with-gap');
+        } else {
+          modal.classList.remove('with-gap');
+        }
+
         modal.classList.add('open');
         backdrop.style.display = 'block';
+
+        // Garante que o modal comece no topo do seu próprio scroll (útil em dispositivos móveis)
+        modal.scrollTop = 0;
       }
 
       function hideModal() {
@@ -487,12 +503,19 @@
       closeModalBtn.addEventListener('click', hideModal);
       backdrop.addEventListener('click', hideModal);
 
-      // Mostrar campos de entrega
-      document.getElementById('tipoEntrega').addEventListener('change', function() {
+      // Mostrar campos de entrega e ajustar a classe do modal para criar espaço no topo quando necessário
+      tipoEntregaSelect.addEventListener('change', function() {
         const entregaFields = document.querySelectorAll('.entrega-field');
         entregaFields.forEach(field => {
           field.style.display = this.value === 'entrega' ? 'block' : 'none';
         });
+        
+        // Se entrega foi selecionada, aplicamos a classe that reduz max-height do modal (cria espaço no topo)
+        if (this.value === 'entrega') {
+          modal.classList.add('with-gap');
+        } else {
+          modal.classList.remove('with-gap');
+        }
         
         // Scroll para o topo do modal para garantir que todos os campos estejam visíveis
         modal.scrollTo(0, 0);
@@ -635,6 +658,21 @@
         // 5. Fechar o modal
         hideModal();
       });
+
+      // Garantir que, ao carregar a página, se houver seleção anterior no tipoEntrega,
+      // os campos e a classe do modal fiquem consistentes.
+      (function initTipoEntregaState() {
+        const current = tipoEntregaSelect.value;
+        const entregaFields = document.querySelectorAll('.entrega-field');
+        entregaFields.forEach(field => {
+          field.style.display = current === 'entrega' ? 'block' : 'none';
+        });
+        if (current === 'entrega') {
+          modal.classList.add('with-gap');
+        } else {
+          modal.classList.remove('with-gap');
+        }
+      })();
 
       renderCartItems();
       renderCartCount();
