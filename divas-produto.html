@@ -1,4 +1,5 @@
-<!DOCTYPE html>  <html lang="pt-br">  
+<!DOCTYPE html>  
+<html lang="pt-br">  
 <head>  
   <meta charset="UTF-8" />  
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />  
@@ -85,7 +86,6 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
   border-radius: 8px;  
   box-shadow: 0 8px 20px rgba(0,0,0,0.25);  
 }
-
   </style>  
 </head>  
 <body>  
@@ -166,9 +166,14 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
   
     // COLOQUE AQUI A URL CERTA DO seu Apps Script (SEM ESPAÇOS)  
     const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMEY0_WEeZaFcRBaGqXM29Z5JlP0VnWyP_eW7upDKF-9EAXmtmpvt7lArtkuu87xZl/exec";  
-  
+    
+    // Chaves para localStorage
+    const CART_KEY = 'cartItems';
+    const CATALOG_KEY = 'catalogData';
+    const CATALOG_TIMESTAMP_KEY = 'catalogTimestamp';
+    const CATALOG_CACHE_DURATION = 30 * 60 * 1000; // 30 minutos em milissegundos
+
     // CART helpers  
-    const CART_KEY = 'cartItems';  
     function getCartItems(){ try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; } }  
     function setCartItems(items){ localStorage.setItem(CART_KEY, JSON.stringify(items)); renderCartCount(); }  
     function renderCartCount(){  
@@ -178,7 +183,42 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
       el.textContent = total;  
       el.style.display = total>0 ? 'inline-block' : 'none';  
     }  
-    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) renderCartCount(); });  
+    
+    // Catalog helpers
+    function getCatalogFromCache() {
+      try {
+        const cachedData = localStorage.getItem(CATALOG_KEY);
+        const cachedTimestamp = localStorage.getItem(CATALOG_TIMESTAMP_KEY);
+        
+        if (!cachedData || !cachedTimestamp) return null;
+        
+        const now = Date.now();
+        if (now - parseInt(cachedTimestamp, 10) > CATALOG_CACHE_DURATION) {
+          return null; // Cache expirado
+        }
+        
+        return JSON.parse(cachedData);
+      } catch {
+        return null;
+      }
+    }
+    
+    function setCatalogToCache(data) {
+      try {
+        localStorage.setItem(CATALOG_KEY, JSON.stringify(data));
+        localStorage.setItem(CATALOG_TIMESTAMP_KEY, Date.now().toString());
+      } catch (e) {
+        console.warn('Não foi possível salvar o catálogo no cache', e);
+      }
+    }
+
+    document.addEventListener('visibilitychange', ()=>{ 
+      if(!document.hidden) {
+        renderCartCount();
+        // Verifica se precisamos atualizar o catálogo quando a página ganha foco
+        checkCatalogCache();
+      }
+    });  
     document.addEventListener('DOMContentLoaded', ()=> renderCartCount());  
   
     // helpers  
@@ -224,7 +264,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
       const container = document.getElementById('produto');  
       document.getElementById('produtos').style.display = 'none';  
       document.getElementById('breadcrumb').style.display = 'none';  
-  
+
       const nome = prod.nome || '';  
       const images = Array.isArray(prod.imagens) ? prod.imagens : (prod.imagens ? [prod.imagens] : []);  
       const options = Array.isArray(prod.opcoes) ? prod.opcoes : (prod.opcoes ? [prod.opcoes] : []);  
@@ -233,14 +273,14 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
       let preco = prod.preco || '';  
       const extra = prod.mensagem || '';  
       const parc = prod.parcelamento || '';  
-  
+
       // normalize price  
       preco = (preco||'').toString().trim();  
       preco = preco.replace(/[^\d.,]/g,'');  
       if(preco && !preco.includes(',')){  
         if(preco.indexOf('.') !== -1) preco = preco.replace('.',','); else preco = preco + ',00';  
       }  
-  
+
       let html = `<div class="breadcrumb-list"><a href="divas-index.html">Início</a> &gt; ${nome}</div>`;  
       html += `<div class="carousel" style="position:relative;">${status ? `<div class="badge">${status}</div>` : ''}<img id="carousel-image" src="" alt="${nome}"><div class="counter" id="image-counter"></div></div>`;  
       html += `<div class="thumbnails" id="thumbnails"></div>`;  
@@ -249,7 +289,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
       if(parc) html += `<div class="produto-parcelamento">${parc}</div>`;  
       if(extra) html += `<div class="produto-extra">${extra}</div>`;  
       if(options && options.length) html += `<div class="options"><div class="options-label">Opções:</div><div id="option-list"></div></div>`;  
-  
+
       html += `  
         <div class="purchase-controls">  
           <div class="qty-controls">  
@@ -267,12 +307,12 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         <div class="descricao">${desc}</div>  
       `;  
       container.innerHTML = html;  
-  
+
       // images + thumbs  
       const imgEl = document.getElementById('carousel-image');  
       const counterEl = document.getElementById('image-counter');  
       const thumbsEl = document.getElementById('thumbnails');  
-  
+
       let idx = 0;  
       function showImage(i){  
         if(!images[i]) return;  
@@ -281,7 +321,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         counterEl.textContent = `${i+1}/${images.length}`;  
         thumbsEl.querySelectorAll('img').forEach((t,j)=> t.classList.toggle('active', j===i));  
       }  
-  
+
       images.forEach((src,i)=>{  
         const t = document.createElement('img');  
         t.src = src;  
@@ -290,7 +330,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         thumbsEl.appendChild(t);  
       });  
       if(images.length>0){ showImage(0); const f=thumbsEl.querySelector('img'); if(f) f.classList.add('active'); } else { imgEl.style.display='none'; counterEl.style.display='none'; }  
-  
+
       // options  
       if(options && options.length){  
         const list = document.getElementById('option-list');  
@@ -301,12 +341,12 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
           list.appendChild(sw);  
         });  
       }  
-  
+
       // qty controls  
       let qty = 1;  
       document.getElementById('decrease').onclick = ()=>{ if(qty>1) qty--; document.getElementById('quantity').textContent = qty; };  
       document.getElementById('increase').onclick = ()=>{ qty++; document.getElementById('quantity').textContent = qty; };  
-  
+
       // buy  
       document.getElementById('buy-btn').onclick = ()=>{  
         const opcEl = document.querySelector('.option-swatch.selected');  
@@ -322,7 +362,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         }  
       };  
     }  
-  
+
     // addToCart  
     function addToCartAndPersist(item){  
       const items = getCartItems();  
@@ -331,7 +371,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
       else { item.quantidade = parseInt(item.quantidade||0,10)||0; items.push(item); }  
       setCartItems(items);  
     }  
-  
+
     // flying animation  
     function flyImageToCart(sourceImg){  
       return new Promise((resolve)=>{  
@@ -363,7 +403,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         } catch(e){ console.warn('fly failed',e); resolve(); }  
       });  
     }  
-  
+
     // fetch catalog with fallback  
     function fetchCatalogWithFallback(){  
       const url = APPSCRIPT_URL + '?_=' + Date.now();  
@@ -372,12 +412,17 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
           if (!r.ok) throw new Error('Fetch não retornou ok: ' + r.status);  
           return r.json().catch(()=> { throw new Error('JSON inválido no fetch'); });  
         })  
+        .then(data => {
+          // Salva no cache
+          setCatalogToCache(data);
+          return data;
+        })
         .catch((err) => {  
           console.warn('fetch direto falhou, tentando JSONP fallback:', err);  
           return fetchCatalogJSONP();  
         });  
     }  
-  
+
     function fetchCatalogJSONP(){  
       return new Promise((resolve, reject) => {  
         const cb = '__divasProdCB' + Date.now() + Math.floor(Math.random()*1000);  
@@ -386,6 +431,8 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         window[cb] = function(data) {  
           try { delete window[cb]; } catch(e){}  
           if(script.parentNode) script.parentNode.removeChild(script);  
+          // Salva no cache
+          setCatalogToCache(data);
           resolve(data);  
         };  
         script.src = url;  
@@ -404,7 +451,42 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         }, 9000);  
       });  
     }  
-  
+    
+    // Verifica se o cache do catálogo está válido
+    function checkCatalogCache() {
+      const cachedCatalog = getCatalogFromCache();
+      if (cachedCatalog && allProdutos.length === 0) {
+        // Se temos dados em cache mas a variável allProdutos está vazia, restaurar
+        processCatalogData(cachedCatalog);
+        catalogLoaded = true; 
+        catalogResolve && catalogResolve();
+        
+        // Se não há parâmetros de produto na URL, mostrar todos os produtos
+        if (!paramProduto && !providedImagens && !providedOpcoes) {
+          renderProdutosGrid(allProdutos);
+        }
+      }
+    }
+
+    // Processa os dados do catálogo (extrai de diferentes formatos)
+    function processCatalogData(data) {
+      if (!data) {
+        allProdutos = [];
+        return;
+      }
+      
+      // apps script pode devolver {status:'success',produtos:[]} ou um array diretamente  
+      if (data.status === 'success' && Array.isArray(data.produtos)) {
+        allProdutos = data.produtos;
+      } else if (Array.isArray(data)) {
+        allProdutos = data;
+      } else if (data.produtos && Array.isArray(data.produtos)) {
+        allProdutos = data.produtos;
+      } else {
+        allProdutos = [];
+      }
+    }
+
     // render produtos grid (modificado: clique NAVEGA e RECARRAGA via query params)  
     function renderProdutosGrid(list){  
       const g = document.getElementById('produtos');  
@@ -412,7 +494,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
       g.style.display = 'grid';  
       g.innerHTML = '';  
       lastRenderedList = (list || []).slice();  
-  
+
       if(!list || list.length===0){  
         g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px">Nenhum produto encontrado</div>';  
         return;  
@@ -447,7 +529,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         g.appendChild(d);  
       });  
     }  
-  
+
     // Delegação backup (caso algo gere elementos dinamicamente) -> também NAVEGA  
     document.getElementById('produtos').addEventListener('click', (ev) => {  
       const card = ev.target.closest('.produto');  
@@ -473,7 +555,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         window.location.href = window.location.pathname + '?' + params.toString();  
       }  
     });  
-  
+
     // category mapping & filter  
     const categoryMap = {  
       'BRINCOS':['brinco','brincos'],  
@@ -504,7 +586,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         return false;  
       });  
     }  
-  
+
     // UI handlers (categories, menu, search, breadcrumb)  
     function setupUIHandlers(){  
       // categories click  
@@ -524,7 +606,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
           document.getElementById('produto').style.display = 'none';  
         });  
       });  
-  
+
       // overlay links  
       document.getElementById('all-products-link').addEventListener('click', async (e)=>{  
         e.preventDefault();  
@@ -539,7 +621,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         document.getElementById('overlayMenu').classList.remove('open');  
         document.body.style.overflow = '';  
       });  
-  
+
       // breadcrumb back  
       document.querySelector('#breadcrumb .path').addEventListener('click', ()=>{  
         document.getElementById('produtos').style.display = 'none';  
@@ -547,7 +629,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         document.getElementById('breadcrumb').style.display = 'none';  
         window.history.pushState({}, '', window.location.pathname);  
       });  
-  
+
       // search  
       const si = document.querySelector('.search-input');  
       const sb = document.querySelector('.search-button');  
@@ -570,19 +652,19 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         document.querySelector('#breadcrumb .header-row .count').textContent = `${filtered.length} produto${filtered.length !== 1 ? 's' : ''}`;  
       });  
       sb.addEventListener('click', ()=> si.dispatchEvent(new Event('input')));  
-  
+
       // overlay open/close  
       const overlay = document.getElementById('overlayMenu');  
       const menuBtn = document.getElementById('menuBtn') || document.querySelector('.menu-icon');  
       const closeBtn = overlay.querySelector('.close-btn');  
       menuBtn.onclick = ()=> { overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; };  
       closeBtn.onclick = ()=> { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; };  
-  
+
       // clicking overlay background closes  
       overlay.addEventListener('click', (e)=>{  
         if(e.target === overlay){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }  
       });  
-  
+
       // home link  
       const homeLink = document.querySelector('#overlayMenu a[href="divas-index.html"]') || document.getElementById('home-link');  
       if(homeLink) {  
@@ -597,11 +679,19 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         });  
       }  
     }  
-  
+
     // INIT: fetch catálogo and show product or grid  
     (async function init(){  
       setupUIHandlers();  
-  
+      
+      // Primeiro verifica se temos dados em cache
+      const cachedCatalog = getCatalogFromCache();
+      if (cachedCatalog) {
+        processCatalogData(cachedCatalog);
+        catalogLoaded = true; 
+        catalogResolve && catalogResolve();
+      }
+
       // if product param provided along with images/opcoes, show immediately  
       if(paramProduto && (providedImagens || providedOpcoes)){  
         const produtoObj = {  
@@ -615,32 +705,21 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
           parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : ''  
         };  
         showProdutoFromData(produtoObj);  
+        
         // still fetch catalog for filters (non-blocking)  
         fetchCatalogWithFallback().then(data=>{  
-          if(data && data.status === 'success'){ allProdutos = data.produtos || []; catalogLoaded = true; catalogResolve && catalogResolve(); }  
-          else if(Array.isArray(data)){ allProdutos = data; catalogLoaded = true; catalogResolve && catalogResolve(); }  
-          else { catalogLoaded = true; catalogResolve && catalogResolve(); }  
-        }).catch(()=>{ catalogLoaded = true; catalogResolve && catalogResolve(); });  
+          processCatalogData(data);
+          catalogLoaded = true; 
+          catalogResolve && catalogResolve();
+        }).catch(()=>{ 
+          catalogLoaded = true; 
+          catalogResolve && catalogResolve(); 
+        });  
         return;  
       }  
-  
-      // fetch catalog, then find product if param present  
-      try{  
-        const data = await fetchCatalogWithFallback();  
-        if(!data){  
-          document.getElementById('produto').innerHTML = '<div style="padding:20px;text-align:center;">Não foi possível carregar o catálogo no momento.</div>';  
-          allProdutos = [];  
-          catalogLoaded = true; catalogResolve && catalogResolve();  
-          return;  
-        }  
-        // apps script pode devolver {status:'success',produtos:[]} ou um array diretamente  
-        if(data.status === 'success' && Array.isArray(data.produtos)) allProdutos = data.produtos;  
-        else if(Array.isArray(data)) allProdutos = data;  
-        else if(data.produtos && Array.isArray(data.produtos)) allProdutos = data.produtos;  
-        else allProdutos = [];  
-  
-        catalogLoaded = true; catalogResolve && catalogResolve();  
-  
+
+      // Se já temos dados em cache, usa-os imediatamente
+      if (cachedCatalog && allProdutos.length > 0) {
         if(paramProduto){  
           const exact = allProdutos.find(p => p.nome === paramProduto);  
           if(exact){ showProdutoFromData(exact); return; }  
@@ -650,7 +729,41 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
           document.getElementById('produto').innerHTML = `<div style="padding:20px;text-align:center;">Produto "${paramProduto}" não encontrado.</div>`;  
           return;  
         }  
-  
+
+        // default: render all products grid  
+        renderProdutosGrid(allProdutos);  
+        
+        // Faz fetch em segundo plano para atualizar cache se necessário
+        fetchCatalogWithFallback().then(data=>{  
+          processCatalogData(data);
+        }).catch(()=>{});
+        
+        return;
+      }
+
+      // fetch catalog, then find product if param present  
+      try{  
+        const data = await fetchCatalogWithFallback();  
+        if(!data){  
+          document.getElementById('produto').innerHTML = '<div style="padding:20px;text-align:center;">Não foi possível carregar o catálogo no momento.</div>';  
+          allProdutos = [];  
+          catalogLoaded = true; catalogResolve && catalogResolve();  
+          return;  
+        }  
+        
+        processCatalogData(data);
+        catalogLoaded = true; catalogResolve && catalogResolve();  
+
+        if(paramProduto){  
+          const exact = allProdutos.find(p => p.nome === paramProduto);  
+          if(exact){ showProdutoFromData(exact); return; }  
+          const normalizedTarget = normalizeText(paramProduto);  
+          const found = allProdutos.find(p => normalizeText(p.nome||'') === normalizedTarget || normalizeText(p.nome||'').includes(normalizedTarget));  
+          if(found){ showProdutoFromData(found); return; }  
+          document.getElementById('produto').innerHTML = `<div style="padding:20px;text-align:center;">Produto "${paramProduto}" não encontrado.</div>`;  
+          return;  
+        }  
+
         // default: render all products grid  
         renderProdutosGrid(allProdutos);  
       }catch(err){  
@@ -660,7 +773,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         catalogLoaded = true; catalogResolve && catalogResolve();  
       }  
     })();  
-  
+
     // popstate handler para back/forward  
     window.addEventListener('popstate', () => {  
       const params = new URLSearchParams(window.location.search);  
@@ -697,9 +810,9 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
         document.getElementById('breadcrumb').style.display = 'none';  
       }  
     });  
-  
+
     // debug reload  
     window.forceReloadFromServer = function(){ fetchCatalogWithFallback().then(d=>{ if(d && d.status==='success'){ allProdutos = d.produtos||[]; renderProdutosGrid(allProdutos); } else if(Array.isArray(d)){ allProdutos = d; renderProdutosGrid(allProdutos); } }); };  
-  
+
   </script>  </body>  
-</html>  
+</html>
