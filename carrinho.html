@@ -104,7 +104,8 @@
       background: #fff; 
       border-top-left-radius: 16px; 
       border-top-right-radius: 16px;
-      max-height: 90vh; 
+      /* Garante sempre um espaço superior (evita cobrir o topo quando o conteúdo cresce) */
+      max-height: calc(100vh - 120px); 
       overflow-y: auto; 
       padding: 24px;
       transition: bottom .35s ease;
@@ -113,6 +114,8 @@
       max-width: 480px; 
       margin: 0 auto;
       box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+      /* Adiciona um pequeno espaçamento superior visual quando o sheet não ocupa toda altura */
+      margin-top: 16px;
     }
     .modal-sheet.open { 
       bottom: 0; 
@@ -214,6 +217,13 @@
     #modal-sheet button.checkout-btn.full {
       width: 90%;    /* altera só o botão */
     }
+
+    /* Pequenas melhorias de acessibilidade/scroll dentro do modal */
+    .modal-sheet:focus { outline: none; }
+    /* Quando o conteúdo é muito grande, garantir que o topo do modal não fique exatamente colado ao topo do viewport em telas muito pequenas */
+    @media (max-height: 500px) {
+      .modal-sheet { max-height: calc(100vh - 80px); }
+    }
   </style>
 </head>
 <body>
@@ -248,9 +258,9 @@
 
   <!-- Modal -->
   <div class="modal-backdrop" id="backdrop"></div>
-  <div class="modal-sheet" id="modal-sheet">
+  <div class="modal-sheet" id="modal-sheet" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
     <div class="modal-header">
-      <button class="close-btn" id="close-modal">&times;</button>
+      <button class="close-btn" id="close-modal" aria-label="Fechar">&times;</button>
     </div>
     <form id="checkoutForm">
       <div class="form-group full">
@@ -424,13 +434,22 @@
           alert('Seu carrinho está vazio!');
           return;
         }
+        // mostrar backdrop e sheet
         modal.classList.add('open');
         backdrop.style.display = 'block';
+        modal.setAttribute('aria-hidden', 'false');
+        // impede scroll do body para evitar interação estranha por trás do modal
+        document.body.style.overflow = 'hidden';
+        // garante foco no modal (ajuda navegação por teclado)
+        modal.focus();
       }
 
       function hideModal() {
         modal.classList.remove('open');
         backdrop.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        // restaura scroll
+        document.body.style.overflow = '';
       }
 
       // Função para enviar dados para o Google Sheets - VERSÃO AJUSTADA
@@ -485,6 +504,17 @@
         entregaFields.forEach(field => {
           field.style.display = this.value === 'entrega' ? 'block' : 'none';
         });
+
+        // Se o formulário crescer por conta da opção 'entrega', forçamos o modal a rolar para o topo do conteúdo
+        // para garantir que o usuário consiga ver o botão de fechar/backdrop.
+        // Também deixamos um pequeno tempo para que o layout seja recalculado.
+        setTimeout(() => {
+          // Garante que o modal esteja visível
+          if (modal.classList.contains('open')) {
+            // Scrolla o modal para o topo do conteúdo para revelar o cabeçalho/fechar
+            modal.scrollTop = 0;
+          }
+        }, 50);
       });
 
       // Mostrar info do Pix
@@ -627,6 +657,22 @@
 
       renderCartItems();
       renderCartCount();
+
+      // Se usuário apertar ESC, fecha o modal
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+          hideModal();
+        }
+      });
+
+      // Quando a janela for redimensionada, garantir que o modal continue com espaço no topo
+      window.addEventListener('resize', () => {
+        // forçamos recalculo visual do modal (não bloqueante)
+        if (modal.classList.contains('open')) {
+          // garante que não sobreponha o topo: se modal ocupa quase 100% da altura, ajustamos scrollTop
+          setTimeout(() => { modal.scrollTop = 0; }, 50);
+        }
+      });
     });
   </script>
 </body>
