@@ -210,26 +210,59 @@
       catch { return String(text).toLowerCase().trim(); }
     }
 
-    // URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    const nomeProduto = decodeURIComponent(urlParams.get('produto') || '').trim();
-    const paramImagensRaw = urlParams.get('imagens') || null;
-    const paramOpcoesRaw = urlParams.get('opcoes') || null;
-    function safeJSONparseMaybeEncoded(param){
-      if(!param) return null;
+    // ============================
+    // Formatação robusta de preço
+    // ============================
+    function formatPrice(raw) {
+      if (raw === undefined || raw === null) return '';
+      let s = String(raw).trim();
+      if (!s) return '';
+      // remove palavras comuns e currency symbols (mas mantenha ., , e - para parsing)
+      s = s.replace(/[Rr]\$|\s+|[A-Za-z]/g, '').trim();
+
+      // keep only digits, dots, commas and minus
+      s = s.replace(/[^0-9.,-]/g, '');
+
+      if (!s) return String(raw).trim(); // fallback para valor original não processado
+
       try {
-        const decoded = decodeURIComponent(param);
-        return JSON.parse(decoded);
-      } catch(e1){
-        try { return JSON.parse(param); } catch(e2){
-          if(typeof param === 'string' && param.indexOf(',')!==-1) return param.split(',').map(s=>s.trim()).filter(Boolean);
-          return null;
+        // se tem ambos . e , => assume . = milhar, , = decimal (padrão BR)
+        if (s.indexOf('.') !== -1 && s.indexOf(',') !== -1) {
+          s = s.replace(/\./g, ''); // remove milhar
+          s = s.replace(/,/g, '.'); // decimal -> ponto para parseFloat
+        } else if (s.indexOf(',') !== -1 && s.indexOf('.') === -1) {
+          // só tem vírgula -> vírgula é decimal
+          s = s.replace(/,/g, '.');
+        } else if (s.indexOf('.') !== -1 && s.indexOf(',') === -1) {
+          // só tem ponto -> decidir se é separador de milhares ou decimal
+          const lastDotPos = s.lastIndexOf('.');
+          if (s.length - lastDotPos - 1 === 3) {
+            // provavelmente milhar (ex: "1.234")
+            s = s.replace(/\./g, '');
+          } else {
+            // último ponto provavelmente decimal (ex: "1234.56")
+            // nada a fazer, parseFloat consegue lidar
+          }
         }
+
+        const num = parseFloat(s);
+        if (isNaN(num)) return String(raw).trim();
+
+        // formata para "R$ 1.234,56"
+        const parts = num.toFixed(2).split('.');
+        const intPart = parts[0];
+        const decPart = parts[1];
+        // adiciona separador de milhares
+        const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return `R$ ${withThousands},${decPart}`;
+      } catch (e) {
+        return String(raw).trim();
       }
     }
-    const providedImagens = safeJSONparseMaybeEncoded(paramImagensRaw);
-    const providedOpcoes = safeJSONparseMaybeEncoded(paramOpcoesRaw);
 
+    // ============================
+    // Helpers cache/catalog find
+    // ============================
     let allProdutos = [];
 
     // ============================
@@ -295,17 +328,20 @@
 
     // ============================
     // construir produto na UI a partir de células (array)
+    // c[2]=nome, c[3..5]=imagens, c[6..8]=opcoes, c[9]=status, c[10]=descricao, c[11]=preco, c[12]=mensagem, c[13]=parcelamento
     // ============================
     function buildProductFromCells(c) {
       const nome = (c[2]||'').toString().trim();
-      const images = [c[3]?.toString().trim(),c[4]?.toString().trim(),c[5]?.toString().trim()].filter(u=>u);
-      const options = [c[6]?.toString().trim(),c[7]?.toString().trim(),c[8]?.toString().trim()].filter(o=>o);
+      const images = [ (c[3]||'').toString().trim(), (c[4]||'').toString().trim(), (c[5]||'').toString().trim() ].filter(u=>u);
+      const options = [ (c[6]||'').toString().trim(), (c[7]||'').toString().trim(), (c[8]||'').toString().trim() ].filter(o=>o);
       const status = (c[9]||'').toString().trim() || '';
       const desc = (c[10]||'').toString().trim() || '';
-      let preco = ((c[11]||'').toString()).replace(/[^\d.,]/g,'');
-      if(preco && !preco.includes(',')) { preco = preco.replace('.',','); if(!preco.includes(',')) preco = preco + ',00'; }
+      const rawPreco = (c[11]||'').toString().trim() || '';
       const extra = (c[12]||'').toString().trim() || '';
       const parc = (c[13]||'').toString().trim() || '';
+
+      // formata preço de forma robusta
+      const precoFormatado = formatPrice(rawPreco);
 
       const container = document.getElementById('produto');
       container.style.display = '';
@@ -319,7 +355,7 @@
         </div>
         ${thumbnailHtml}
         <div class="produto-nome">${nome}</div>
-        <div class="produto-preco">R$ ${preco}</div>
+        <div class="produto-preco">${precoFormatado ? precoFormatado : ''}</div>
         ${parc ? `<div class="produto-parcelamento">${parc}</div>` : ''}
         ${extra ? `<div class="produto-extra">${extra}</div>` : ''}
       `;
@@ -355,7 +391,7 @@
       function showImage(i) {
         idx = i;
         imgEl.src = images[i] || '';
-        countEl.textContent = `${i+1}/${images.length}`;
+        countEl.textContent = images.length ? `${i+1}/${images.length}` : '';
       }
 
       images.forEach((u,i) => {
@@ -402,7 +438,7 @@
       // buy
       document.querySelector('.buy-btn').onclick = () => {
         const nomeFinal = nome;
-        const precoText = document.querySelector('.produto-preco').textContent.replace('R$ ', '');
+        const precoText = precoFormatado ? precoFormatado.replace(/^R\$\s*/, '') : '';
         const quantidade = parseInt(document.getElementById('quantity').textContent, 10) || 1;
         const opcaoEl = document.querySelector('.option-swatch.selected');
         const opcao = opcaoEl ? opcaoEl.textContent : null;
@@ -484,13 +520,15 @@
             allProdutos = [];
             lines.forEach(cells => {
               if (!cells || !cells[2] || !cells[2].toString().trim()) return;
+              const rawPreco = (cells[11] || '').toString().trim();
+              const precoFormatado = formatPrice(rawPreco);
               allProdutos.push({
                 nome: cells[2].toString().trim(),
                 imagens: [cells[3],cells[4],cells[5]].map(u=>u?.toString().trim()).filter(u=>u),
                 opcoes: [cells[6],cells[7],cells[8]].map(o=>o?.toString().trim()).filter(o=>o),
                 status: (cells[9] || '').toString().trim() || '',
                 descricao: (cells[10] || '').toString().trim() || '',
-                preco: (cells[11] || '').toString().trim() || '',
+                preco: precoFormatado,
                 mensagem: (cells[12] || '').toString().trim() || '',
                 parcelamento: (cells[13] || '').toString().trim() || ''
               });
@@ -548,7 +586,7 @@
         d.innerHTML = `
           <img src="${p.imagens && p.imagens[0] ? p.imagens[0] : ''}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/300x300?text=Imagem+N%C3%A3o+Encontrada'">
           <div class="nome">${p.nome}</div>
-          <div class="preco">${p.preco}</div>
+          <div class="preco">${p.preco ? p.preco : ''}</div>
           ${p.parcelamento ? `<div class="parcelamento">${p.parcelamento}</div>` : ''}
           ${p.mensagem ? `<div class="extra">${p.mensagem}</div>` : ''}
         `;
@@ -619,6 +657,25 @@
     // ============================
     // INIT principal - lógica otimizada para exibir produto rápido
     // ============================
+    const urlParams = new URLSearchParams(window.location.search);
+    const nomeProduto = decodeURIComponent(urlParams.get('produto') || '').trim();
+    const paramImagensRaw = urlParams.get('imagens') || null;
+    const paramOpcoesRaw = urlParams.get('opcoes') || null;
+    function safeJSONparseMaybeEncoded(param){
+      if(!param) return null;
+      try {
+        const decoded = decodeURIComponent(param);
+        return JSON.parse(decoded);
+      } catch(e1){
+        try { return JSON.parse(param); } catch(e2){
+          if(typeof param === 'string' && param.indexOf(',')!==-1) return param.split(',').map(s=>s.trim()).filter(Boolean);
+          return null;
+        }
+      }
+    }
+    const providedImagens = safeJSONparseMaybeEncoded(paramImagensRaw);
+    const providedOpcoes = safeJSONparseMaybeEncoded(paramOpcoesRaw);
+
     (async function init() {
       // 1) se tiver imagens/opcoes embutidos na URL, mostramos imediatamente (mais rápido)
       if (nomeProduto && (providedImagens || providedOpcoes)) {
@@ -632,14 +689,16 @@
           mensagem: urlParams.get('mensagem') ? decodeURIComponent(urlParams.get('mensagem')) : '',
           parcelamento: urlParams.get('parcelamento') ? decodeURIComponent(urlParams.get('parcelamento')) : ''
         };
-        // monta UI com esses dados
+        // monta UI com esses dados usando índices fixos (NÃO usar spread para opcoes)
         buildProductFromCells([
           null, null,
           produtoObj.nome,
-          ...(produtoObj.imagens[0] ? [produtoObj.imagens[0]] : ['']),
+          produtoObj.imagens[0] || '',
           produtoObj.imagens[1] || '',
           produtoObj.imagens[2] || '',
-          ...(produtoObj.opcoes || []),
+          produtoObj.opcoes[0] || '',
+          produtoObj.opcoes[1] || '',
+          produtoObj.opcoes[2] || '',
           produtoObj.status || '',
           produtoObj.descricao || '',
           produtoObj.preco || '',
@@ -656,7 +715,7 @@
         // tentar achar no cache primeiro (instantâneo)
         const foundCached = findProductInCacheByName(nomeProduto);
         if (foundCached) {
-          // mostra usando objeto do cache
+          // mostra usando objeto do cache (mapeando para o array com índices fixos)
           buildProductFromCells([
             null, null,
             foundCached.nome,
